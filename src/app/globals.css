@@ -329,7 +329,7 @@ img {
  */
 @layer components {
   .glass {
-    --glass-tint: oklch(0.99 0.003 255 / 0.52);
+    --glass-tint: oklch(0.99 0.003 255 / 0.4);
     --glass-blur: 16px;
     --glass-rim-hi: oklch(1 0 0 / 0.95);
     --glass-rim-lo: oklch(0.82 0.02 255 / 0.55);
@@ -369,7 +369,7 @@ img {
 
   /* Small chips and buttons: thin, clear */
   .glass-thin {
-    --glass-tint: oklch(0.99 0.003 255 / 0.44);
+    --glass-tint: oklch(0.99 0.003 255 / 0.34);
     --glass-blur: 10px;
     --glass-shadow: 0 8px 20px -12px oklch(0.29 0.085 282 / 0.3);
   }

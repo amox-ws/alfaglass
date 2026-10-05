@@ -1,19 +1,19 @@
 # ALFA GLASS design system
 
 ## Concept
-Daylight through glass. Light, calm surfaces like satin and float glass, with the ALFA GLASS indigo for type and the azure of the logo mark for accents. The hero is a real-time WebGL scene: float-glass panes (aqua-green attenuation, like the edge of real float glass) refract the indigo tagline behind them.
+Daylight through ultra-clear (low-iron) glass. Clean, cool, untinted surfaces, with the ALFA GLASS indigo for type and the blue of the logo mark for accents. No green or aqua tints anywhere. The hero is a real-time WebGL scene: crystal-clear panes, lit like a white photo studio, refract the indigo tagline behind them.
 
 ## Color (OKLCH, tokens in `src/app/globals.css`)
 Every section sets `data-theme`; components only use contextual tokens (`bg-surface`, `bg-surface-2`, `text-fg`, `text-fg-muted`, `text-fg-dim`, `border-line`, `border-line-strong`, `text-accent`, `bg-accent`, `text-accent-fg`). Change a theme block and every section using it follows.
 
 | Theme | Surface | Type | Used for |
 |---|---|---|---|
-| `frost` (default) | satin white, faint aqua | softened brand indigo | most sections, page heroes |
-| `mist` | pale float-glass aqua | indigo | catalogue lists, alternating sections |
+| `frost` (default) | clean cool white | softened brand indigo | most sections, page heroes |
+| `mist` | pale cool blue-grey | indigo | catalogue lists, alternating sections |
 | `deep` | brand indigo #281a6a, softened | frost white, cyan accent | one contrast moment per page (history, vision), footer |
-| `azure` | logo-mark cyan to blue | indigo | calls to action |
+| `azure` | soft sky blue from the logo mark | indigo | calls to action |
 
-Fixed brand colors: `brand-indigo`, `brand-azure`, `brand-cyan`, `float`, `deep` (dark pills over imagery), `snow` (product photo backgrounds).
+Fixed brand colors: `brand-indigo`, `brand-azure`, `brand-cyan`, `deep` (dark overlays), `snow` (product photo backgrounds).
 
 Home rhythm: frost hero, frost manifesto, mist catalogue, frost facilities, mist plastics, deep history, frost related and news, azure CTA, deep footer.
 
@@ -31,7 +31,7 @@ Home rhythm: frost hero, frost manifesto, mist catalogue, frost facilities, mist
 ## Glass material
 One CSS material in `globals.css` (`@layer components`), built to read as a real pane:
 frosted body (backdrop blur + saturation), bright bevel on top and a faint depth line below,
-a 1px rim that fades from white (top-left) to float-glass green (bottom-right), and a soft top sheen.
+a 1px rim that fades from bright white (top-left) to cool silver (bottom-right), like a polished ultra-clear edge, and a soft top sheen.
 
 | Class | Use |
 |---|---|

@@ -16,9 +16,12 @@ export function Facilities({ warehouse, trucks }: { warehouse: string; trucks: s
     ["inset(14% 38% 14% 38% round 6px)", "inset(0% 0% 0% 0% round 0px)"]
   );
   const scale = useTransform(scrollYProgress, [0, 0.6], [1.25, 1]);
-  const veil = useTransform(scrollYProgress, [0.4, 0.7], [0, 0.8]);
-  const copyOpacity = useTransform(scrollYProgress, [0.5, 0.68], [0, 1]);
-  const copyY = useTransform(scrollYProgress, [0.5, 0.7], [40, 0]);
+  // A clear pane rises in front of the warehouse: no frost, just edges and reflections.
+  const paneY = useTransform(scrollYProgress, [0.42, 0.72], ["104%", "0%"]);
+  const glare = useTransform(scrollYProgress, [0.42, 1], ["-35% 0%", "35% 0%"]);
+  const shade = useTransform(scrollYProgress, [0.5, 0.72], [0, 1]);
+  const copyOpacity = useTransform(scrollYProgress, [0.58, 0.74], [0, 1]);
+  const copyY = useTransform(scrollYProgress, [0.58, 0.76], [30, 0]);
   const headOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0]);
 
   return (
@@ -35,15 +38,25 @@ export function Facilities({ warehouse, trucks }: { warehouse: string; trucks: s
                 className="object-cover"
               />
             </motion.div>
+            {/* Shade low in the frame so lettering on the pane stays legible */}
             <motion.div
-              style={{ opacity: veil, backdropFilter: "blur(14px) saturate(120%)", WebkitBackdropFilter: "blur(14px) saturate(120%)" }}
-              className="absolute inset-0 bg-surface/45"
-            />
-            <motion.div
-              style={{ opacity: copyOpacity }}
-              className="absolute inset-0 bg-gradient-to-t from-surface/90 via-surface/30 to-transparent"
+              style={{ opacity: shade }}
+              className="absolute inset-0 bg-gradient-to-t from-deep/75 via-deep/20 to-transparent"
             />
           </motion.div>
+
+          {/* The pane: ultra-clear glass, read through its rim, bevel and glare rather than blur */}
+          <motion.div
+            aria-hidden
+            className="glass pointer-events-none absolute inset-x-[max(0.75rem,2.5vw)] bottom-[max(0.75rem,2.5vw)] top-[calc(var(--header-h)+1rem)] rounded-[1.75rem] [--glass-tint:oklch(1_0_0/0.03)] [--glass-blur:1.5px] [--glass-rim-lo:oklch(0.88_0.015_255/0.7)] [--glass-shadow:0_40px_90px_-40px_oklch(0.2_0.06_280/0.55)]"
+            style={{
+              y: paneY,
+              backgroundImage:
+                "linear-gradient(112deg, transparent 0 33%, oklch(1 0 0 / 0.26) 39%, oklch(1 0 0 / 0.06) 46%, transparent 51%, transparent 62%, oklch(1 0 0 / 0.14) 66%, transparent 70%), linear-gradient(180deg, oklch(1 0 0 / 0.08), oklch(1 0 0 / 0.02))",
+              backgroundSize: "200% 100%, 100% 100%",
+              backgroundPosition: glare,
+            }}
+          />
 
           <motion.div
             style={{ opacity: headOpacity }}
@@ -53,9 +66,13 @@ export function Facilities({ warehouse, trucks }: { warehouse: string; trucks: s
             <span className="t-label text-fg-muted">Θέση Κύριλλος</span>
           </motion.div>
 
-          <motion.div style={{ opacity: copyOpacity, y: copyY }} className="shell absolute inset-x-0 bottom-0 pb-12 md:pb-20">
+          <motion.div
+            data-theme="deep"
+            style={{ opacity: copyOpacity, y: copyY }}
+            className="shell absolute inset-x-0 bottom-0 pb-[calc(max(0.75rem,2.5vw)+2.5rem)] md:pb-[calc(2.5vw+4rem)]"
+          >
             <div className="grid gap-8 md:grid-cols-12 md:items-end">
-              <h2 id="facilities-title" className="t-display md:col-span-7">
+              <h2 id="facilities-title" className="t-display [text-shadow:0_2px_24px_oklch(0.2_0.06_280/0.35)] md:col-span-7">
                 13.000 τ.μ.
                 <span className="block text-fg-muted">ιδιόκτητων χώρων</span>
               </h2>
