@@ -81,10 +81,10 @@ function Word({
 export function Stamp({ className = "" }: { className?: string }) {
   return (
     <div
-      className={`hidden select-none items-stretch rounded-[0.4rem] border border-line-strong text-[0.66rem] font-semibold uppercase leading-none tracking-[0.18em] text-fg-muted sm:flex ${className}`}
+      className={`hidden select-none items-stretch rounded-[0.4rem] border border-line-strong text-[0.66rem] font-semibold uppercase leading-none tracking-[0.18em] etched sm:flex ${className}`}
       aria-label="ALFA GLASS, από το 1999, 13.000 τ.μ., Ασπρόπυργος"
     >
-      <span className="flex items-center border-r border-line-strong px-3 py-2 text-fg">Alfa Glass</span>
+      <span className="flex items-center border-r border-line-strong px-3 py-2">Alfa Glass</span>
       <span className="flex items-center border-r border-line-strong px-3 py-2 tabular">Est. 1999</span>
       <span className="flex items-center border-r border-line-strong px-3 py-2 tabular">13.000 m²</span>
       <span className="flex items-center px-3 py-2">GR · Aspropyrgos</span>

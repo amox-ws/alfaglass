@@ -115,7 +115,7 @@ export function Hero() {
               </Link>
               <a
                 href={contact.phoneHref}
-                className="inline-flex items-center gap-2 rounded-full border border-line-strong px-6 py-3 font-semibold transition-colors hover:border-fg"
+                className="glass glass-thin glass-sheen relative inline-flex items-center gap-2 rounded-full px-6 py-3 font-semibold"
               >
                 Καλέστε μας <span className="tabular text-fg-muted">{contact.phone}</span>
               </a>

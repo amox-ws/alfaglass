@@ -56,7 +56,7 @@ export function History({ items, engraving }: { items: Item[]; engraving: string
             <figure className="relative h-[52svh] w-[min(78vw,30rem)] shrink-0 overflow-hidden rounded-sm">
               <Image src={engraving} alt="Χαλκογραφία εργαστηρίου επεξεργασίας γυαλιού" fill sizes="30rem" className="object-cover grayscale" />
               <div className="absolute inset-0 bg-deep/40 mix-blend-multiply" />
-              <figcaption className="t-label absolute bottom-4 left-4 right-4 text-fg">Μια παράδοση στο γυαλί πριν από το 1999</figcaption>
+              <figcaption className="glass glass-dark t-label absolute bottom-3 left-3 right-3 rounded-[0.7rem] px-3.5 py-3 text-fg">Μια παράδοση στο γυαλί πριν από το 1999</figcaption>
             </figure>
             {items.map((it, i) => (
               <article

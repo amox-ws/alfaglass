@@ -102,7 +102,8 @@ export function Header() {
     closeTimer.current = setTimeout(() => setMega(false), 140);
   };
 
-  const solid = scrolled || mega || mobile;
+  // The capsule shows when scrolled or when the mega panel is open; the mobile sheet brings its own glass.
+  const solid = (scrolled || mega) && !mobile;
   const productsActive = ["/yalopinakes", "/plastika-fylla", "/synafi-proionta"].some((p) => pathname.startsWith(p));
 
   return (
@@ -115,15 +116,16 @@ export function Header() {
           transitionTimingFunction: "var(--ease-out)",
         }}
       >
+        {/* Floating glass capsule: materialises from the full-width bar into a pane once you scroll */}
         <div
-          className={`absolute inset-0 transition-[opacity,backdrop-filter] duration-500 ${
+          aria-hidden
+          className={`glass glass-thick pointer-events-none absolute transition-[inset,border-radius,opacity] duration-700 ${
             solid ? "opacity-100" : "opacity-0"
           }`}
           style={{
-            background: "color-mix(in oklch, var(--surface) 78%, transparent)",
-            backdropFilter: "blur(18px) saturate(140%)",
-            WebkitBackdropFilter: "blur(18px) saturate(140%)",
-            borderBottom: "1px solid var(--line)",
+            inset: solid ? "0.55rem var(--capsule-x)" : "0",
+            borderRadius: solid ? "1.15rem" : "0",
+            transitionTimingFunction: "var(--ease-out)",
           }}
         />
         <div className="shell relative flex h-[var(--header-h)] items-center justify-between gap-8">
@@ -183,7 +185,9 @@ export function Header() {
           <div className="flex items-center gap-3">
             <a
               href={contact.phoneHref}
-              className="group hidden items-center gap-3 rounded-full border border-line-strong py-2 pl-3 pr-4 text-[0.92rem] font-semibold transition-colors hover:border-accent hover:text-accent md:flex"
+              className={`group relative hidden items-center gap-3 rounded-full py-2 pl-3 pr-4 text-[0.92rem] font-semibold transition-colors hover:text-accent md:flex ${
+                solid ? "border border-line-strong hover:border-accent" : "glass glass-thin glass-sheen"
+              }`}
             >
               <span className="relative flex size-2">
                 <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-60" />
@@ -217,71 +221,62 @@ export function Header() {
               id="mega-menu"
               onMouseEnter={openMega}
               onMouseLeave={closeMega}
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -8, transition: { duration: 0.2 } }}
-              transition={{ duration: 0.45, ease }}
-              className="absolute inset-x-0 top-full hidden lg:block"
+              initial={{ opacity: 0, y: -10, scale: 0.985 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -6, scale: 0.99, transition: { duration: 0.18 } }}
+              transition={{ type: "spring", bounce: 0, duration: 0.45 }}
+              style={{ left: "var(--capsule-x)", right: "var(--capsule-x)", transformOrigin: "32% 0%" }}
+              className="glass glass-thick absolute top-[calc(100%-0.15rem)] hidden rounded-[1.4rem] lg:block"
             >
-              <div
-                className="border-b border-line"
-                style={{
-                  background: "color-mix(in oklch, var(--surface) 92%, transparent)",
-                  backdropFilter: "blur(24px) saturate(140%)",
-                  WebkitBackdropFilter: "blur(24px) saturate(140%)",
-                }}
-              >
-                <div className="shell grid grid-cols-[1fr_1fr_1fr_minmax(16rem,22rem)] gap-10 py-10">
-                  {columns.map(({ group, items }) => (
-                    <div key={group.slug}>
-                      <Link
-                        href={`/${group.slug}`}
-                        className="t-label mb-5 flex items-center justify-between border-b border-line pb-3 text-accent"
-                        onMouseEnter={() => setPreview(group.image)}
-                      >
-                        {group.title}
-                        <span aria-hidden>→</span>
-                      </Link>
-                      <ul className="grid gap-0.5">
-                        {items.map((it) => (
-                          <li key={it.href}>
-                            <Link
-                              href={it.href}
-                              onMouseEnter={() => setPreview(it.image)}
-                              onFocus={() => setPreview(it.image)}
-                              className="block py-1 text-[0.95rem] leading-snug text-fg-muted transition-colors hover:text-fg"
-                            >
-                              {it.label}
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  ))}
-                  <div className="relative aspect-[4/5] overflow-hidden rounded-sm bg-surface-2">
-                    <AnimatePresence mode="popLayout">
-                      <motion.div
-                        key={preview ?? getGroup("yalopinakes")!.image}
-                        initial={{ opacity: 0, scale: 1.06 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.6, ease }}
-                        className="absolute inset-0"
-                      >
-                        <Image
-                          src={preview ?? categories["koinoi-float-yalopinakes"].image!}
-                          alt=""
-                          fill
-                          sizes="22rem"
-                          className="object-cover"
-                        />
-                      </motion.div>
-                    </AnimatePresence>
-                    <div className="absolute inset-0 bg-gradient-to-t from-surface/70 to-transparent" />
-                    <p className="t-label absolute bottom-4 left-4 right-4 text-fg">
-                      {site.groups.reduce((n, g) => n + g.categories.reduce((m, c) => m + categories[c].products.length, 0), 0)} προϊόντα σε 14 κατηγορίες
-                    </p>
+              <div className="grid grid-cols-[1fr_1fr_1fr_minmax(15rem,20rem)] gap-10 p-8 xl:p-10">
+                {columns.map(({ group, items }) => (
+                  <div key={group.slug}>
+                    <Link
+                      href={`/${group.slug}`}
+                      className="t-label mb-5 flex items-center justify-between border-b border-line pb-3 text-accent"
+                      onMouseEnter={() => setPreview(group.image)}
+                    >
+                      {group.title}
+                      <span aria-hidden>→</span>
+                    </Link>
+                    <ul className="grid gap-0.5">
+                      {items.map((it) => (
+                        <li key={it.href}>
+                          <Link
+                            href={it.href}
+                            onMouseEnter={() => setPreview(it.image)}
+                            onFocus={() => setPreview(it.image)}
+                            className="-mx-2 block rounded-lg px-2 py-1 text-[0.95rem] font-medium leading-snug text-fg-muted transition-colors hover:bg-[oklch(1_0_0/0.55)] hover:text-fg"
+                          >
+                            {it.label}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
                   </div>
+                ))}
+                <div className="relative aspect-[4/5] overflow-hidden rounded-[0.9rem] bg-surface-2">
+                  <AnimatePresence mode="popLayout">
+                    <motion.div
+                      key={preview ?? getGroup("yalopinakes")!.image}
+                      initial={{ opacity: 0, scale: 1.06 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 0.6, ease }}
+                      className="absolute inset-0"
+                    >
+                      <Image
+                        src={preview ?? categories["koinoi-float-yalopinakes"].image!}
+                        alt=""
+                        fill
+                        sizes="20rem"
+                        className="object-cover"
+                      />
+                    </motion.div>
+                  </AnimatePresence>
+                  <p className="glass glass-thin t-label absolute bottom-3 left-3 right-3 rounded-[0.65rem] px-3 py-2.5 text-fg">
+                    {site.groups.reduce((n, g) => n + g.categories.reduce((m, c) => m + categories[c].products.length, 0), 0)} προϊόντα σε 14 κατηγορίες
+                  </p>
                 </div>
               </div>
             </motion.div>
@@ -298,7 +293,7 @@ export function Header() {
             exit={{ clipPath: "inset(0 0 100% 0)" }}
             transition={{ duration: 0.7, ease }}
             data-theme="frost"
-            className="fixed inset-0 z-40 overflow-y-auto bg-surface pt-[var(--header-h)] lg:hidden"
+            className="glass glass-thick fixed inset-0 z-40 overflow-y-auto pt-[var(--header-h)] lg:hidden"
             data-lenis-prevent
           >
             <nav aria-label="Κινητό μενού" className="shell pb-16 pt-6">

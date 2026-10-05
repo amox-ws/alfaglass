@@ -25,7 +25,7 @@ export function Cta() {
           <Reveal className="md:col-span-5">
             <p className="t-lead text-fg/85">Είμαστε δίπλα στον επαγγελματία για να καλύψουμε κάθε του ανάγκη.</p>
           </Reveal>
-          <Reveal delay={0.1} className="md:col-span-6 md:col-start-7">
+          <Reveal delay={0.1} className="glass relative rounded-[1.5rem] p-6 md:col-span-6 md:col-start-7 md:p-8">
             <a
               href={contact.phoneHref}
               className="group flex items-center justify-between gap-6 border-b border-fg/40 pb-4 transition-colors hover:border-fg"

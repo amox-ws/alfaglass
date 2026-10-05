@@ -325,7 +325,7 @@ export function EnquiryBand({ product }: { product?: string }) {
             {product ? "Ρωτήστε μας για διαστάσεις και απόθεμα." : "Καλέστε μας και θα έρθουμε κοντά σας."}
           </p>
         </div>
-        <div className="flex flex-col gap-3 md:items-end">
+        <div className="glass relative flex flex-col gap-3 rounded-[1.25rem] px-6 py-5 md:items-end md:px-8 md:py-6">
           <a href={contact.phoneHref} className="font-display text-[clamp(2.25rem,4.5vw,4rem)] font-bold leading-none tabular">
             {contact.phone}
           </a>

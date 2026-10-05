@@ -37,7 +37,7 @@ export function ContactMap() {
                 href={contact.mapsHref}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-full border border-line-strong px-5 py-2.5 font-semibold transition-colors hover:border-fg"
+                className="glass glass-dark glass-sheen relative rounded-full px-5 py-2.5 font-semibold"
               >
                 Άνοιγμα στο Google Maps ↗
               </a>

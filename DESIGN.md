@@ -28,10 +28,29 @@ Home rhythm: frost hero, frost manifesto, mist catalogue, frost facilities, mist
 - Patterns: masked line reveals (`MaskedLines`), fade-rise (`Reveal`), scroll-linked word lighting (Manifesto), a pane that opens into the warehouse (Facilities), a pinned horizontal timeline (History), cursor-following previews (`IndexList`).
 - Lenis smooth scroll; everything respects `prefers-reduced-motion` (the 3D hero falls back to HTML type).
 
+## Glass material
+One CSS material in `globals.css` (`@layer components`), built to read as a real pane:
+frosted body (backdrop blur + saturation), bright bevel on top and a faint depth line below,
+a 1px rim that fades from white (top-left) to float-glass green (bottom-right), and a soft top sheen.
+
+| Class | Use |
+|---|---|
+| `glass` | panels (CTA contact pane, enquiry band, preview frames) |
+| `glass glass-thin` | chips and small buttons over imagery or 3D |
+| `glass glass-thick` | header capsule, mega menu, mobile menu sheet |
+| `glass glass-dark` | over dark photos or the deep theme |
+| `glass-sheen` | adds a light sweep on hover (buttons only) |
+| `etched` | lettering engraved into a surface (the stamp) |
+
+Rules: only where something passes behind it; never glass on glass; bigger surface = thicker frost.
+Falls back to near-solid for `prefers-reduced-transparency`, `prefers-contrast: more` and browsers without backdrop-filter.
+Elements using `.glass` must be positioned (`relative`/`absolute`/`fixed`) for the rim.
+
+Where it lives: header becomes a floating glass capsule on scroll; Products mega menu and the mobile menu are thick glass; hero secondary button, product-gallery controls, product-card badges and the catalogue hover preview are thin glass; contact panes in the CTA and enquiry band sit as glass over the fluted pattern; history caption and map buttons use dark glass; the warehouse photo frosts over as you scroll.
+
 ## Signature details
 - The "stamp": an etched manufacturer's mark (Alfa Glass · Est. 1999 · 13.000 m² · GR Aspropyrgos).
 - Fluted-glass line pattern on azure surfaces.
-- Header becomes frosted glass on scroll, and the warehouse photo frosts over like satin glass as you scroll (the two intentional uses of backdrop blur).
 
 ## Content pipeline
 `scripts/scrape-legacy.py` caches the legacy site, `scripts/build-content.py` turns it into `src/content/*.json` and `public/media/*`. Legacy URLs 308-redirect to the new ones (`next.config.ts`).

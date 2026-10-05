@@ -72,9 +72,11 @@ export function IndexList({ rows }: { rows: IndexRow[] }) {
               animate={{ opacity: 1, scale: 1, rotate: 0 }}
               exit={{ opacity: 0, scale: 0.92 }}
               transition={{ duration: 0.45, ease }}
-              className="absolute inset-0 overflow-hidden rounded-sm bg-surface-2 shadow-[0_30px_60px_-20px_oklch(0.2_0.06_282/0.45)]"
+              className="glass absolute inset-0 rounded-[1.1rem] p-2"
             >
-              <Image src={rows[active].image!} alt="" fill sizes="13rem" className="object-cover" />
+              <div className="relative size-full overflow-hidden rounded-[0.7rem] bg-surface-2">
+                <Image src={rows[active].image!} alt="" fill sizes="13rem" className="object-cover" />
+              </div>
             </motion.div>
           )}
         </AnimatePresence>

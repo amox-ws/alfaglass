@@ -22,7 +22,7 @@ export function ProductGrid({ items }: { items: Product[] }) {
               )}
               <span
                 aria-hidden
-                className="absolute right-3 top-3 flex size-10 items-center justify-center rounded-full bg-surface text-fg opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:[transform:rotate(-45deg)]"
+                className="glass glass-thin absolute right-3 top-3 flex size-10 items-center justify-center rounded-full text-fg opacity-0 transition-[opacity,transform] duration-500 group-hover:opacity-100 group-hover:[transform:rotate(-45deg)]"
               >
                 →
               </span>
