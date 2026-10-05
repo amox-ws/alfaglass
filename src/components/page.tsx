@@ -69,7 +69,7 @@ export function PageHero({
       <div
         aria-hidden
         className="pointer-events-none absolute inset-x-0 top-0 h-[70%]"
-        style={{ background: "radial-gradient(80% 100% at 85% 0%, oklch(0.9 0.05 200 / 0.55), transparent 70%)" }}
+        style={{ background: "radial-gradient(80% 100% at 85% 0%, oklch(0.93 0.025 250 / 0.6), transparent 70%)" }}
       />
       <div className="shell relative">
         <Breadcrumbs items={crumbs} />

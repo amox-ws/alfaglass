@@ -10,7 +10,7 @@ export function Cta() {
         className="pointer-events-none absolute inset-0 opacity-100"
         style={{
           background:
-            "repeating-linear-gradient(90deg, transparent 0 46px, oklch(1 0 0 / 0.28) 46px 47px, transparent 47px 92px), radial-gradient(120% 90% at 85% 0%, oklch(0.93 0.06 195 / 0.9), transparent 60%), linear-gradient(160deg, transparent 40%, oklch(0.7 0.1 240 / 0.6))",
+            "repeating-linear-gradient(90deg, transparent 0 46px, oklch(1 0 0 / 0.28) 46px 47px, transparent 47px 92px), radial-gradient(120% 90% at 85% 0%, oklch(0.95 0.03 240 / 0.85), transparent 60%), linear-gradient(160deg, transparent 40%, oklch(0.7 0.1 240 / 0.6))",
         }}
       />
       <div className="shell relative">

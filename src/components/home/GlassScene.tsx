@@ -5,7 +5,7 @@ import { Environment, Lightformer, MeshTransmissionMaterial, RoundedBox, Text } 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
-const FROST = "#f2f8f9"; // --surface (frost)
+const FROST = "#f8fafd"; // --surface (frost)
 const TEXT_Z = -2.5;
 const INDIGO = "#262354"; // --fg (softened brand indigo)
 
@@ -32,11 +32,16 @@ export default function GlassScene({ lines, onReady, active }: Props) {
           <Headline lines={lines} onReady={onReady} />
           <Panes small={small} />
         </Rig>
+        {/* A bright studio for the panes to reflect: a dark environment would turn them grey on a light page. */}
         <Environment resolution={256} frames={1}>
-          <Lightformer form="rect" intensity={5} color="#ffffff" position={[0, 5, -3]} scale={[12, 0.6, 1]} />
-          <Lightformer form="rect" intensity={4} color="#a8ecff" position={[-6, 0, 2]} rotation-y={Math.PI / 2} scale={[10, 0.25, 1]} />
-          <Lightformer form="rect" intensity={3} color="#ffffff" position={[6, -1, 2]} rotation-y={-Math.PI / 2} scale={[10, 0.25, 1]} />
-          <Lightformer form="rect" intensity={0.8} color="#ffffff" position={[0, 0, 10]} scale={[16, 10, 1]} />
+          <mesh scale={60}>
+            <sphereGeometry args={[1, 32, 16]} />
+            <meshBasicMaterial color="#e9eef6" side={THREE.BackSide} />
+          </mesh>
+          <Lightformer form="rect" intensity={6} color="#ffffff" position={[0, 5, -3]} scale={[12, 0.4, 1]} />
+          <Lightformer form="rect" intensity={5} color="#ffffff" position={[-6, 0, 2]} rotation-y={Math.PI / 2} scale={[10, 0.25, 1]} />
+          <Lightformer form="rect" intensity={4} color="#ffffff" position={[6, -1, 2]} rotation-y={-Math.PI / 2} scale={[10, 0.25, 1]} />
+          <Lightformer form="rect" intensity={1} color="#262354" position={[0, -5, 3]} rotation-x={-Math.PI / 2} scale={[14, 0.5, 1]} />
         </Environment>
       </Suspense>
     </Canvas>
@@ -54,10 +59,10 @@ function Glow() {
     c.width = c.height = 512;
     const ctx = c.getContext("2d")!;
     const g = ctx.createRadialGradient(256, 256, 0, 256, 256, 256);
-    g.addColorStop(0, "rgba(102, 207, 225, 0.5)");
-    g.addColorStop(0.35, "rgba(128, 175, 235, 0.26)");
-    g.addColorStop(0.7, "rgba(166, 222, 210, 0.12)");
-    g.addColorStop(1, "rgba(242, 248, 249, 0)");
+    g.addColorStop(0, "rgba(150, 188, 240, 0.34)");
+    g.addColorStop(0.35, "rgba(178, 196, 242, 0.18)");
+    g.addColorStop(0.7, "rgba(214, 222, 246, 0.08)");
+    g.addColorStop(1, "rgba(248, 250, 253, 0)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, 512, 512);
     const t = new THREE.CanvasTexture(c);
@@ -223,21 +228,20 @@ function Pane({
     <RoundedBox ref={ref} args={[width, height, 0.14]} radius={0.035} smoothness={4} position={[x, height * 0.12, 0.6]}>
       <MeshTransmissionMaterial
         samples={samples}
-        resolution={768}
+        resolution={1024}
         transmission={1}
-        thickness={0.55}
-        roughness={0.02}
-        ior={1.52}
-        chromaticAberration={0.09}
-        anisotropicBlur={0.08}
-        distortion={0.12}
-        distortionScale={0.4}
-        temporalDistortion={0.04}
-        backside
-        backsideThickness={0.3}
-        color="#f6fffc"
-        attenuationColor="#7fd3c0"
-        attenuationDistance={1.9}
+        thickness={0.32}
+        roughness={0}
+        ior={1.5}
+        chromaticAberration={0.035}
+        anisotropicBlur={0}
+        distortion={0}
+        distortionScale={0}
+        temporalDistortion={0}
+        envMapIntensity={0.55}
+        color="#ffffff"
+        attenuationColor="#e9effa"
+        attenuationDistance={4}
       />
     </RoundedBox>
   );

@@ -3,11 +3,11 @@
 /* ------------------------------------------------------------------ tokens */
 
 /*
- * Palette: daylight through glass, rooted in the ALFA GLASS identity.
+ * Palette: daylight through ultra-clear (low-iron) glass, rooted in the ALFA GLASS identity.
  * - indigo   the wordmark (#281a6a), softened: all type
- * - azure    the cyan-to-blue gradient of the logo mark: accents
- * - mist     the pale green-aqua seen through a stack of float glass
- * - frost    satin / frosted glass: the default surface
+ * - azure    the blue of the logo mark: accents
+ * - mist     a cool, clean pale blue-grey for alternating sections
+ * - frost    clean cool white: the default surface
  * Sections pick a theme with data-theme; components only use the
  * contextual tokens (surface, fg, line, accent), never raw colors.
  */
@@ -15,10 +15,9 @@
   /* Fixed brand colors */
   --brand-indigo: oklch(0.29 0.12 286);
   --brand-azure: oklch(0.6 0.12 232);
-  --brand-cyan: oklch(0.8 0.1 210);
-  --float: oklch(0.86 0.06 180);
+  --brand-cyan: oklch(0.82 0.08 228);
   --deep: oklch(0.28 0.075 279);
-  --snow: oklch(0.985 0.004 210);
+  --snow: oklch(0.985 0.004 255);
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
@@ -32,54 +31,54 @@
 /* Frost: the default surface. */
 :root,
 [data-theme="frost"] {
-  --surface: oklch(0.975 0.007 205);
-  --surface-2: oklch(0.945 0.016 200);
+  --surface: oklch(0.985 0.004 255);
+  --surface-2: oklch(0.96 0.007 255);
   --fg: oklch(0.29 0.085 282);
   --fg-muted: oklch(0.47 0.05 268);
   --fg-dim: oklch(0.62 0.035 255);
   --line: oklch(0.29 0.085 282 / 0.12);
   --line-strong: oklch(0.29 0.085 282 / 0.24);
   --accent: oklch(0.56 0.12 232);
-  --accent-fg: oklch(0.985 0.004 210);
+  --accent-fg: oklch(0.985 0.004 255);
 }
 
-/* Mist: float glass seen edge-on. */
+/* Mist: cool, clean blue-grey. */
 [data-theme="mist"] {
-  --surface: oklch(0.935 0.03 192);
-  --surface-2: oklch(0.9 0.04 192);
+  --surface: oklch(0.953 0.011 252);
+  --surface-2: oklch(0.922 0.016 252);
   --fg: oklch(0.29 0.085 282);
-  --fg-muted: oklch(0.44 0.05 255);
-  --fg-dim: oklch(0.57 0.04 230);
+  --fg-muted: oklch(0.44 0.05 265);
+  --fg-dim: oklch(0.57 0.035 255);
   --line: oklch(0.29 0.085 282 / 0.13);
   --line-strong: oklch(0.29 0.085 282 / 0.26);
   --accent: oklch(0.5 0.11 235);
-  --accent-fg: oklch(0.985 0.004 210);
+  --accent-fg: oklch(0.985 0.004 255);
 }
 
 /* Deep: the brand indigo, used sparingly for contrast. */
 [data-theme="deep"] {
   --surface: oklch(0.28 0.075 279);
   --surface-2: oklch(0.33 0.08 279);
-  --fg: oklch(0.975 0.007 205);
-  --fg-muted: oklch(0.83 0.03 235);
-  --fg-dim: oklch(0.68 0.04 250);
-  --line: oklch(0.975 0.007 205 / 0.15);
-  --line-strong: oklch(0.975 0.007 205 / 0.3);
-  --accent: oklch(0.84 0.09 205);
+  --fg: oklch(0.985 0.004 255);
+  --fg-muted: oklch(0.84 0.025 255);
+  --fg-dim: oklch(0.68 0.035 260);
+  --line: oklch(0.985 0.004 255 / 0.15);
+  --line-strong: oklch(0.985 0.004 255 / 0.3);
+  --accent: oklch(0.84 0.07 235);
   --accent-fg: oklch(0.28 0.075 279);
 }
 
-/* Azure: the logo mark's gradient, for calls to action. */
+/* Azure: the blue of the logo mark, for calls to action. */
 [data-theme="azure"] {
-  --surface: oklch(0.8 0.08 218);
-  --surface-2: oklch(0.74 0.095 228);
+  --surface: oklch(0.83 0.065 242);
+  --surface-2: oklch(0.76 0.085 248);
   --fg: oklch(0.27 0.09 282);
   --fg-muted: oklch(0.36 0.08 270);
   --fg-dim: oklch(0.45 0.07 260);
   --line: oklch(0.27 0.09 282 / 0.2);
   --line-strong: oklch(0.27 0.09 282 / 0.4);
   --accent: oklch(0.29 0.12 286);
-  --accent-fg: oklch(0.985 0.004 210);
+  --accent-fg: oklch(0.985 0.004 255);
 }
 
 [data-theme] {
@@ -100,7 +99,6 @@
   --color-brand-indigo: var(--brand-indigo);
   --color-brand-azure: var(--brand-azure);
   --color-brand-cyan: var(--brand-cyan);
-  --color-float: var(--float);
   --color-deep: var(--deep);
   --color-snow: var(--snow);
 
@@ -323,18 +321,18 @@ img {
  * One material, three thicknesses. Built to read as a real pane, not a blurred box:
  * - body:   frosted tint + backdrop blur/saturation
  * - bevel:  bright inset line on top (light catching the edge), faint dark line below (thickness)
- * - rim:    1px gradient border, white top-left fading to float-glass green bottom-right,
- *           the colour you see along the edge of a real float pane
+ * - rim:    1px gradient border, bright white top-left fading to a cool silver bottom-right,
+ *           like the polished edge of ultra-clear glass
  * - sheen:  soft top highlight; optional hover sweep (.glass-sheen)
  * Use only where something passes behind it, never stack glass on glass.
  * Layered as components so utilities (position, radius, padding) still win.
  */
 @layer components {
   .glass {
-    --glass-tint: oklch(0.985 0.006 205 / 0.5);
+    --glass-tint: oklch(0.99 0.003 255 / 0.52);
     --glass-blur: 16px;
-    --glass-rim-hi: oklch(1 0 0 / 0.9);
-    --glass-rim-lo: oklch(0.8 0.09 178 / 0.6);
+    --glass-rim-hi: oklch(1 0 0 / 0.95);
+    --glass-rim-lo: oklch(0.82 0.02 255 / 0.55);
     --glass-bevel: oklch(1 0 0 / 0.75);
     --glass-depth: oklch(0.29 0.085 282 / 0.07);
     --glass-shadow: 0 14px 34px -16px oklch(0.29 0.085 282 / 0.3), 0 2px 6px -3px oklch(0.29 0.085 282 / 0.12);
@@ -342,8 +340,8 @@ img {
     background:
       linear-gradient(180deg, oklch(1 0 0 / 0.38), oklch(1 0 0 / 0) 46%),
       var(--glass-tint);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(170%) brightness(1.04);
-    backdrop-filter: blur(var(--glass-blur)) saturate(170%) brightness(1.04);
+    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%) brightness(1.05);
+    backdrop-filter: blur(var(--glass-blur)) saturate(140%) brightness(1.05);
     box-shadow:
       inset 0 1px 0 0 var(--glass-bevel),
       inset 0 -1px 0 0 var(--glass-depth),
@@ -371,14 +369,14 @@ img {
 
   /* Small chips and buttons: thin, clear */
   .glass-thin {
-    --glass-tint: oklch(0.985 0.006 205 / 0.42);
+    --glass-tint: oklch(0.99 0.003 255 / 0.44);
     --glass-blur: 10px;
     --glass-shadow: 0 8px 20px -12px oklch(0.29 0.085 282 / 0.3);
   }
 
   /* Menus, sheets, large panels: thick frost, deeper shadow, legible text */
   .glass-thick {
-    --glass-tint: oklch(0.975 0.008 205 / 0.72);
+    --glass-tint: oklch(0.985 0.004 255 / 0.72);
     --glass-blur: 28px;
     --glass-shadow: 0 40px 80px -36px oklch(0.29 0.085 282 / 0.38), 0 10px 24px -14px oklch(0.29 0.085 282 / 0.18);
   }
@@ -387,7 +385,7 @@ img {
   .glass-dark {
     --glass-tint: oklch(0.26 0.07 279 / 0.42);
     --glass-rim-hi: oklch(1 0 0 / 0.45);
-    --glass-rim-lo: oklch(0.84 0.09 200 / 0.4);
+    --glass-rim-lo: oklch(0.85 0.03 250 / 0.4);
     --glass-bevel: oklch(1 0 0 / 0.22);
     --glass-depth: oklch(0 0 0 / 0.2);
     --glass-shadow: 0 14px 34px -16px oklch(0.15 0.05 282 / 0.5);
@@ -425,7 +423,7 @@ img {
 
 @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
   .glass {
-    --glass-tint: oklch(0.975 0.008 205 / 0.94);
+    --glass-tint: oklch(0.985 0.004 255 / 0.94);
   }
   .glass-dark {
     --glass-tint: oklch(0.26 0.07 279 / 0.92);
@@ -436,7 +434,7 @@ img {
   .glass {
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
-    --glass-tint: oklch(0.975 0.008 205);
+    --glass-tint: oklch(0.985 0.004 255);
   }
   .glass-dark {
     --glass-tint: oklch(0.26 0.07 279);
@@ -445,7 +443,7 @@ img {
 
 @media (prefers-contrast: more) {
   .glass {
-    --glass-tint: oklch(0.985 0.006 205 / 0.96);
+    --glass-tint: oklch(0.99 0.003 255 / 0.96);
     --glass-rim-hi: var(--fg);
     --glass-rim-lo: var(--fg);
   }
