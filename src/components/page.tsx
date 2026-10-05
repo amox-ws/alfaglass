@@ -1,16 +1,18 @@
 import Image from "next/image";
 import Link from "next/link";
 import { MaskedLines, Reveal } from "@/components/ui";
+import { t, type Lang } from "@/lib/i18n";
 
 export type Crumb = { label: string; href?: string };
 
-export function Breadcrumbs({ items }: { items: Crumb[] }) {
+export function Breadcrumbs({ lang, items }: { lang: Lang; items: Crumb[] }) {
+  const d = t(lang);
   return (
-    <nav aria-label="Διαδρομή" className="t-label text-fg-dim">
+    <nav aria-label={d.a11y.breadcrumbs} className="t-label text-fg-dim">
       <ol className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
         <li>
-          <Link href="/" className="transition-colors hover:text-accent">
-            Αρχική
+          <Link href={lang === "el" ? "/" : `/${lang}`} className="transition-colors hover:text-accent">
+            {d.nav.home}
           </Link>
         </li>
         {items.map((c, i) => (
@@ -48,6 +50,7 @@ export function headlineLines(title: string, maxChars = 18) {
 }
 
 export function PageHero({
+  lang,
   crumbs,
   title,
   lead,
@@ -56,6 +59,7 @@ export function PageHero({
   meta,
   children,
 }: {
+  lang: Lang;
   crumbs: Crumb[];
   title: string;
   lead?: string;
@@ -72,7 +76,7 @@ export function PageHero({
         style={{ background: "radial-gradient(80% 100% at 85% 0%, oklch(0.93 0.025 250 / 0.6), transparent 70%)" }}
       />
       <div className="shell relative">
-        <Breadcrumbs items={crumbs} />
+        <Breadcrumbs lang={lang} items={crumbs} />
         <MaskedLines as="h1" lines={headlineLines(title)} className="t-display mt-10 max-w-[18ch] md:mt-14" />
         {(lead || meta) && (
           <div className="mt-10 grid gap-8 md:mt-14 md:grid-cols-12 md:items-end">

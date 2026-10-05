@@ -4,10 +4,12 @@ import Image from "next/image";
 import { motion, useScroll, useTransform } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { Eyebrow } from "@/components/ui";
+import { t, type Lang } from "@/lib/i18n";
 
 type Item = { year: string; text: string };
 
-export function History({ items, engraving }: { items: Item[]; engraving: string }) {
+export function History({ lang, items, engraving }: { lang: Lang; items: Item[]; engraving: string }) {
+  const h = t(lang).home;
   const ref = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
   const [distance, setDistance] = useState(0);
@@ -36,9 +38,9 @@ export function History({ items, engraving }: { items: Item[]; engraving: string
         <div className="sticky top-0 flex h-[100svh] flex-col justify-center overflow-hidden">
           <div className="shell mb-10 flex items-end justify-between gap-6 md:mb-14">
             <div>
-              <Eyebrow index="05">Ιστορία</Eyebrow>
+              <Eyebrow index="05">{h.historyEyebrow}</Eyebrow>
               <h2 id="history-title" className="t-h1 mt-5">
-                Ένα τέταρτο του αιώνα
+                {h.historyTitle}
               </h2>
             </div>
             <div className="hidden w-48 md:block">
@@ -54,9 +56,9 @@ export function History({ items, engraving }: { items: Item[]; engraving: string
 
           <motion.div ref={track} style={{ x }} className="flex w-max gap-[clamp(1.5rem,3vw,3rem)] pl-[var(--gutter)] pr-[var(--gutter)]">
             <figure className="relative h-[52svh] w-[min(78vw,30rem)] shrink-0 overflow-hidden rounded-sm">
-              <Image src={engraving} alt="Χαλκογραφία εργαστηρίου επεξεργασίας γυαλιού" fill sizes="30rem" className="object-cover grayscale" />
+              <Image src={engraving} alt={h.engravingAlt} fill sizes="30rem" className="object-cover grayscale" />
               <div className="absolute inset-0 bg-deep/40 mix-blend-multiply" />
-              <figcaption className="glass glass-dark t-label absolute bottom-3 left-3 right-3 rounded-[0.7rem] px-3.5 py-3 text-fg">Μια παράδοση στο γυαλί πριν από το 1999</figcaption>
+              <figcaption className="glass glass-dark t-label absolute bottom-3 left-3 right-3 rounded-[0.7rem] px-3.5 py-3 text-fg">{h.engravingCaption}</figcaption>
             </figure>
             {items.map((it, i) => (
               <article

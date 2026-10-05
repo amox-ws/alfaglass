@@ -1,9 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Reveal } from "@/components/ui";
-import { productHref, type Product } from "@/lib/content";
+import { cms, type Product } from "@/lib/content";
+import type { Lang } from "@/lib/i18n";
 
-export function ProductGrid({ items }: { items: Product[] }) {
+export function ProductGrid({ lang, items }: { lang: Lang; items: Product[] }) {
+  const { productHref } = cms(lang);
   return (
     <ul className="grid gap-x-5 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
       {items.map((p, i) => (

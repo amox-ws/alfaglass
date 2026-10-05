@@ -5,21 +5,8 @@ import { IndexList } from "./IndexList";
 import { ProductGrid } from "./ProductGrid";
 import { ProductGallery } from "./ProductGallery";
 import { MaskedLines } from "@/components/ui";
-import {
-  categories,
-  categoriesOf,
-  categoryHref,
-  contact,
-  getGroup,
-  isFlatGroup,
-  productHref,
-  products,
-  productsOf,
-  stripHtml,
-  type Category,
-  type Group,
-  type Product,
-} from "@/lib/content";
+import { cms, contact, stripHtml, type Category, type Group, type Product } from "@/lib/content";
+import { t, type Lang } from "@/lib/i18n";
 
 /** First sentence(s) of a long text, cut at a sentence boundary. */
 export function excerpt(text: string, max = 240) {
@@ -39,15 +26,18 @@ function splitIntro(html: string) {
 
 /* ------------------------------------------------------------------ group */
 
-export function GroupView({ group }: { group: Group }) {
-  const cats = categoriesOf(group);
-  const flat = isFlatGroup(group);
+export function GroupView({ lang, group }: { lang: Lang; group: Group }) {
+  const c = cms(lang);
+  const d = t(lang);
+  const cats = c.categoriesOf(group);
+  const flat = c.isFlat(group);
   const { lead, rest } = splitIntro(flat ? cats[0].intro || group.intro : group.intro);
   const total = cats.reduce((n, c) => n + c.products.length, 0);
 
   return (
     <>
       <PageHero
+        lang={lang}
         crumbs={[{ label: group.title }]}
         title={group.title}
         lead={excerpt(lead, 260)}
@@ -55,8 +45,8 @@ export function GroupView({ group }: { group: Group }) {
         meta={
           <MetaList
             items={[
-              { label: flat ? "Υλικά" : "Κατηγορίες", value: flat ? total : cats.length },
-              { label: "Είδη", value: total },
+              { label: flat ? d.common.materials : d.common.categories, value: flat ? total : cats.length },
+              { label: d.common.items, value: total },
             ]}
           />
         }
@@ -66,7 +56,7 @@ export function GroupView({ group }: { group: Group }) {
         <section data-theme="mist" className="bg-surface section-y">
           <div className="shell grid gap-10 md:grid-cols-12">
             <div className="md:col-span-4">
-              <Eyebrow>Σχετικά</Eyebrow>
+              <Eyebrow>{d.common.about}</Eyebrow>
             </div>
             <Reveal className="md:col-span-7 md:col-start-6">
               <Prose html={rest} />
@@ -78,35 +68,38 @@ export function GroupView({ group }: { group: Group }) {
       <section data-theme="frost" className="bg-surface section-y">
         <div className="shell">
           <div className="mb-12 flex items-baseline justify-between border-b border-line pb-6 md:mb-16">
-            <h2 className="t-h2">{flat ? "Υλικά" : "Κατηγορίες"}</h2>
+            <h2 className="t-h2">{flat ? d.common.materials : d.common.categories}</h2>
             <span className="t-label text-fg-muted tabular">{flat ? total : cats.length}</span>
           </div>
           {flat ? (
-            <ProductGrid items={productsOf(cats[0])} />
+            <ProductGrid lang={lang} items={c.productsOf(cats[0])} />
           ) : (
             <IndexList
-              rows={cats.map((c) => ({
-                href: categoryHref(c),
-                title: c.title,
-                summary: c.summary || stripHtml(c.intro),
-                image: c.image,
-                count: c.products.length,
+              lang={lang}
+              rows={cats.map((cat) => ({
+                href: c.categoryHref(cat),
+                title: cat.title,
+                summary: cat.summary || stripHtml(cat.intro),
+                image: cat.image,
+                count: cat.products.length,
               }))}
             />
           )}
         </div>
       </section>
-      <EnquiryBand />
+      <EnquiryBand lang={lang} />
     </>
   );
 }
 
 /* ------------------------------------------------------------------ category */
 
-export function CategoryView({ category }: { category: Category }) {
-  const group = getGroup(category.group)!;
-  const items = productsOf(category);
-  const siblings = categoriesOf(group).filter((c) => c.slug !== category.slug);
+export function CategoryView({ lang, category }: { lang: Lang; category: Category }) {
+  const c = cms(lang);
+  const d = t(lang);
+  const group = c.groupOf(category);
+  const items = c.productsOf(category);
+  const siblings = c.categoriesOf(group).filter((x) => x.slug !== category.slug);
   const introText = stripHtml(category.intro);
   const full = (category.summary || introText).replace(/\s+/g, " ").trim();
   const lead = excerpt(full, 280);
@@ -115,15 +108,16 @@ export function CategoryView({ category }: { category: Category }) {
   return (
     <>
       <PageHero
-        crumbs={[{ label: group.title, href: `/${group.slug}` }, { label: category.title }]}
+        lang={lang}
+        crumbs={[{ label: group.title, href: c.groupHref(group) }, { label: category.title }]}
         title={category.title}
         lead={lead}
         image={category.image}
         meta={
           <MetaList
             items={[
-              { label: "Είδη", value: items.length },
-              { label: "Οικογένεια", value: group.title },
+              { label: d.common.items, value: items.length },
+              { label: d.common.family, value: group.title },
             ]}
           />
         }
@@ -133,7 +127,7 @@ export function CategoryView({ category }: { category: Category }) {
         <section data-theme="frost" className="bg-surface pt-[clamp(5rem,9vw,8rem)]">
           <div className="shell grid gap-10 md:grid-cols-12">
             <div className="md:col-span-4">
-              <Eyebrow>Σχετικά</Eyebrow>
+              <Eyebrow>{d.common.about}</Eyebrow>
             </div>
             <Reveal className="md:col-span-7 md:col-start-6">
               <p className="prose-glass text-fg-muted">{rest}</p>
@@ -145,10 +139,10 @@ export function CategoryView({ category }: { category: Category }) {
       <section data-theme="frost" className="bg-surface section-y">
         <div className="shell">
           <div className="mb-12 flex items-baseline justify-between border-b border-line pb-6 md:mb-16">
-            <h2 className="t-h2">Προϊόντα</h2>
+            <h2 className="t-h2">{d.common.products}</h2>
             <span className="t-label text-fg-muted tabular">{items.length}</span>
           </div>
-          <ProductGrid items={items} />
+          <ProductGrid lang={lang} items={items} />
         </div>
       </section>
 
@@ -156,39 +150,43 @@ export function CategoryView({ category }: { category: Category }) {
         <section data-theme="mist" className="bg-surface section-y">
           <div className="shell">
             <div className="mb-12 flex items-end justify-between gap-6">
-              <MaskedLines as="h2" lines={["Άλλες κατηγορίες"]} className="t-h2" />
-              <Link href={`/${group.slug}`} className="link-underline t-label hidden text-fg-muted sm:block">
-                Όλες οι κατηγορίες →
+              <MaskedLines as="h2" lines={[d.common.otherCategories]} className="t-h2" />
+              <Link href={c.groupHref(group)} className="link-underline t-label hidden text-fg-muted sm:block">
+                {d.common.allCategories}
               </Link>
             </div>
             <IndexList
-              rows={siblings.map((c) => ({
-                href: categoryHref(c),
-                title: c.title,
-                summary: c.summary || stripHtml(c.intro),
-                image: c.image,
-                count: c.products.length,
+              lang={lang}
+              rows={siblings.map((cat) => ({
+                href: c.categoryHref(cat),
+                title: cat.title,
+                summary: cat.summary || stripHtml(cat.intro),
+                image: cat.image,
+                count: cat.products.length,
               }))}
             />
           </div>
         </section>
       )}
-      <EnquiryBand />
+      <EnquiryBand lang={lang} />
     </>
   );
 }
 
 /* ------------------------------------------------------------------ product */
 
-export function ProductView({ product }: { product: Product }) {
-  const group = getGroup(product.group)!;
-  const category = categories[product.category];
-  const flat = isFlatGroup(group);
+export function ProductView({ lang, product }: { lang: Lang; product: Product }) {
+  const c = cms(lang);
+  const d = t(lang);
+  const { products } = c;
+  const group = c.groupOf(product);
+  const category = c.categories[product.category];
+  const flat = c.isFlat(group);
   const crumbs = flat
-    ? [{ label: group.title, href: `/${group.slug}` }, { label: product.title }]
+    ? [{ label: group.title, href: c.groupHref(group) }, { label: product.title }]
     : [
-        { label: group.title, href: `/${group.slug}` },
-        { label: category.title, href: categoryHref(category) },
+        { label: group.title, href: c.groupHref(group) },
+        { label: category.title, href: c.categoryHref(category) },
         { label: product.title },
       ];
 
@@ -199,10 +197,10 @@ export function ProductView({ product }: { product: Product }) {
       : [];
 
   const sections = [
-    ...(product.body && stripHtml(product.body).length > 20 ? [{ id: "perigrafi", title: "Περιγραφή", html: product.body }] : []),
+    ...(product.body && stripHtml(product.body).length > 20 ? [{ id: "description", title: d.common.description, html: product.body }] : []),
     ...product.tabs
-      .filter((t) => stripHtml(t.html) && stripHtml(t.html) !== stripHtml(product.body))
-      .map((t, i) => ({ id: `tab-${i}`, title: t.title, html: t.html })),
+      .filter((tab) => stripHtml(tab.html) && stripHtml(tab.html) !== stripHtml(product.body))
+      .map((tab, i) => ({ id: `tab-${i}`, title: tab.title, html: tab.html })),
   ];
 
   const siblings = category.products;
@@ -213,14 +211,14 @@ export function ProductView({ product }: { product: Product }) {
     .map((s) => products[s])
     .filter(Boolean);
 
-  const mailSubject = encodeURIComponent(`Ενδιαφέρον για: ${product.title}`);
+  const mailSubject = encodeURIComponent(`${d.common.enquirySubject}: ${product.title}`);
 
   return (
     <>
       <section data-theme="mist" className="relative bg-surface pb-16 pt-[calc(var(--header-h)+3rem)] md:pb-24 md:pt-[calc(var(--header-h)+4rem)]">
         <div className="shell grid gap-12 lg:grid-cols-12 lg:gap-16">
           <div className="lg:col-span-5">
-            <Breadcrumbs items={crumbs} />
+            <Breadcrumbs lang={lang} items={crumbs} />
             <p className="t-label mt-10 text-accent md:mt-14">{flat ? group.title : category.title}</p>
             <MaskedLines as="h1" lines={headlineLines(product.title, 16)} className="t-h1 mt-4" />
             {product.summary && (
@@ -233,27 +231,27 @@ export function ProductView({ product }: { product: Product }) {
                 href={`mailto:${contact.email}?subject=${mailSubject}`}
                 className="group inline-flex items-center gap-3 rounded-full bg-fg py-3 pl-6 pr-3 font-semibold text-surface transition-colors hover:bg-accent"
               >
-                Ζητήστε προσφορά
+                {d.common.requestQuote}
                 <span className="flex size-8 items-center justify-center rounded-full bg-surface text-fg">→</span>
               </a>
               <a
                 href={contact.phoneHref}
                 className="inline-flex items-center gap-2 rounded-full border border-line-strong px-6 py-3 font-semibold transition-colors hover:border-fg"
               >
-                <span className="tabular">{contact.phone}</span>
+                <span className="tabular">{d.contact.phone}</span>
               </a>
             </Reveal>
           </div>
           <Reveal delay={0.1} className="lg:col-span-7">
-            <ProductGallery images={gallery} title={product.title} />
+            <ProductGallery lang={lang} images={gallery} title={product.title} />
           </Reveal>
         </div>
       </section>
 
       {sections.length > 0 && (
         <section data-theme="frost" className="bg-surface section-y">
-          <div className="shell grid gap-12 lg:grid-cols-12">
-            <nav aria-label="Ενότητες προϊόντος" className="hidden lg:col-span-3 lg:block">
+          <div className="shell grid grid-cols-[minmax(0,1fr)] gap-12 lg:grid-cols-12">
+            <nav aria-label={d.a11y.productSections} className="hidden lg:col-span-3 lg:block">
               <ul className="sticky top-[calc(var(--header-h)+2rem)] grid gap-1 border-l border-line">
                 {sections.map((s, i) => (
                   <li key={s.id}>
@@ -265,7 +263,7 @@ export function ProductView({ product }: { product: Product }) {
                 ))}
               </ul>
             </nav>
-            <div className="grid gap-20 lg:col-span-8 lg:col-start-5">
+            <div className="grid min-w-0 grid-cols-[minmax(0,1fr)] gap-20 lg:col-span-8 lg:col-start-5">
               {sections.map((s, i) => (
                 <Reveal key={s.id}>
                   <article id={s.id} className="scroll-mt-28">
@@ -275,7 +273,7 @@ export function ProductView({ product }: { product: Product }) {
                     </div>
                     <Prose
                       html={s.html}
-                      className={/εφαρμογ/i.test(s.title) ? "[&_ul]:flex [&_ul]:flex-wrap [&_ul]:gap-2 [&_ul>li]:rounded-full [&_ul>li]:border [&_ul>li]:border-line [&_ul>li]:px-4 [&_ul>li]:py-1.5 [&_ul>li]:pl-4 [&_ul>li]:text-fg [&_ul>li::before]:hidden" : ""}
+                      className={/εφαρμογ|application/i.test(s.title) ? "[&_ul]:flex [&_ul]:flex-wrap [&_ul]:gap-2 [&_ul>li]:rounded-full [&_ul>li]:border [&_ul>li]:border-line [&_ul>li]:px-4 [&_ul>li]:py-1.5 [&_ul>li]:pl-4 [&_ul>li]:text-fg [&_ul>li::before]:hidden" : ""}
                     />
                   </article>
                 </Reveal>
@@ -289,25 +287,26 @@ export function ProductView({ product }: { product: Product }) {
         <section data-theme="frost" className={`bg-surface ${sections.length ? "pb-[clamp(5rem,11vw,11rem)]" : "section-y"}`}>
           <div className="shell">
             <div className="mb-12 flex items-baseline justify-between border-t border-line pt-8">
-              <h2 className="t-h2">Σχετικά προϊόντα</h2>
+              <h2 className="t-h2">{d.common.relatedProducts}</h2>
               {next && next.slug !== product.slug && (
-                <Link href={productHref(next)} className="link-underline t-label hidden text-fg sm:block">
-                  Επόμενο: {next.title} →
+                <Link href={c.productHref(next)} className="link-underline t-label hidden text-fg sm:block">
+                  {d.common.next}: {next.title} →
                 </Link>
               )}
             </div>
-            <ProductGrid items={related} />
+            <ProductGrid lang={lang} items={related} />
           </div>
         </section>
       )}
-      <EnquiryBand product={product.title} />
+      <EnquiryBand lang={lang} product={product.title} />
     </>
   );
 }
 
 /* ------------------------------------------------------------------ enquiry band */
 
-export function EnquiryBand({ product }: { product?: string }) {
+export function EnquiryBand({ lang, product }: { lang: Lang; product?: string }) {
+  const d = t(lang);
   return (
     <section data-theme="azure" className="relative overflow-hidden bg-surface">
       <div
@@ -320,14 +319,12 @@ export function EnquiryBand({ product }: { product?: string }) {
       />
       <div className="shell relative flex flex-col gap-8 py-14 md:flex-row md:items-center md:justify-between md:py-20">
         <div>
-          <p className="t-label text-fg/75">{product ? "Διαθεσιμότητα & τιμές" : "Τα πάντα για το γυαλί"}</p>
-          <p className="t-h2 mt-4 max-w-[20ch]">
-            {product ? "Ρωτήστε μας για διαστάσεις και απόθεμα." : "Καλέστε μας και θα έρθουμε κοντά σας."}
-          </p>
+          <p className="t-label text-fg/75">{product ? d.enquiry.productEyebrow : d.enquiry.eyebrow}</p>
+          <p className="t-h2 mt-4 max-w-[20ch]">{product ? d.enquiry.productTitle : d.enquiry.title}</p>
         </div>
         <div className="glass relative flex flex-col gap-3 rounded-[1.25rem] px-6 py-5 md:items-end md:px-8 md:py-6">
           <a href={contact.phoneHref} className="font-display text-[clamp(2.25rem,4.5vw,4rem)] font-bold leading-none tabular">
-            {contact.phone}
+            {d.contact.phone}
           </a>
           <a href={`mailto:${contact.email}`} className="link-underline w-fit text-fg/85">
             {contact.email}

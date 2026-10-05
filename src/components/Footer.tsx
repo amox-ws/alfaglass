@@ -1,21 +1,26 @@
 import Link from "next/link";
 import Image from "next/image";
-import { contact, legalLinks, site } from "@/lib/content";
+import { cms, contact } from "@/lib/content";
+import { t, type Lang } from "@/lib/i18n";
+import { LEGAL_KEYS, hrefFor } from "@/lib/routes";
 
-export function Footer() {
+export function Footer({ lang }: { lang: Lang }) {
   const year = new Date().getFullYear();
+  const d = t(lang);
+  const c = cms(lang);
+  const company = hrefFor(lang, { kind: "company" });
   return (
     <footer data-theme="deep" className="relative overflow-hidden border-t border-line bg-surface pt-20 md:pt-28">
       <div className="shell">
         <div className="grid gap-14 md:grid-cols-12">
           <div className="md:col-span-5">
-            <p className="t-h2 max-w-[16ch]">Ασπρόπυργος, έξοδος 4 Αττικής Οδού.</p>
+            <p className="t-h2 max-w-[16ch]">{d.footer.headline}</p>
             <div className="mt-8 grid gap-1">
               <a href={contact.phoneHref} className="link-underline w-fit text-2xl font-semibold tabular">
-                {contact.phone}
+                {d.contact.phone}
               </a>
               <a href={contact.mobileHref} className="link-underline w-fit text-lg text-fg-muted tabular">
-                {contact.mobile}
+                {d.contact.mobile}
               </a>
               <a href={`mailto:${contact.email}`} className="link-underline mt-2 w-fit text-lg">
                 {contact.email}
@@ -23,32 +28,32 @@ export function Footer() {
             </div>
           </div>
 
-          <nav aria-label="Χάρτης ιστότοπου" className="grid grid-cols-2 gap-10 sm:grid-cols-3 md:col-span-7">
+          <nav aria-label={d.a11y.sitemap} className="grid grid-cols-2 gap-10 sm:grid-cols-3 md:col-span-7">
             <FooterCol
-              title="Εταιρεία"
+              title={d.nav.company}
               links={[
-                { label: "Η Εταιρεία", href: "/etaireia" },
-                { label: "Ιστορία", href: "/etaireia#istoria" },
-                { label: "Εγκαταστάσεις", href: "/egkatastaseis" },
-                { label: "Οικονομικές Καταστάσεις", href: "/etaireia#oikonomika" },
-                { label: "Νέα", href: "/nea" },
+                { label: d.nav.theCompany, href: company },
+                { label: d.nav.history, href: `${company}#history` },
+                { label: d.nav.facilities, href: hrefFor(lang, { kind: "facilities" }) },
+                { label: d.nav.financials, href: `${company}#financials` },
+                { label: d.nav.news, href: hrefFor(lang, { kind: "news" }) },
               ]}
             />
             <FooterCol
-              title="Προϊόντα"
+              title={d.nav.products}
               links={[
-                ...site.groups.map((g) => ({ label: g.title, href: `/${g.slug}` })),
-                { label: "Χρήσιμοι Σύνδεσμοι", href: "/xrisimoi-syndesmoi" },
+                ...c.site.groups.map((g) => ({ label: g.title, href: c.groupHref(g) })),
+                { label: d.nav.links, href: hrefFor(lang, { kind: "links" }) },
               ]}
             />
             <div>
-              <p className="t-label mb-5 text-fg-dim">Έδρα</p>
+              <p className="t-label mb-5 text-fg-dim">{d.footer.headOffice}</p>
               <address className="not-italic leading-relaxed text-fg-muted">
-                {contact.company}
+                {d.contact.company}
                 <br />
-                {contact.address}
+                {d.contact.address}
                 <br />
-                <span className="text-fg-dim">{contact.addressNote}</span>
+                <span className="text-fg-dim">{d.contact.addressNote}</span>
               </address>
               <a
                 href={contact.mapsHref}
@@ -56,7 +61,7 @@ export function Footer() {
                 rel="noreferrer"
                 className="link-underline mt-4 inline-block text-sm font-semibold text-accent"
               >
-                Οδηγίες στον χάρτη ↗
+                {d.common.directions}
               </a>
             </div>
           </nav>
@@ -81,7 +86,7 @@ export function Footer() {
         <div className="shell flex flex-col gap-6 py-8 text-sm text-fg-dim lg:flex-row lg:items-center lg:justify-between">
           <div className="flex flex-col gap-1.5">
             <p>
-              © {year} {contact.company} Όλα τα δικαιώματα διατηρούνται.
+              © {year} {d.contact.company} {d.footer.rights}
             </p>
             <p>
               Powered by{" "}
@@ -96,16 +101,16 @@ export function Footer() {
             </p>
           </div>
           <ul className="flex flex-wrap gap-x-6 gap-y-2">
-            {legalLinks.map((l) => (
-              <li key={l.href}>
-                <Link href={l.href} className="transition-colors hover:text-fg">
-                  {l.label}
+            {LEGAL_KEYS.map((key) => (
+              <li key={key}>
+                <Link href={hrefFor(lang, { kind: "legal", key })} className="transition-colors hover:text-fg">
+                  {d.legal[key]}
                 </Link>
               </li>
             ))}
           </ul>
           <a href="/docs/espa-alfaglass.pdf" target="_blank" rel="noreferrer" className="block w-fit rounded-sm bg-[oklch(0.99_0.003_250)] p-1.5">
-            <Image src={site.espaBanner} alt="ΕΣΠΑ 2014-2020, Ευρωπαϊκή Ένωση" width={220} height={44} className="h-9 w-auto" />
+            <Image src={c.site.espaBanner} alt={d.footer.espaAlt} width={220} height={44} className="h-9 w-auto" />
           </a>
         </div>
       </div>

@@ -1,0 +1,300 @@
+{
+ "float-glass": {
+  "id": 63,
+  "slug": "float-glass",
+  "group": "yalopinakes",
+  "title": "Float Glass",
+  "summary": "Modern windows are made from float glass. The float glass process is also known as the Pilkington process, named after the British glass manufacturer Pilkington, which pioneered the technique in the 1950s at their production site in St Helens, Merseyside in Great Britain.",
+  "intro": "",
+  "image": "/media/b47b25db6e.jpg",
+  "gallery": [
+   {
+    "src": "/media/797eba8c93.jpg",
+    "caption": null
+   }
+  ],
+  "products": [
+   "clear-float-glass",
+   "ultra-clear-glass",
+   "tinted-coloured-float-glass"
+  ]
+ },
+ "decorative-glasses": {
+  "id": 64,
+  "slug": "decorative-glasses",
+  "group": "yalopinakes",
+  "title": "Decorative Glasses",
+  "summary": "Decorative Glasses are determined by the existence of a design or color on them. From their name it is concluded that their main use is the buildings' decoration, such as partitions, furniture, closets, etc.",
+  "intro": "",
+  "image": "/media/791923dc23.jpg",
+  "gallery": [
+   {
+    "src": "/media/d860160f47.jpg",
+    "caption": null
+   }
+  ],
+  "products": [
+   "decorative-glasses-in-classic-designs",
+   "satinated-decorative-glasses",
+   "picture-frame-mat-glass",
+   "satinated-glasses",
+   "coloured-painted-glasses",
+   "kathedral-glass",
+   "glasses-for-floors-and-steps"
+  ]
+ },
+ "mirrors": {
+  "id": 65,
+  "slug": "mirrors",
+  "group": "yalopinakes",
+  "title": "Mirrors",
+  "summary": "Mirrors are made when a thin layer of silver, or sometimes aluminium, is coated on the back side of a float glass so that someone can see the surface reflected through the glass. The back of the mirror is usually coated with dark varnish to protect the silver from corrosion and detachment from the float glass. This method reflects about 80% of the incident light.",
+  "intro": "",
+  "image": "/media/34a9f64530.jpg",
+  "gallery": [
+   {
+    "src": "/media/69c7b4f633.jpg",
+    "caption": null
+   }
+  ],
+  "products": [
+   "mirrors-on-clear-float-glass",
+   "mirrors-on-ultra-clear-float-glass",
+   "mirrors-on-tinted-glass",
+   "satinated-mirrors",
+   "old-style-mirrors",
+   "mirrors-with-pyrolytic-hard-coating",
+   "anticondensation-mirrors",
+   "mirrors-for-display-screens"
+  ]
+ },
+ "low-e-glass": {
+  "id": 66,
+  "slug": "low-e-glass",
+  "group": "yalopinakes",
+  "title": "Low - e Glass",
+  "summary": "The term “Low-e Glass” in recent years is used as a free translation of the term “Energy efficient glass” to determine that the category of glass, that has characteristics which make it difficult to transfer heat from one side to another, thereby contributing to energy saving. The invention of these glasses was a revolution in the technology of insulating materials, given their impressive greater insulating performance, compared to all previously known types of glass, 220% better thermal insulation in comparison with standard double glazing and 400% compared with the ordinary single glazing! In principle, the “Low-e Glasses” have the “ability” of decreasing the emission of heat from the warmer to the cooler side (hence called low emissivity glass “Low-E”). That their ability helps us to save energy (for heating or room air conditioning), as we “keep” the heat of our house in winter and we “through” the heat of the external environment outside in summer.",
+  "intro": "",
+  "image": "/media/a51686a2e7.jpg",
+  "gallery": [
+   {
+    "src": "/media/708f3201f1.jpg",
+    "caption": null
+   }
+  ],
+  "products": [
+   "2-season-low-e-glasses",
+   "4-season-low-e-glasses",
+   "solar-control-low-e-glasses"
+  ]
+ },
+ "reflective-glasses": {
+  "id": 67,
+  "slug": "reflective-glasses",
+  "group": "yalopinakes",
+  "title": "Reflective Glasses",
+  "summary": "",
+  "intro": "",
+  "image": "/media/e41be42f42.jpg",
+  "gallery": [
+   {
+    "src": "/media/56cf40c4c7.jpg",
+    "caption": null
+   }
+  ],
+  "products": [
+   "low-e-reflective-glasses",
+   "reflective-glasses",
+   "spy-glass"
+  ]
+ },
+ "coated-glasses-for-special-applications": {
+  "id": 68,
+  "slug": "coated-glasses-for-special-applications",
+  "group": "yalopinakes",
+  "title": "Coated Glasses for Special Applications",
+  "summary": "Nowdays technology and research has enabled the glass industry to develop special coatings applied to glass for applications of high demands and high aesthetics.",
+  "intro": "",
+  "image": "/media/1712cbf107.jpg",
+  "gallery": [
+   {
+    "src": "/media/579f84bf90.jpg",
+    "caption": null
+   }
+  ],
+  "products": [
+   "anti-reflective-glasses",
+   "picture-frame-antireflective-glasses",
+   "self-cleaning-glasses",
+   "water-anti-corrosion-glasses",
+   "antimicrobial-glasses"
+  ]
+ },
+ "sound-insulating-glasses": {
+  "id": 69,
+  "slug": "sound-insulating-glasses",
+  "group": "yalopinakes",
+  "title": "Sound Insulating Glasses",
+  "summary": "The Sound Insulating Glasses have the ability to damp the resonance phenomena, eliminating the phenomena of the “acoustic window”.",
+  "intro": "",
+  "image": "/media/809eeedb94.jpg",
+  "gallery": [
+   {
+    "src": "/media/f68abe71ec.jpg",
+    "caption": null
+   }
+  ],
+  "products": [
+   "laminated-sound-reduction-glasses"
+  ]
+ },
+ "safety-glasses": {
+  "id": 70,
+  "slug": "safety-glasses",
+  "group": "yalopinakes",
+  "title": "Safety Glasses",
+  "summary": "Modern technology succeded to give many safety properties in glass: Injury protection Protection against vandalism Bulletproof Missile protection Fire & tempereture protection",
+  "intro": "",
+  "image": "/media/abefa453b1.jpg",
+  "gallery": [
+   {
+    "src": "/media/c6145b9921.jpg",
+    "caption": null
+   }
+  ],
+  "products": [
+   "common-laminated-glasses",
+   "coloured-laminated-glasses",
+   "smart-film-for-laminated-glasses",
+   "bullet-resistant-glasses",
+   "antivandal-laminated-glasses",
+   "explosion-resistance-glasses",
+   "wired-glasses",
+   "heat-strengthened-glasses",
+   "heat-tempered-safety-glasses-securit"
+  ]
+ },
+ "fire-resistant-glasses": {
+  "id": 71,
+  "slug": "fire-resistant-glasses",
+  "group": "yalopinakes",
+  "title": "Fire Resistant Glasses",
+  "summary": "They can withstand temperatures up to 1000°C",
+  "intro": "",
+  "image": "/media/9f3e9802a7.jpg",
+  "gallery": [
+   {
+    "src": "/media/b6e269b5a6.jpg",
+    "caption": null
+   }
+  ],
+  "products": [
+   "fire-resistant-glasses-high-specification-standards",
+   "wired-fire-resistance-glasses",
+   "fireplace-fire-resistant-glasses",
+   "glass-for-light-projectors"
+  ]
+ },
+ "plastic-sheets": {
+  "id": 61,
+  "slug": "plastic-sheets",
+  "group": "plastika-fylla",
+  "title": "Plastic Sheets",
+  "summary": "Since 2014 ALFA GLASS has expanded it activity in the market of plastic sheets. The categories we trade are: • XT (extruded) ACRYLIC SHEETS • CAST ACRYLIC SHEETS • POLYCARBONATE SOLID SHEETS • POLYCARBONATE MULTIWALL…",
+  "intro": "<p>Since 2014 ALFA GLASS has expanded it activity in the market of plastic sheets.</p>\n<p>The categories we trade are:<br/>\n• XT (extruded) ACRYLIC SHEETS<br/>\n• CAST ACRYLIC SHEETS<br/>\n• POLYCARBONATE SOLID SHEETS<br/>\n• POLYCARBONATE MULTIWALL SHEETS<br/>\n• PET-G<br/>\n• PVC Foam<br/>\n• PVC Tech (solid)<br/>\n• Polystyrene<br/>\n• BOND FOR SIGNAGE &amp; BUILDING</p>",
+  "image": "/media/009101b3fe.jpg",
+  "gallery": [
+   {
+    "src": "/media/009101b3fe.jpg",
+    "caption": null
+   }
+  ],
+  "products": [
+   "acrylic-sheets-xt-extruded",
+   "cast-acrylic-sheets",
+   "polycarbonate-solid-sheets",
+   "polycarbonate-multiwall-sheets",
+   "pvc-foam",
+   "pet-g",
+   "bond-aluminium-panels-for-signage",
+   "bond-aluminium-panels-for-buildings",
+   "polystyrenes",
+   "polyurethane-sheets",
+   "accessories-for-plastic-sheets"
+  ]
+ },
+ "glass-and-window-test-equipment": {
+  "id": 72,
+  "slug": "glass-and-window-test-equipment",
+  "group": "synafi-proionta",
+  "title": "Glass & Window Test Equipment",
+  "summary": "They test a very wide range of energy and similar properties of the buildings. Nowadays, where technological development is rapid, they have been invested buildings products that achieve high energy-saving performance. But there are some legitimate questions: What do we earn by installing thermal insulation products (eg Low-e glasses)? How can we see that our building is in need of improvement of its energy performance? How would we be sure that the products which have been installed in our building are those they should be? Now, these questions can be answered using the EDTM™ Test Equipment. The EDTM™ Control Devices, test a very wide range of energy and similar properties of the glazing, windows and buildings in general. For example, we mention the measurement of the losses of insulation of buildings, the measurement of the energy efficiency of a glass pane or a whole window frame, the detection",
+  "intro": "",
+  "image": "/media/af26acec39.jpg",
+  "gallery": [],
+  "products": [
+   "low-e-coating-detectors",
+   "glass-thickness-meter-and-low-e-detector",
+   "glass-properties-meter",
+   "infrared-cameras",
+   "uv-demonstration-card",
+   "solar-spectrum-field-service-and-sales-kit"
+  ]
+ },
+ "glass-door-springs-and-glass-accessories": {
+  "id": 73,
+  "slug": "glass-door-springs-and-glass-accessories",
+  "group": "synafi-proionta",
+  "title": "Glass Door Springs & Glass Accessories",
+  "summary": "ALFA GLASS, in response to the needs of its customers, has added to its range of products the USAF mechanisms, as well as a wide variety of accessories for glass panes & glass doors. Floor springs Roof springs Hydraulic patch fittings Hinges Door handles Door locks Glass connectors",
+  "intro": "",
+  "image": "/media/e773a39180.jpg",
+  "gallery": [
+   {
+    "src": "/media/72d94d3ec4.jpg",
+    "caption": null
+   }
+  ],
+  "products": [
+   "floor-spring-low-depth",
+   "floor-spring",
+   "roof-spring",
+   "hydraulic-patch-fitting"
+  ]
+ },
+ "accessories-for-glass-doors-and-glass-panes": {
+  "id": 78,
+  "slug": "accessories-for-glass-doors-and-glass-panes",
+  "group": "synafi-proionta",
+  "title": "Accessories for Glass Doors & Glass Panes",
+  "summary": "Our company’s aim to cover all our client’s needs of their total professional activity, directed us to include in our range of products glass accessories. We possess all the main accessories for glass that are necessary for installation of usual or even special glass applications. Our continuous communication with all the suppliers internationally, allows us to import and deliver fast even when special products and solutions are requested from our clients. Assuring high quality, we are able to cover all the main categories of glass accessories: Hinges Locks Handrails-Knobs Floor Springs Patch Fittings Trying to progress even more, we have added in our range of products also a special category: The Entrance Systems. Simple standard doors, manual and automating sliding doors, folding doors, special floor springs etc. Our goal is to assist anyway we can and constantly, our partners by providing products of excellent quality and at the same time acquiring knowledge of the glass market’s needs.",
+  "intro": "",
+  "image": "/media/5b3603150f.jpg",
+  "gallery": [],
+  "products": [
+   "hinges",
+   "handles",
+   "locks",
+   "accessories-for-glass-doors-and-glass-panes"
+  ]
+ },
+ "consumables-glass-tools": {
+  "id": 74,
+  "slug": "consumables-glass-tools",
+  "group": "synafi-proionta",
+  "title": "Consumables Glass Tools",
+  "summary": "Our company provides many consumables for glass machines. For example: Diamond wheels. Resin wheels and felts for all kind of straight and shape, edging and beveling machines. Polishing wheels for all type machines (beveling, edging, engraving). Special diamond wheels (wave, OG, 3OG, pencil edge, waterfall, engraving, bevel, etc). Diamond cutting disks for laminated and bullet proof glasses. Portable hand tools for grinding, polishing, Edge deletion, etc. Drills, routers, fraises. UV lamps (with spare parts) and UV adhesive. Portable sandblasting machine (with spare parts). Silicones, cutting fluids, self-adhesive tapes, pads for grinding, cerium oxide. Tools (suction lifters, glass breaking pliers, Glass cutters, circle cutters, glass cutters, L squares, wheels for cutting, lever lifters). Glass plier (for glass thickness 3-25mm, max 1000kg). Portable drilling. Wheels for CNC.",
+  "intro": "",
+  "image": "/media/562e8a1f13.jpg",
+  "gallery": [],
+  "products": [
+   "diamond-wheels",
+   "resin-cup-wheels-and-felts",
+   "polishing-wheels",
+   "hand-machines",
+   "drills-milling-machines-routers",
+   "hand-tools",
+   "silicones-cutting-liquids-edge-deletion-sponges-cerium"
+  ]
+ }
+}

@@ -6,36 +6,31 @@ import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { Logo } from "./Logo";
-import { categories, categoryHref, contact, products, productHref, site, getGroup } from "@/lib/content";
+import { contact } from "@/lib/content";
+import { t, type Lang } from "@/lib/i18n";
 import { getLenis } from "./SmoothScroll";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
-const primary = [
-  { label: "Εταιρεία", href: "/etaireia" },
-  { label: "Προϊόντα", href: "/yalopinakes", mega: true },
-  { label: "Εγκαταστάσεις", href: "/egkatastaseis" },
-  { label: "Νέα", href: "/nea" },
-  { label: "Επικοινωνία", href: "/epikoinonia" },
-];
-
 type MegaItem = { label: string; href: string; image: string | null };
 
-function megaColumns() {
-  return site.groups.map((g) => {
-    const flat = g.categories.length === 1;
-    const items: MegaItem[] = flat
-      ? categories[g.categories[0]].products.map((p) => ({
-          label: products[p].title,
-          href: productHref(products[p]),
-          image: products[p].thumb,
-        }))
-      : g.categories.map((c) => ({ label: categories[c].title, href: categoryHref(categories[c]), image: categories[c].image }));
-    return { group: g, items };
-  });
-}
+/** Everything the header needs, computed on the server so the catalogue never ships to the browser. */
+export type HeaderData = {
+  lang: Lang;
+  homeHref: string;
+  primary: { label: string; href: string; mega?: boolean; match: string[] }[];
+  mobile: { label: string; href: string }[];
+  columns: { title: string; href: string; image: string | null; items: MegaItem[] }[];
+  defaultPreview: string | null;
+  footnote: string;
+  /** Path in this language -> same page in the other language. */
+  alternates: Record<string, string>;
+  otherHome: string;
+};
 
-export function Header() {
+export function Header({ data }: { data: HeaderData }) {
+  const { lang, primary, columns } = data;
+  const d = t(lang);
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
@@ -44,7 +39,6 @@ export function Header() {
   const [preview, setPreview] = useState<string | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hoverOpenedAt = useRef(0);
-  const columns = megaColumns();
 
   useEffect(() => {
     let last = window.scrollY;
@@ -104,7 +98,9 @@ export function Header() {
 
   // The capsule shows when scrolled or when the mega panel is open; the mobile sheet brings its own glass.
   const solid = (scrolled || mega) && !mobile;
-  const productsActive = ["/yalopinakes", "/plastika-fylla", "/synafi-proionta"].some((p) => pathname.startsWith(p));
+  const isActive = (match: string[]) => match.some((m) => pathname === m || pathname.startsWith(`${m}/`));
+  const otherLang: Lang = lang === "el" ? "en" : "el";
+  const switchHref = data.alternates[pathname] ?? data.otherHome;
 
   return (
     <>
@@ -129,14 +125,14 @@ export function Header() {
           }}
         />
         <div className="shell relative flex h-[var(--header-h)] items-center justify-between gap-8">
-          <Link href="/" aria-label="ALFA GLASS, αρχική σελίδα" className="shrink-0">
+          <Link href={data.homeHref} aria-label={d.a11y.home} className="shrink-0">
             <Logo />
           </Link>
 
-          <nav aria-label="Κύρια πλοήγηση" className="hidden lg:block">
+          <nav aria-label={d.a11y.mainNav} className="hidden lg:block">
             <ul className="flex items-center gap-1">
               {primary.map((item) => {
-                const active = item.mega ? productsActive : pathname.startsWith(item.href);
+                const active = isActive(item.match);
                 return (
                   <li
                     key={item.label}
@@ -193,13 +189,27 @@ export function Header() {
                 <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-60" />
                 <span className="relative inline-flex size-2 rounded-full bg-accent" />
               </span>
-              <span className="tabular">{contact.phone}</span>
+              <span className="tabular">{d.contact.phone}</span>
             </a>
+            <Link
+              href={switchHref}
+              hrefLang={otherLang}
+              lang={otherLang}
+              aria-label={d.switchTo}
+              title={d.switchTo}
+              className={`relative flex h-10 items-center rounded-full px-3.5 text-[0.85rem] font-semibold tracking-[0.06em] transition-colors hover:text-accent ${
+                solid ? "border border-line-strong hover:border-accent" : "glass glass-thin glass-sheen"
+              }`}
+            >
+              <span aria-hidden className="text-fg-dim">{lang === "el" ? "ΕΛ" : "EN"}</span>
+              <span aria-hidden className="mx-1.5 h-3 w-px bg-line-strong" />
+              <span>{lang === "el" ? "EN" : "ΕΛ"}</span>
+            </Link>
             <button
               type="button"
               onClick={() => setMobile((m) => !m)}
               aria-expanded={mobile}
-              aria-label={mobile ? "Κλείσιμο μενού" : "Άνοιγμα μενού"}
+              aria-label={mobile ? d.a11y.closeMenu : d.a11y.openMenu}
               className="relative flex size-11 items-center justify-center lg:hidden"
             >
               <span
@@ -229,10 +239,10 @@ export function Header() {
               className="glass glass-thick absolute top-[calc(100%-0.15rem)] hidden rounded-[1.4rem] lg:block"
             >
               <div className="grid grid-cols-[1fr_1fr_1fr_minmax(15rem,20rem)] gap-10 p-8 xl:p-10">
-                {columns.map(({ group, items }) => (
-                  <div key={group.slug}>
+                {columns.map((group) => (
+                  <div key={group.href}>
                     <Link
-                      href={`/${group.slug}`}
+                      href={group.href}
                       className="t-label mb-5 flex items-center justify-between border-b border-line pb-3 text-accent"
                       onMouseEnter={() => setPreview(group.image)}
                     >
@@ -240,7 +250,7 @@ export function Header() {
                       <span aria-hidden>→</span>
                     </Link>
                     <ul className="grid gap-0.5">
-                      {items.map((it) => (
+                      {group.items.map((it) => (
                         <li key={it.href}>
                           <Link
                             href={it.href}
@@ -258,7 +268,7 @@ export function Header() {
                 <div className="relative aspect-[4/5] overflow-hidden rounded-[0.9rem] bg-surface-2">
                   <AnimatePresence mode="popLayout">
                     <motion.div
-                      key={preview ?? getGroup("yalopinakes")!.image}
+                      key={preview ?? data.defaultPreview}
                       initial={{ opacity: 0, scale: 1.06 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0 }}
@@ -266,7 +276,7 @@ export function Header() {
                       className="absolute inset-0"
                     >
                       <Image
-                        src={preview ?? categories["koinoi-float-yalopinakes"].image!}
+                        src={(preview ?? data.defaultPreview)!}
                         alt=""
                         fill
                         sizes="20rem"
@@ -275,7 +285,7 @@ export function Header() {
                     </motion.div>
                   </AnimatePresence>
                   <p className="glass glass-thin t-label absolute bottom-3 left-3 right-3 rounded-[0.65rem] px-3 py-2.5 text-fg">
-                    {site.groups.reduce((n, g) => n + g.categories.reduce((m, c) => m + categories[c].products.length, 0), 0)} προϊόντα σε 14 κατηγορίες
+                    {data.footnote}
                   </p>
                 </div>
               </div>
@@ -296,17 +306,9 @@ export function Header() {
             className="glass glass-thick fixed inset-0 z-40 overflow-y-auto pt-[var(--header-h)] lg:hidden"
             data-lenis-prevent
           >
-            <nav aria-label="Κινητό μενού" className="shell pb-16 pt-6">
+            <nav aria-label={d.a11y.mobileNav} className="shell pb-16 pt-6">
               <ul className="border-t border-line">
-                {[
-                  { label: "Αρχική", href: "/" },
-                  { label: "Εταιρεία", href: "/etaireia" },
-                  ...site.groups.map((g) => ({ label: g.title, href: `/${g.slug}` })),
-                  { label: "Εγκαταστάσεις", href: "/egkatastaseis" },
-                  { label: "Νέα", href: "/nea" },
-                  { label: "Χρήσιμοι Σύνδεσμοι", href: "/xrisimoi-syndesmoi" },
-                  { label: "Επικοινωνία", href: "/epikoinonia" },
-                ].map((l, i) => (
+                {data.mobile.map((l, i) => (
                   <motion.li
                     key={l.href}
                     initial={{ opacity: 0, y: 24 }}
@@ -323,12 +325,12 @@ export function Header() {
               </ul>
               <div className="mt-10 grid gap-2 text-fg-muted">
                 <a href={contact.phoneHref} className="text-2xl font-semibold text-fg tabular">
-                  {contact.phone}
+                  {d.contact.phone}
                 </a>
                 <a href={`mailto:${contact.email}`} className="text-lg">
                   {contact.email}
                 </a>
-                <p>{contact.address}</p>
+                <p>{d.contact.address}</p>
               </div>
             </nav>
           </motion.div>

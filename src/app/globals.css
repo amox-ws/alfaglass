@@ -110,6 +110,17 @@
 
 /* ------------------------------------------------------------------ base */
 
+@layer base {
+  /*
+   * Single-column grids (mobile) must never be widened by wide content such as
+   * spec tables or thumbnail strips. Explicit grid-cols-* utilities still win.
+   */
+  .grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+
 html {
   -webkit-text-size-adjust: 100%;
   text-rendering: optimizeLegibility;

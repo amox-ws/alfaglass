@@ -1,0 +1,117 @@
+import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { HomeView } from "@/views/HomeView";
+import { CompanyView } from "@/views/CompanyView";
+import { FacilitiesView } from "@/views/FacilitiesView";
+import { ArticleView, NewsView } from "@/views/NewsView";
+import { ContactView } from "@/views/ContactView";
+import { LinksView } from "@/views/LinksView";
+import { LegalView } from "@/views/LegalView";
+import { CategoryView, GroupView, ProductView, excerpt } from "@/components/catalog/views";
+import { cms, stripHtml } from "@/lib/content";
+import { LANGS, isLang, t, type Lang } from "@/lib/i18n";
+import { alternatesFor, resolve, staticSegments, type Route } from "@/lib/routes";
+
+/** Every page of both languages is prerendered; anything else is a 404. */
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return LANGS.flatMap((lang) => staticSegments(lang).map((path) => ({ lang, path })));
+}
+
+function lookup(lang: string, path?: string[]): { lang: Lang; route: Route } | null {
+  if (!isLang(lang)) return null;
+  const route = resolve(lang, path ?? []);
+  return route ? { lang, route } : null;
+}
+
+function find(lang: Lang, route: Route) {
+  const c = cms(lang);
+  if (route.kind === "category") return Object.values(c.categories).find((x) => x.id === route.id)!;
+  if (route.kind === "product") return Object.values(c.products).find((x) => x.id === route.id)!;
+  return null;
+}
+
+function titleAndDescription(lang: Lang, route: Route): { title?: string; description?: string } {
+  const c = cms(lang);
+  const d = t(lang);
+  switch (route.kind) {
+    case "home":
+      return {};
+    case "company":
+      return { title: d.nav.theCompany, description: d.company.metaDescription };
+    case "facilities":
+      return { title: d.nav.facilities, description: d.facilities.metaDescription };
+    case "news":
+      return { title: d.nav.news, description: d.news.metaDescription };
+    case "article": {
+      const a = c.site.news[route.index];
+      return { title: a.title, description: stripHtml(a.html).slice(0, 160) };
+    }
+    case "contact":
+      return { title: d.nav.contact, description: `${d.contact.phone} · ${d.contact.address}` };
+    case "links":
+      return { title: d.nav.links, description: d.links.metaDescription };
+    case "legal":
+      return { title: c.site.legal[route.key].title };
+    case "group": {
+      const g = c.groupByKey(route.key);
+      return { title: g.title, description: excerpt(stripHtml(g.intro), 160) };
+    }
+    case "category": {
+      const cat = find(lang, route) as ReturnType<typeof cms>["categories"][string];
+      return { title: cat.title, description: excerpt(cat.summary || stripHtml(cat.intro), 160) };
+    }
+    case "product": {
+      const p = find(lang, route) as ReturnType<typeof cms>["products"][string];
+      return { title: p.title, description: excerpt(p.summary || stripHtml(p.body), 160) };
+    }
+  }
+}
+
+export async function generateMetadata({ params }: PageProps<"/[lang]/[[...path]]">): Promise<Metadata> {
+  const { lang, path } = await params;
+  const hit = lookup(lang, path);
+  if (!hit) return {};
+  const alt = alternatesFor(hit.route);
+  return {
+    ...titleAndDescription(hit.lang, hit.route),
+    alternates: {
+      canonical: alt[hit.lang],
+      languages: { el: alt.el, en: alt.en, "x-default": alt.el },
+    },
+  };
+}
+
+export default async function Page({ params }: PageProps<"/[lang]/[[...path]]">) {
+  const { lang: rawLang, path } = await params;
+  const hit = lookup(rawLang, path);
+  if (!hit) notFound();
+  const { lang, route } = hit;
+  const c = cms(lang);
+
+  switch (route.kind) {
+    case "home":
+      return <HomeView lang={lang} />;
+    case "company":
+      return <CompanyView lang={lang} />;
+    case "facilities":
+      return <FacilitiesView lang={lang} />;
+    case "news":
+      return <NewsView lang={lang} />;
+    case "article":
+      return <ArticleView lang={lang} index={route.index} />;
+    case "contact":
+      return <ContactView lang={lang} />;
+    case "links":
+      return <LinksView lang={lang} />;
+    case "legal":
+      return <LegalView lang={lang} legalKey={route.key} />;
+    case "group":
+      return <GroupView lang={lang} group={c.groupByKey(route.key)} />;
+    case "category":
+      return <CategoryView lang={lang} category={Object.values(c.categories).find((x) => x.id === route.id)!} />;
+    case "product":
+      return <ProductView lang={lang} product={Object.values(c.products).find((x) => x.id === route.id)!} />;
+  }
+}

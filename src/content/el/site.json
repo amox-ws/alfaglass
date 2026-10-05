@@ -15,7 +15,8 @@
     "ichomonotikoi-yalopinakes",
     "yalopinakes-asfaleias",
     "pyrantochoi-yalopinakes"
-   ]
+   ],
+   "key": "yalopinakes"
   },
   {
    "slug": "plastika-fylla",
@@ -24,7 +25,8 @@
    "image": "/media/009101b3fe.jpg",
    "categories": [
     "plastika-fylla"
-   ]
+   ],
+   "key": "plastika-fylla"
   },
   {
    "slug": "synafi-proionta",
@@ -36,7 +38,8 @@
     "michanismoi-gyalinon-thyron-exartimata-yalopinakon",
     "exartimata-gia-gyalines-thyres-yalopinakes",
     "analosima-michanon-ergaleia"
-   ]
+   ],
+   "key": "synafi-proionta"
   }
  ],
  "company": {

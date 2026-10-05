@@ -1,11 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLink, Eyebrow, MaskedLines, Reveal } from "@/components/ui";
+import { t, type Lang } from "@/lib/i18n";
 
 type Item = { href: string; title: string; image: string | null; count: number; summary: string };
 
 /** Related products: an asymmetric spread rather than a uniform card grid. */
-export function Related({ items }: { items: Item[] }) {
+export function Related({ lang, items, allHref }: { lang: Lang; items: Item[]; allHref: string }) {
+  const d = t(lang);
+  const h = d.home;
   const spans = [
     "md:col-span-7 md:row-span-2 aspect-[4/5] md:aspect-auto",
     "md:col-span-5 aspect-[4/3] md:aspect-[16/11]",
@@ -18,14 +21,13 @@ export function Related({ items }: { items: Item[] }) {
         <div className="grid gap-8 md:grid-cols-12 md:items-end">
           <div className="md:col-span-8">
             <Eyebrow index="06">
-              Από το 2018
+              {h.relatedEyebrow}
             </Eyebrow>
-            <MaskedLines as="h2" id="related-title" lines={["Συναφή", "προϊόντα"]} className="t-display mt-6" />
+            <MaskedLines as="h2" id="related-title" lines={h.relatedTitle} className="t-display mt-6" />
           </div>
           <Reveal className="md:col-span-4">
             <p className="text-fg-muted">
-              Συσκευές ελέγχου, μηχανισμοί γυάλινων θυρών, εξαρτήματα, αναλώσιμα μηχανών και εργαλεία: ό,τι χρειάζεται ο
-              επαγγελματίας γύρω από το γυαλί.
+              {h.relatedText}
             </p>
           </Reveal>
         </div>
@@ -49,7 +51,7 @@ export function Related({ items }: { items: Item[] }) {
                 <div className="flex items-end justify-between gap-6 border-t border-line p-5 md:px-7 md:py-6">
                   <div>
                     <p className="t-label tabular text-fg-muted">
-                      {it.count} {it.count === 1 ? "είδος" : "είδη"}
+                      {d.count(it.count)}
                     </p>
                     <h3 className="t-h3 mt-2 max-w-[22ch] !text-[clamp(1.35rem,1.9vw,2rem)]">{it.title}</h3>
                   </div>
@@ -66,8 +68,8 @@ export function Related({ items }: { items: Item[] }) {
         </div>
 
         <div className="mt-12 flex justify-end">
-          <ArrowLink href="/synafi-proionta">
-            Όλα τα συναφή προϊόντα
+          <ArrowLink href={allHref}>
+            {h.allRelated}
           </ArrowLink>
         </div>
       </div>

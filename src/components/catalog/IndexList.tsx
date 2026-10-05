@@ -5,11 +5,13 @@ import Link from "next/link";
 import { AnimatePresence, motion, useMotionValue, useSpring } from "motion/react";
 import { useState } from "react";
 import { Reveal, ease } from "@/components/ui";
+import { t, type Lang } from "@/lib/i18n";
 
 export type IndexRow = { href: string; title: string; summary: string; image: string | null; count?: number };
 
 /** Typographic index with a cursor-following image preview on pointer devices. */
-export function IndexList({ rows }: { rows: IndexRow[] }) {
+export function IndexList({ lang, rows }: { lang: Lang; rows: IndexRow[] }) {
+  const d = t(lang);
   const [active, setActive] = useState<number | null>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -47,7 +49,7 @@ export function IndexList({ rows }: { rows: IndexRow[] }) {
             </span>
             <span className={`hidden text-[0.95rem] leading-snug md:line-clamp-2 ${muted}`}>{row.summary}</span>
             <span className={`t-label hidden text-right md:block tabular ${muted}`}>
-              {row.count !== undefined ? `${row.count} ${row.count === 1 ? "είδος" : "είδη"}` : ""}
+              {row.count !== undefined ? d.count(row.count) : ""}
             </span>
             <span
               aria-hidden

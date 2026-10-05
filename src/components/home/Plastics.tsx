@@ -1,21 +1,27 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLink, Eyebrow, MaskedLines, Reveal } from "@/components/ui";
+import { t, type Lang } from "@/lib/i18n";
 
 export function Plastics({
+  lang,
   image,
   items,
+  allHref,
 }: {
+  lang: Lang;
   image: string;
   items: { title: string; href: string }[];
+  allHref: string;
 }) {
-  const marquee = ["Ακρυλικά XT", "Χυτά Ακρυλικά", "Πολυκαρβονικά", "PET-G", "PVC Foam", "Bond", "Πολυστερίνες", "Πάνελ πολυουρεθάνης"];
+  const h = t(lang).home;
+  const marquee = h.plasticsMarquee;
   return (
     <section data-theme="mist" aria-labelledby="plastics-title" className="relative overflow-hidden bg-surface section-y">
       <div className="shell">
         <div className="flex items-center justify-between">
-          <Eyebrow index="04">Από το 2014</Eyebrow>
-          <span className="t-label hidden text-fg-muted sm:block">{items.length} κατηγορίες υλικών</span>
+          <Eyebrow index="04">{h.plasticsEyebrow}</Eyebrow>
+          <span className="t-label hidden text-fg-muted sm:block">{h.plasticsCount(items.length)}</span>
         </div>
       </div>
 
@@ -35,15 +41,14 @@ export function Plastics({
 
       <div className="shell mt-16 grid gap-12 md:mt-24 md:grid-cols-12">
         <div className="md:col-span-5">
-          <MaskedLines as="h2" id="plastics-title" lines={["Πλαστικά", "φύλλα"]} className="t-display" />
+          <MaskedLines as="h2" id="plastics-title" lines={h.plasticsTitle} className="t-display" />
           <Reveal delay={0.1}>
             <p className="t-lead mt-8 max-w-[30rem] text-fg-muted">
-              Από το 2014 η ALFA GLASS επέκτεινε τις δραστηριότητές της στα ακρυλικά, πολυκαρβονικά, PVC και Bond φύλλα,
-              για επιγραφοποιούς, κατασκευαστές και κτίρια.
+              {h.plasticsText}
             </p>
           </Reveal>
           <Reveal delay={0.15} className="relative mt-12 aspect-[4/3] overflow-hidden rounded-sm">
-            <Image src={image} alt="Στέγαστρο από πολυκαρβονικά φύλλα" fill sizes="(min-width: 768px) 40vw, 100vw" className="object-cover" />
+            <Image src={image} alt={h.plasticsAlt} fill sizes="(min-width: 768px) 40vw, 100vw" className="object-cover" />
           </Reveal>
         </div>
 
@@ -62,7 +67,7 @@ export function Plastics({
             </Reveal>
           ))}
           <li className="pt-10">
-            <ArrowLink href="/plastika-fylla">Όλα τα πλαστικά φύλλα</ArrowLink>
+            <ArrowLink href={allHref}>{h.allPlastics}</ArrowLink>
           </li>
         </ul>
       </div>

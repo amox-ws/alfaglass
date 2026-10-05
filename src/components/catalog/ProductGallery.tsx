@@ -5,8 +5,10 @@ import { AnimatePresence, motion } from "motion/react";
 import { useState } from "react";
 import { ease } from "@/components/ui";
 import type { Media } from "@/lib/content";
+import { t, type Lang } from "@/lib/i18n";
 
-export function ProductGallery({ images, title }: { images: Media[]; title: string }) {
+export function ProductGallery({ lang, images, title }: { lang: Lang; images: Media[]; title: string }) {
+  const d = t(lang).a11y;
   const [index, setIndex] = useState(0);
   if (!images.length) return null;
   const current = images[index];
@@ -18,7 +20,7 @@ export function ProductGallery({ images, title }: { images: Media[]; title: stri
         className="group relative aspect-[4/3] overflow-hidden rounded-sm bg-snow"
         role="region"
         aria-roledescription="carousel"
-        aria-label={`Εικόνες: ${title}`}
+        aria-label={`${d.images}: ${title}`}
         tabIndex={0}
         onKeyDown={(e) => {
           if (e.key === "ArrowRight") go(1);
@@ -60,7 +62,7 @@ export function ProductGallery({ images, title }: { images: Media[]; title: stri
             <button
               type="button"
               onClick={() => go(-1)}
-              aria-label="Προηγούμενη εικόνα"
+              aria-label={d.prevImage}
               className="absolute left-3 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center glass glass-thin rounded-full text-fg opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
             >
               ←
@@ -68,7 +70,7 @@ export function ProductGallery({ images, title }: { images: Media[]; title: stri
             <button
               type="button"
               onClick={() => go(1)}
-              aria-label="Επόμενη εικόνα"
+              aria-label={d.nextImage}
               className="absolute right-3 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center glass glass-thin rounded-full text-fg opacity-0 transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
             >
               →
@@ -84,7 +86,7 @@ export function ProductGallery({ images, title }: { images: Media[]; title: stri
               key={img.src}
               type="button"
               onClick={() => setIndex(i)}
-              aria-label={`Εικόνα ${i + 1}${img.caption ? `: ${img.caption}` : ""}`}
+              aria-label={`${d.image} ${i + 1}${img.caption ? `: ${img.caption}` : ""}`}
               aria-current={i === index}
               className={`relative aspect-square w-16 shrink-0 overflow-hidden rounded-sm bg-snow transition-[opacity,outline-color] md:w-20 ${
                 i === index ? "opacity-100 outline outline-1 outline-offset-2 outline-accent" : "opacity-50 hover:opacity-90"
