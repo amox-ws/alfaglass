@@ -8,7 +8,7 @@ import { contact, imagery } from "@/lib/content";
 export function ContactMap() {
   const [load, setLoad] = useState(false);
   return (
-    <div className="relative aspect-[4/3] overflow-hidden rounded-sm bg-ink-2 md:aspect-auto md:h-full md:min-h-[32rem]">
+    <div data-theme="deep" className="relative aspect-[4/3] overflow-hidden rounded-sm bg-surface-2 md:aspect-auto md:h-full md:min-h-[32rem]">
       {load ? (
         <iframe
           title="Χάρτης: ALFA GLASS, Ασπρόπυργος"
@@ -20,7 +20,7 @@ export function ContactMap() {
       ) : (
         <>
           <Image src={imagery.aerial} alt="" fill sizes="50vw" className="object-cover opacity-50" />
-          <div className="absolute inset-0 bg-gradient-to-t from-ink via-ink/50 to-transparent" />
+          <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/50 to-transparent" />
           <div className="absolute inset-x-0 bottom-0 flex flex-col gap-4 p-6 md:p-8">
             <p className="max-w-[34ch] text-sm text-fg-muted">
               Ο χάρτης φορτώνεται από την Google και ενδέχεται να χρησιμοποιήσει cookies.
@@ -29,7 +29,7 @@ export function ContactMap() {
               <button
                 type="button"
                 onClick={() => setLoad(true)}
-                className="rounded-full bg-fg px-5 py-2.5 font-semibold text-ink transition-colors hover:bg-edge"
+                className="rounded-full bg-fg px-5 py-2.5 font-semibold text-surface transition-colors hover:bg-accent"
               >
                 Εμφάνιση χάρτη
               </button>

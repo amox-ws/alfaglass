@@ -41,7 +41,7 @@ export function Hero() {
   }, []);
 
   return (
-    <section ref={section} className="relative h-[100svh] min-h-[38rem] overflow-hidden bg-ink" aria-label="Εισαγωγή">
+    <section ref={section} data-theme="frost" className="relative h-[100svh] min-h-[38rem] overflow-hidden bg-surface" aria-label="Εισαγωγή">
       {/* 3D stage */}
       <div className={`absolute inset-0 transition-opacity duration-[1600ms] ${ready ? "opacity-100" : "opacity-0"}`}>
         {webgl && (
@@ -75,7 +75,7 @@ export function Hero() {
         className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "linear-gradient(to bottom, color-mix(in oklch, var(--ink) 70%, transparent) 0%, transparent 22%, transparent 62%, var(--ink) 100%)",
+            "linear-gradient(to bottom, color-mix(in oklch, var(--surface) 70%, transparent) 0%, transparent 22%, transparent 62%, var(--surface) 100%)",
         }}
       />
 
@@ -106,10 +106,10 @@ export function Hero() {
             <div className="mt-7 flex flex-wrap gap-3">
               <Link
                 href="/yalopinakes"
-                className="group inline-flex items-center gap-3 rounded-full bg-fg py-3 pl-6 pr-3 font-semibold text-ink transition-colors hover:bg-edge"
+                className="group inline-flex items-center gap-3 rounded-full bg-fg py-3 pl-6 pr-3 font-semibold text-surface transition-colors hover:bg-accent"
               >
                 Δείτε τα προϊόντα
-                <span className="flex size-8 items-center justify-center rounded-full bg-ink text-fg transition-transform duration-500 group-hover:translate-x-0.5">
+                <span className="flex size-8 items-center justify-center rounded-full bg-surface text-fg transition-transform duration-500 group-hover:translate-x-0.5">
                   →
                 </span>
               </Link>
@@ -130,7 +130,7 @@ export function Hero() {
           >
             <span className="t-label text-fg-dim">Κύλιση</span>
             <span className="relative block h-14 w-px overflow-hidden bg-line">
-              <span className="absolute inset-x-0 top-0 h-1/2 animate-[scrollcue_2.2s_var(--ease-in-out)_infinite] bg-edge" />
+              <span className="absolute inset-x-0 top-0 h-1/2 animate-[scrollcue_2.2s_var(--ease-in-out)_infinite] bg-accent" />
             </span>
           </motion.div>
         </div>

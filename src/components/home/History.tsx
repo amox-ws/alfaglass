@@ -31,7 +31,7 @@ export function History({ items, engraving }: { items: Item[]; engraving: string
   }, []);
 
   return (
-    <section aria-labelledby="history-title" className="relative bg-ink">
+    <section data-theme="deep" aria-labelledby="history-title" className="relative bg-surface">
       <div ref={ref} style={{ height: `calc(100svh + ${distance}px)` }} className="relative">
         <div className="sticky top-0 flex h-[100svh] flex-col justify-center overflow-hidden">
           <div className="shell mb-10 flex items-end justify-between gap-6 md:mb-14">
@@ -43,7 +43,7 @@ export function History({ items, engraving }: { items: Item[]; engraving: string
             </div>
             <div className="hidden w-48 md:block">
               <div className="h-px w-full bg-line">
-                <motion.div style={{ width: bar }} className="h-px bg-edge" />
+                <motion.div style={{ width: bar }} className="h-px bg-accent" />
               </div>
               <p className="t-label mt-3 flex justify-between text-fg-dim tabular">
                 <span>1999</span>
@@ -55,7 +55,7 @@ export function History({ items, engraving }: { items: Item[]; engraving: string
           <motion.div ref={track} style={{ x }} className="flex w-max gap-[clamp(1.5rem,3vw,3rem)] pl-[var(--gutter)] pr-[var(--gutter)]">
             <figure className="relative h-[52svh] w-[min(78vw,30rem)] shrink-0 overflow-hidden rounded-sm">
               <Image src={engraving} alt="Χαλκογραφία εργαστηρίου επεξεργασίας γυαλιού" fill sizes="30rem" className="object-cover grayscale" />
-              <div className="absolute inset-0 bg-indigo/40 mix-blend-multiply" />
+              <div className="absolute inset-0 bg-deep/40 mix-blend-multiply" />
               <figcaption className="t-label absolute bottom-4 left-4 right-4 text-fg">Μια παράδοση στο γυαλί πριν από το 1999</figcaption>
             </figure>
             {items.map((it, i) => (
@@ -65,7 +65,7 @@ export function History({ items, engraving }: { items: Item[]; engraving: string
               >
                 <p className="font-display text-[clamp(6rem,15vw,15rem)] font-[200] leading-[0.8] text-fg tabular">{it.year}</p>
                 <div>
-                  <p className="t-label mb-4 text-edge">{String(i + 1).padStart(2, "0")} / {String(items.length).padStart(2, "0")}</p>
+                  <p className="t-label mb-4 text-accent">{String(i + 1).padStart(2, "0")} / {String(items.length).padStart(2, "0")}</p>
                   <p className="t-lead max-w-[26rem] text-fg-muted">{it.text}</p>
                 </div>
               </article>

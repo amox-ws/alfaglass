@@ -4,13 +4,12 @@ import { MaskedLines, Reveal } from "@/components/ui";
 
 export type Crumb = { label: string; href?: string };
 
-export function Breadcrumbs({ items, tone = "dark" }: { items: Crumb[]; tone?: "dark" | "light" }) {
-  const muted = tone === "dark" ? "text-fg-dim" : "text-on-paper-muted";
+export function Breadcrumbs({ items }: { items: Crumb[] }) {
   return (
-    <nav aria-label="Διαδρομή" className={`t-label ${muted}`}>
+    <nav aria-label="Διαδρομή" className="t-label text-fg-dim">
       <ol className="flex flex-wrap items-center gap-x-2.5 gap-y-1">
         <li>
-          <Link href="/" className="transition-colors hover:text-edge">
+          <Link href="/" className="transition-colors hover:text-accent">
             Αρχική
           </Link>
         </li>
@@ -18,11 +17,11 @@ export function Breadcrumbs({ items, tone = "dark" }: { items: Crumb[]; tone?: "
           <li key={i} className="flex items-center gap-2.5">
             <span aria-hidden>/</span>
             {c.href ? (
-              <Link href={c.href} className="transition-colors hover:text-edge">
+              <Link href={c.href} className="transition-colors hover:text-accent">
                 {c.label}
               </Link>
             ) : (
-              <span aria-current="page" className={tone === "dark" ? "text-fg-muted" : "text-on-paper"}>
+              <span aria-current="page" className="text-fg-muted">
                 {c.label}
               </span>
             )}
@@ -66,13 +65,12 @@ export function PageHero({
   children?: React.ReactNode;
 }) {
   return (
-    <section className="relative overflow-hidden bg-ink pb-16 pt-[calc(var(--header-h)+3rem)] md:pb-24 md:pt-[calc(var(--header-h)+5rem)]">
-      {image && (
-        <div aria-hidden className="absolute inset-0">
-          <Image src={image} alt={imageAlt} fill priority sizes="100vw" className="object-cover opacity-35" />
-          <div className="absolute inset-0 bg-gradient-to-b from-ink/60 via-ink/75 to-ink" />
-        </div>
-      )}
+    <section data-theme="frost" className="relative overflow-hidden bg-surface pb-16 pt-[calc(var(--header-h)+3rem)] md:pb-24 md:pt-[calc(var(--header-h)+5rem)]">
+      <div
+        aria-hidden
+        className="pointer-events-none absolute inset-x-0 top-0 h-[70%]"
+        style={{ background: "radial-gradient(80% 100% at 85% 0%, oklch(0.9 0.05 200 / 0.55), transparent 70%)" }}
+      />
       <div className="shell relative">
         <Breadcrumbs items={crumbs} />
         <MaskedLines as="h1" lines={headlineLines(title)} className="t-display mt-10 max-w-[18ch] md:mt-14" />
@@ -90,16 +88,21 @@ export function PageHero({
             )}
           </div>
         )}
+        {image && (
+          <Reveal delay={0.2} className="relative mt-14 aspect-[16/9] overflow-hidden rounded-sm bg-surface-2 md:mt-20 md:aspect-[21/8]">
+            <Image src={image} alt={imageAlt} fill priority sizes="100vw" className="object-cover" />
+          </Reveal>
+        )}
         {children}
       </div>
     </section>
   );
 }
 
-export function Prose({ html, tone = "light", className = "" }: { html: string; tone?: "dark" | "light"; className?: string }) {
+export function Prose({ html, className = "" }: { html: string; className?: string }) {
   return (
     <div
-      className={`prose-glass ${tone === "dark" ? "text-fg-muted [&_strong]:text-fg" : "text-on-paper-muted [&_strong]:text-on-paper"} ${className}`}
+      className={`prose-glass text-fg-muted [&_strong]:text-fg ${className}`}
       dangerouslySetInnerHTML={{ __html: html }}
     />
   );

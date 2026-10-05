@@ -5,9 +5,9 @@ import { Environment, Lightformer, MeshTransmissionMaterial, RoundedBox, Text } 
 import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import * as THREE from "three";
 
-const INK = "#110e27";
+const FROST = "#f2f8f9"; // --surface (frost)
 const TEXT_Z = -2.5;
-const FG = "#f2f2f8";
+const INDIGO = "#262354"; // --fg (softened brand indigo)
 
 type Props = {
   lines: string[][]; // [landscape lines, portrait lines]
@@ -25,7 +25,7 @@ export default function GlassScene({ lines, onReady, active }: Props) {
       camera={{ position: [0, 0, 12], fov: 30 }}
       aria-hidden
     >
-      <color attach="background" args={[INK]} />
+      <color attach="background" args={[FROST]} />
       <Suspense fallback={null}>
         <Rig>
           <Glow />
@@ -36,7 +36,7 @@ export default function GlassScene({ lines, onReady, active }: Props) {
           <Lightformer form="rect" intensity={5} color="#ffffff" position={[0, 5, -3]} scale={[12, 0.6, 1]} />
           <Lightformer form="rect" intensity={4} color="#a8ecff" position={[-6, 0, 2]} rotation-y={Math.PI / 2} scale={[10, 0.25, 1]} />
           <Lightformer form="rect" intensity={3} color="#ffffff" position={[6, -1, 2]} rotation-y={-Math.PI / 2} scale={[10, 0.25, 1]} />
-          <Lightformer form="rect" intensity={0.5} color="#c9c4ff" position={[0, 0, 10]} scale={[16, 10, 1]} />
+          <Lightformer form="rect" intensity={0.8} color="#ffffff" position={[0, 0, 10]} scale={[16, 10, 1]} />
         </Environment>
       </Suspense>
     </Canvas>
@@ -54,10 +54,10 @@ function Glow() {
     c.width = c.height = 512;
     const ctx = c.getContext("2d")!;
     const g = ctx.createRadialGradient(256, 256, 0, 256, 256, 256);
-    g.addColorStop(0, "rgba(120, 220, 255, 0.55)");
-    g.addColorStop(0.35, "rgba(90, 110, 255, 0.28)");
-    g.addColorStop(0.7, "rgba(60, 40, 160, 0.10)");
-    g.addColorStop(1, "rgba(17, 14, 39, 0)");
+    g.addColorStop(0, "rgba(102, 207, 225, 0.5)");
+    g.addColorStop(0.35, "rgba(128, 175, 235, 0.26)");
+    g.addColorStop(0.7, "rgba(166, 222, 210, 0.12)");
+    g.addColorStop(1, "rgba(242, 248, 249, 0)");
     ctx.fillStyle = g;
     ctx.fillRect(0, 0, 512, 512);
     const t = new THREE.CanvasTexture(c);
@@ -143,7 +143,7 @@ function Headline({ lines, onReady }: { lines: string[][]; onReady: () => void }
       anchorY="middle"
       position={[0, view.h * (portrait ? 0.1 : 0.09), TEXT_Z]}
       scale={scale || 0.0001}
-      color={FG}
+      color={INDIGO}
       material-toneMapped={false}
       onSync={fit}
     >
@@ -235,9 +235,9 @@ function Pane({
         temporalDistortion={0.04}
         backside
         backsideThickness={0.3}
-        color="#eefff8"
-        attenuationColor="#9fe3c8"
-        attenuationDistance={2.2}
+        color="#f6fffc"
+        attenuationColor="#7fd3c0"
+        attenuationDistance={1.9}
       />
     </RoundedBox>
   );

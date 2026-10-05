@@ -16,13 +16,13 @@ export function Facilities({ warehouse, trucks }: { warehouse: string; trucks: s
     ["inset(14% 38% 14% 38% round 6px)", "inset(0% 0% 0% 0% round 0px)"]
   );
   const scale = useTransform(scrollYProgress, [0, 0.6], [1.25, 1]);
-  const veil = useTransform(scrollYProgress, [0.35, 0.7], [0, 0.62]);
+  const veil = useTransform(scrollYProgress, [0.4, 0.7], [0, 0.8]);
   const copyOpacity = useTransform(scrollYProgress, [0.5, 0.68], [0, 1]);
   const copyY = useTransform(scrollYProgress, [0.5, 0.7], [40, 0]);
   const headOpacity = useTransform(scrollYProgress, [0, 0.25], [1, 0]);
 
   return (
-    <section aria-labelledby="facilities-title" className="relative bg-ink">
+    <section data-theme="frost" aria-labelledby="facilities-title" className="relative bg-surface">
       <div ref={ref} className="relative h-[260vh]">
         <div className="sticky top-0 h-[100svh] overflow-hidden">
           <motion.div style={{ clipPath: clip }} className="absolute inset-0">
@@ -35,10 +35,13 @@ export function Facilities({ warehouse, trucks }: { warehouse: string; trucks: s
                 className="object-cover"
               />
             </motion.div>
-            <motion.div style={{ opacity: veil }} className="absolute inset-0 bg-ink" />
+            <motion.div
+              style={{ opacity: veil, backdropFilter: "blur(14px) saturate(120%)", WebkitBackdropFilter: "blur(14px) saturate(120%)" }}
+              className="absolute inset-0 bg-surface/45"
+            />
             <motion.div
               style={{ opacity: copyOpacity }}
-              className="absolute inset-0 bg-gradient-to-t from-ink via-ink/40 to-transparent"
+              className="absolute inset-0 bg-gradient-to-t from-surface/90 via-surface/30 to-transparent"
             />
           </motion.div>
 

@@ -1,9 +1,9 @@
 import Image from "next/image";
 
-export function Logo({ tone = "dark", className = "" }: { tone?: "dark" | "light"; className?: string }) {
+export function Logo({ variant = "color", className = "" }: { variant?: "color" | "white"; className?: string }) {
   return (
     <Image
-      src={tone === "dark" ? "/brand/logo-on-dark.png" : "/brand/logo-color.png"}
+      src={variant === "white" ? "/brand/logo-on-dark.png" : "/brand/logo-color.png"}
       alt="ALFA GLASS"
       width={289}
       height={56}

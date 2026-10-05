@@ -2,30 +2,23 @@
 
 /* ------------------------------------------------------------------ tokens */
 
+/*
+ * Palette: daylight through glass, rooted in the ALFA GLASS identity.
+ * - indigo   the wordmark (#281a6a), softened: all type
+ * - azure    the cyan-to-blue gradient of the logo mark: accents
+ * - mist     the pale green-aqua seen through a stack of float glass
+ * - frost    satin / frosted glass: the default surface
+ * Sections pick a theme with data-theme; components only use the
+ * contextual tokens (surface, fg, line, accent), never raw colors.
+ */
 :root {
-  /* Ink: the brand indigo (#281a6a) pushed to near-black. Cinematic surfaces. */
-  --ink: oklch(0.155 0.042 282);
-  --ink-2: oklch(0.2 0.052 282);
-  --ink-3: oklch(0.255 0.065 282);
-  --fg: oklch(0.965 0.008 270);
-  --fg-muted: oklch(0.78 0.028 272);
-  --fg-dim: oklch(0.62 0.035 272);
-  --line: oklch(0.965 0.008 270 / 0.13);
-  --line-strong: oklch(0.965 0.008 270 / 0.28);
-
-  /* Paper: frosted / satin glass. Reading surfaces. */
-  --paper: oklch(0.962 0.006 255);
-  --paper-2: oklch(0.928 0.01 255);
-  --on-paper: oklch(0.2 0.055 282);
-  --on-paper-muted: oklch(0.46 0.04 280);
-  --paper-line: oklch(0.2 0.055 282 / 0.14);
-
-  /* Brand */
-  --indigo: oklch(0.29 0.13 286);
-  --cobalt: oklch(0.47 0.205 266);
-  --cobalt-deep: oklch(0.38 0.19 268);
-  --edge: oklch(0.87 0.115 198); /* light caught in a glass edge, from the logo mark */
-  --float: oklch(0.82 0.085 168); /* the green edge of float glass */
+  /* Fixed brand colors */
+  --brand-indigo: oklch(0.29 0.12 286);
+  --brand-azure: oklch(0.6 0.12 232);
+  --brand-cyan: oklch(0.8 0.1 210);
+  --float: oklch(0.86 0.06 180);
+  --deep: oklch(0.28 0.075 279);
+  --snow: oklch(0.985 0.004 210);
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
@@ -34,25 +27,80 @@
   --header-h: 5rem;
 }
 
+/* Frost: the default surface. */
+:root,
+[data-theme="frost"] {
+  --surface: oklch(0.975 0.007 205);
+  --surface-2: oklch(0.945 0.016 200);
+  --fg: oklch(0.29 0.085 282);
+  --fg-muted: oklch(0.47 0.05 268);
+  --fg-dim: oklch(0.62 0.035 255);
+  --line: oklch(0.29 0.085 282 / 0.12);
+  --line-strong: oklch(0.29 0.085 282 / 0.24);
+  --accent: oklch(0.56 0.12 232);
+  --accent-fg: oklch(0.985 0.004 210);
+}
+
+/* Mist: float glass seen edge-on. */
+[data-theme="mist"] {
+  --surface: oklch(0.935 0.03 192);
+  --surface-2: oklch(0.9 0.04 192);
+  --fg: oklch(0.29 0.085 282);
+  --fg-muted: oklch(0.44 0.05 255);
+  --fg-dim: oklch(0.57 0.04 230);
+  --line: oklch(0.29 0.085 282 / 0.13);
+  --line-strong: oklch(0.29 0.085 282 / 0.26);
+  --accent: oklch(0.5 0.11 235);
+  --accent-fg: oklch(0.985 0.004 210);
+}
+
+/* Deep: the brand indigo, used sparingly for contrast. */
+[data-theme="deep"] {
+  --surface: oklch(0.28 0.075 279);
+  --surface-2: oklch(0.33 0.08 279);
+  --fg: oklch(0.975 0.007 205);
+  --fg-muted: oklch(0.83 0.03 235);
+  --fg-dim: oklch(0.68 0.04 250);
+  --line: oklch(0.975 0.007 205 / 0.15);
+  --line-strong: oklch(0.975 0.007 205 / 0.3);
+  --accent: oklch(0.84 0.09 205);
+  --accent-fg: oklch(0.28 0.075 279);
+}
+
+/* Azure: the logo mark's gradient, for calls to action. */
+[data-theme="azure"] {
+  --surface: oklch(0.8 0.08 218);
+  --surface-2: oklch(0.74 0.095 228);
+  --fg: oklch(0.27 0.09 282);
+  --fg-muted: oklch(0.36 0.08 270);
+  --fg-dim: oklch(0.45 0.07 260);
+  --line: oklch(0.27 0.09 282 / 0.2);
+  --line-strong: oklch(0.27 0.09 282 / 0.4);
+  --accent: oklch(0.29 0.12 286);
+  --accent-fg: oklch(0.985 0.004 210);
+}
+
+[data-theme] {
+  color: var(--fg);
+}
+
 @theme inline {
-  --color-ink: var(--ink);
-  --color-ink-2: var(--ink-2);
-  --color-ink-3: var(--ink-3);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
   --color-fg: var(--fg);
   --color-fg-muted: var(--fg-muted);
   --color-fg-dim: var(--fg-dim);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
-  --color-paper: var(--paper);
-  --color-paper-2: var(--paper-2);
-  --color-on-paper: var(--on-paper);
-  --color-on-paper-muted: var(--on-paper-muted);
-  --color-paper-line: var(--paper-line);
-  --color-indigo: var(--indigo);
-  --color-cobalt: var(--cobalt);
-  --color-cobalt-deep: var(--cobalt-deep);
-  --color-edge: var(--edge);
+  --color-accent: var(--accent);
+  --color-accent-fg: var(--accent-fg);
+
+  --color-brand-indigo: var(--brand-indigo);
+  --color-brand-azure: var(--brand-azure);
+  --color-brand-cyan: var(--brand-cyan);
   --color-float: var(--float);
+  --color-deep: var(--deep);
+  --color-snow: var(--snow);
 
   --font-sans: var(--font-sofia), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-sofia-xc), var(--font-sofia), ui-sans-serif, sans-serif;
@@ -82,7 +130,7 @@ html.lenis body {
 }
 
 body {
-  background: var(--ink);
+  background: var(--surface);
   color: var(--fg);
   font-family: var(--font-sans);
   font-size: 1.0625rem;
@@ -92,12 +140,12 @@ body {
 }
 
 ::selection {
-  background: var(--edge);
-  color: var(--ink);
+  background: var(--brand-cyan);
+  color: var(--brand-indigo);
 }
 
 :focus-visible {
-  outline: 2px solid var(--edge);
+  outline: 2px solid var(--accent);
   outline-offset: 3px;
   border-radius: 2px;
 }

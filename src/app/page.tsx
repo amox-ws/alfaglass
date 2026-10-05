@@ -60,10 +60,10 @@ export default function Home() {
       />
 
       {/* Latest news */}
-      <section aria-labelledby="news-title" className="bg-paper pb-[clamp(5rem,11vw,11rem)] text-on-paper">
+      <section data-theme="frost" aria-labelledby="news-title" className="bg-surface pb-[clamp(5rem,11vw,11rem)]">
         <div className="shell">
-          <div className="flex items-baseline justify-between border-t border-paper-line pt-8">
-            <h2 id="news-title" className="t-label text-on-paper-muted">
+          <div className="flex items-baseline justify-between border-t border-line pt-8">
+            <h2 id="news-title" className="t-label text-fg-muted">
               Τα νέα μας
             </h2>
             <Link href="/nea" className="link-underline t-label">
@@ -72,7 +72,7 @@ export default function Home() {
           </div>
           <Reveal>
             <Link href={`/nea/${article.slug}`} className="group mt-10 grid gap-8 md:grid-cols-12 md:items-center">
-              <div className="relative aspect-[16/10] overflow-hidden rounded-sm bg-paper-2 md:col-span-5">
+              <div className="relative aspect-[16/10] overflow-hidden rounded-sm bg-surface-2 md:col-span-5">
                 <Image
                   src={article.images[1] ?? article.images[0]}
                   alt=""
@@ -83,9 +83,9 @@ export default function Home() {
                 />
               </div>
               <div className="md:col-span-6 md:col-start-7">
-                <p className="t-label tabular text-cobalt">{formatDate(article.date)}</p>
-                <h3 className="t-h2 mt-4 transition-colors group-hover:text-cobalt">{article.title}</h3>
-                <p className="mt-5 max-w-[46ch] text-on-paper-muted">{stripHtml(article.html).slice(0, 150)}…</p>
+                <p className="t-label tabular text-accent">{formatDate(article.date)}</p>
+                <h3 className="t-h2 mt-4 transition-colors group-hover:text-accent">{article.title}</h3>
+                <p className="mt-5 max-w-[46ch] text-fg-muted">{stripHtml(article.html).slice(0, 150)}…</p>
               </div>
             </Link>
           </Reveal>

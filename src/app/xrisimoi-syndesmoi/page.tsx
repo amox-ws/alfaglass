@@ -20,11 +20,11 @@ export default function LinksPage() {
         title="Χρήσιμοι σύνδεσμοι"
         lead="Configurators, υπολογιστές επιδόσεων και πληροφορίες σήμανσης CE από τους οίκους με τους οποίους συνεργαζόμαστε."
       />
-      <section className="bg-paper text-on-paper section-y">
+      <section data-theme="mist" className="bg-surface section-y">
         <div className="shell">
-          <ul className="border-t border-paper-line">
+          <ul className="border-t border-line">
             {site.links.map((b, i) => (
-              <Reveal as="li" key={b.logo} className="grid gap-8 border-b border-paper-line py-10 md:grid-cols-12 md:items-start">
+              <Reveal as="li" key={b.logo} className="grid gap-8 border-b border-line py-10 md:grid-cols-12 md:items-start">
                 <div className="flex items-center gap-6 md:col-span-4">
                   <div className="relative flex h-20 w-40 shrink-0 items-center justify-center rounded-sm bg-[oklch(0.995_0.002_250)] p-3">
                     <Image src={b.logo} alt={BRANDS[i] ?? ""} fill sizes="10rem" className="object-contain p-3" />
@@ -33,10 +33,10 @@ export default function LinksPage() {
                 </div>
                 <ul className="grid gap-x-8 sm:grid-cols-2 md:col-span-7 md:col-start-6">
                   {b.links.map((l) => (
-                    <li key={l.href} className="border-b border-paper-line last:border-0 sm:[&:nth-last-child(2):nth-child(odd)]:border-0">
+                    <li key={l.href} className="border-b border-line last:border-0 sm:[&:nth-last-child(2):nth-child(odd)]:border-0">
                       <a href={l.href} target="_blank" rel="noreferrer" className="group flex items-center justify-between gap-4 py-3.5">
-                        <span className="transition-colors group-hover:text-cobalt">{l.label.replace(/\s*\|\s*Guardian( Glass)?$/, "")}</span>
-                        <span aria-hidden className="text-on-paper-muted transition-transform group-hover:translate-x-0.5 group-hover:text-cobalt">↗</span>
+                        <span className="transition-colors group-hover:text-accent">{l.label.replace(/\s*\|\s*Guardian( Glass)?$/, "")}</span>
+                        <span aria-hidden className="text-fg-muted transition-transform group-hover:translate-x-0.5 group-hover:text-accent">↗</span>
                       </a>
                     </li>
                   ))}

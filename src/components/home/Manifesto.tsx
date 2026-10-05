@@ -16,7 +16,7 @@ export function Manifesto() {
   const words = STATEMENT.split(" ");
 
   return (
-    <section className="relative bg-ink section-y" aria-labelledby="manifesto-title">
+    <section data-theme="frost" className="relative bg-surface section-y" aria-labelledby="manifesto-title">
       <div className="shell">
         <div className="mb-14 flex items-center justify-between gap-6 md:mb-20">
           <Eyebrow index="01">Λίγα λόγια για μας</Eyebrow>
@@ -68,7 +68,7 @@ function Word({
 }) {
   const opacity = useTransform(progress, range, [0.14, 1]);
   return (
-    <motion.span style={{ opacity }} className={`inline-block pr-[0.22em] ${accent ? "text-edge" : ""}`}>
+    <motion.span style={{ opacity }} className={`inline-block pr-[0.22em] ${accent ? "text-accent" : ""}`}>
       {children}
     </motion.span>
   );

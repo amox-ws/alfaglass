@@ -9,19 +9,16 @@ import { Reveal, ease } from "@/components/ui";
 export type IndexRow = { href: string; title: string; summary: string; image: string | null; count?: number };
 
 /** Typographic index with a cursor-following image preview on pointer devices. */
-export function IndexList({ rows, tone = "light" }: { rows: IndexRow[]; tone?: "light" | "dark" }) {
+export function IndexList({ rows }: { rows: IndexRow[] }) {
   const [active, setActive] = useState<number | null>(null);
   const x = useMotionValue(0);
   const y = useMotionValue(0);
   const sx = useSpring(x, { stiffness: 220, damping: 26, mass: 0.6 });
   const sy = useSpring(y, { stiffness: 220, damping: 26, mass: 0.6 });
-  const light = tone === "light";
-  const line = light ? "border-paper-line" : "border-line";
-  const muted = light ? "text-on-paper-muted" : "text-fg-muted";
-  const hover = light ? "group-hover:text-cobalt" : "group-hover:text-edge";
-  const ring = light
-    ? "border-paper-line group-hover:border-cobalt group-hover:bg-cobalt group-hover:text-paper"
-    : "border-line-strong group-hover:border-edge group-hover:bg-edge group-hover:text-ink";
+  const line = "border-line";
+  const muted = "text-fg-muted";
+  const hover = "group-hover:text-accent";
+  const ring = "border-line-strong group-hover:border-accent group-hover:bg-accent group-hover:text-accent-fg";
 
   return (
     <ul
@@ -75,7 +72,7 @@ export function IndexList({ rows, tone = "light" }: { rows: IndexRow[]; tone?: "
               animate={{ opacity: 1, scale: 1, rotate: 0 }}
               exit={{ opacity: 0, scale: 0.92 }}
               transition={{ duration: 0.45, ease }}
-              className="absolute inset-0 overflow-hidden rounded-sm bg-paper-2 shadow-[0_30px_60px_-20px_oklch(0.2_0.06_282/0.45)]"
+              className="absolute inset-0 overflow-hidden rounded-sm bg-surface-2 shadow-[0_30px_60px_-20px_oklch(0.2_0.06_282/0.45)]"
             >
               <Image src={rows[active].image!} alt="" fill sizes="13rem" className="object-cover" />
             </motion.div>

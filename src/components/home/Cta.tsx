@@ -3,14 +3,14 @@ import { MaskedLines, Reveal } from "@/components/ui";
 
 export function Cta() {
   return (
-    <section aria-labelledby="cta-title" className="relative overflow-hidden bg-cobalt section-y">
+    <section data-theme="azure" aria-labelledby="cta-title" className="relative overflow-hidden bg-surface section-y">
       {/* Refraction lines: light split by a fluted pane */}
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-50"
+        className="pointer-events-none absolute inset-0 opacity-100"
         style={{
           background:
-            "repeating-linear-gradient(90deg, transparent 0 46px, oklch(1 0 0 / 0.07) 46px 47px, transparent 47px 92px), radial-gradient(120% 80% at 85% 10%, oklch(0.87 0.115 198 / 0.45), transparent 60%)",
+            "repeating-linear-gradient(90deg, transparent 0 46px, oklch(1 0 0 / 0.28) 46px 47px, transparent 47px 92px), radial-gradient(120% 90% at 85% 0%, oklch(0.93 0.06 195 / 0.9), transparent 60%), linear-gradient(160deg, transparent 40%, oklch(0.7 0.1 240 / 0.6))",
         }}
       />
       <div className="shell relative">
@@ -31,7 +31,7 @@ export function Cta() {
               className="group flex items-center justify-between gap-6 border-b border-fg/40 pb-4 transition-colors hover:border-fg"
             >
               <span className="font-display text-[clamp(2.5rem,5.5vw,5.5rem)] font-bold leading-none tabular">{contact.phone}</span>
-              <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-fg text-cobalt transition-transform duration-500 group-hover:rotate-[-45deg]" style={{ transitionTimingFunction: "var(--ease-out)" }}>
+              <span className="flex size-14 shrink-0 items-center justify-center rounded-full bg-fg text-surface transition-transform duration-500 group-hover:rotate-[-45deg]" style={{ transitionTimingFunction: "var(--ease-out)" }}>
                 →
               </span>
             </a>

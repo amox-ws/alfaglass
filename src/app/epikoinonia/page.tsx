@@ -17,7 +17,7 @@ export default function ContactPage() {
     { label: "Διεύθυνση", value: contact.address, note: contact.addressNote, href: contact.mapsHref },
   ];
   return (
-    <section className="bg-ink pb-[clamp(5rem,11vw,11rem)] pt-[calc(var(--header-h)+3rem)] md:pt-[calc(var(--header-h)+5rem)]">
+    <section data-theme="frost" className="bg-surface pb-[clamp(5rem,11vw,11rem)] pt-[calc(var(--header-h)+3rem)] md:pt-[calc(var(--header-h)+5rem)]">
       <div className="shell">
         <Breadcrumbs items={[{ label: "Επικοινωνία" }]} />
         <MaskedLines as="h1" lines={["Μιλήστε", "μαζί μας"]} className="t-mega mt-10 md:mt-14" />
@@ -35,7 +35,7 @@ export default function ContactPage() {
                   <span className="t-label text-fg-dim">{r.label}</span>
                   <span className="block">
                     <span
-                      className={`block transition-colors group-hover:text-edge ${
+                      className={`block transition-colors group-hover:text-accent ${
                         r.big ? "font-display text-[clamp(2.5rem,5vw,4.5rem)] font-bold leading-none tabular" : "text-xl font-medium md:text-2xl"
                       }`}
                     >
@@ -43,7 +43,7 @@ export default function ContactPage() {
                     </span>
                     {r.note && <span className="mt-2 block text-fg-muted">{r.note}</span>}
                   </span>
-                  <span aria-hidden className="hidden text-fg-dim transition-transform group-hover:translate-x-1 group-hover:text-edge sm:block">
+                  <span aria-hidden className="hidden text-fg-dim transition-transform group-hover:translate-x-1 group-hover:text-accent sm:block">
                     {r.href.startsWith("http") ? "↗" : "→"}
                   </span>
                 </a>

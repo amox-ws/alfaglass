@@ -11,7 +11,7 @@ export function Plastics({
 }) {
   const marquee = ["Ακρυλικά XT", "Χυτά Ακρυλικά", "Πολυκαρβονικά", "PET-G", "PVC Foam", "Bond", "Πολυστερίνες", "Πάνελ πολυουρεθάνης"];
   return (
-    <section aria-labelledby="plastics-title" className="relative overflow-hidden bg-indigo section-y">
+    <section data-theme="mist" aria-labelledby="plastics-title" className="relative overflow-hidden bg-surface section-y">
       <div className="shell">
         <div className="flex items-center justify-between">
           <Eyebrow index="04">Από το 2014</Eyebrow>
@@ -26,7 +26,7 @@ export function Plastics({
             {marquee.map((m) => (
               <span key={m} className="font-display flex items-center text-[clamp(3rem,7vw,7rem)] font-extrabold uppercase leading-none">
                 <span className="px-6 md:px-10">{m}</span>
-                <span className="text-edge">✦</span>
+                <span className="text-accent">✦</span>
               </span>
             ))}
           </div>
@@ -53,9 +53,9 @@ export function Plastics({
               <Link href={it.href} className="group flex items-baseline justify-between gap-6 py-4">
                 <span className="flex items-baseline gap-5">
                   <span className="tabular text-sm text-fg-dim">{String(i + 1).padStart(2, "0")}</span>
-                  <span className="text-xl font-medium transition-colors group-hover:text-edge md:text-2xl">{it.title}</span>
+                  <span className="text-xl font-medium transition-colors group-hover:text-accent md:text-2xl">{it.title}</span>
                 </span>
-                <span aria-hidden className="text-fg-dim transition-transform duration-500 group-hover:translate-x-1 group-hover:text-edge">
+                <span aria-hidden className="text-fg-dim transition-transform duration-500 group-hover:translate-x-1 group-hover:text-accent">
                   →
                 </span>
               </Link>

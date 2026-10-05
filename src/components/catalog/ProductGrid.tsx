@@ -9,7 +9,7 @@ export function ProductGrid({ items }: { items: Product[] }) {
       {items.map((p, i) => (
         <Reveal as="li" key={p.slug} delay={(i % 3) * 0.06}>
           <Link href={productHref(p)} className="group block">
-            <div className="relative aspect-[4/3] overflow-hidden rounded-sm bg-paper-2">
+            <div className="relative aspect-[4/3] overflow-hidden rounded-sm bg-surface-2">
               {(p.thumb || p.image) && (
                 <Image
                   src={(p.thumb || p.image)!}
@@ -22,18 +22,18 @@ export function ProductGrid({ items }: { items: Product[] }) {
               )}
               <span
                 aria-hidden
-                className="absolute right-3 top-3 flex size-10 items-center justify-center rounded-full bg-paper text-on-paper opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:[transform:rotate(-45deg)]"
+                className="absolute right-3 top-3 flex size-10 items-center justify-center rounded-full bg-surface text-fg opacity-0 transition-all duration-500 group-hover:opacity-100 group-hover:[transform:rotate(-45deg)]"
               >
                 →
               </span>
             </div>
             <div className="mt-5 flex gap-4">
-              <span className="tabular pt-1 text-sm text-on-paper-muted">{String(i + 1).padStart(2, "0")}</span>
+              <span className="tabular pt-1 text-sm text-fg-muted">{String(i + 1).padStart(2, "0")}</span>
               <div>
-                <h3 className="font-display text-[1.65rem] font-bold uppercase leading-none transition-colors group-hover:text-cobalt">
+                <h3 className="font-display text-[1.65rem] font-bold uppercase leading-none transition-colors group-hover:text-accent">
                   {p.title}
                 </h3>
-                {p.summary && <p className="mt-3 line-clamp-3 text-[0.95rem] leading-relaxed text-on-paper-muted">{p.summary}</p>}
+                {p.summary && <p className="mt-3 line-clamp-3 text-[0.95rem] leading-relaxed text-fg-muted">{p.summary}</p>}
               </div>
             </div>
           </Link>

@@ -15,7 +15,7 @@ export function ProductGallery({ images, title }: { images: Media[]; title: stri
   return (
     <div className="flex flex-col gap-4">
       <div
-        className="group relative aspect-[4/3] overflow-hidden rounded-sm bg-paper"
+        className="group relative aspect-[4/3] overflow-hidden rounded-sm bg-snow"
         role="region"
         aria-roledescription="carousel"
         aria-label={`Εικόνες: ${title}`}
@@ -48,11 +48,11 @@ export function ProductGallery({ images, title }: { images: Media[]; title: stri
         {images.length > 1 && (
           <>
             <div className="pointer-events-none absolute inset-x-0 bottom-0 flex items-end justify-between p-4">
-              <span className="t-label rounded-full bg-ink/80 px-3 py-1.5 text-fg tabular backdrop-blur">
+              <span className="t-label rounded-full bg-deep/80 px-3 py-1.5 text-snow tabular backdrop-blur">
                 {String(index + 1).padStart(2, "0")} / {String(images.length).padStart(2, "0")}
               </span>
               {current.caption && (
-                <span className="t-label max-w-[60%] truncate rounded-full bg-ink/80 px-3 py-1.5 text-fg backdrop-blur">
+                <span className="t-label max-w-[60%] truncate rounded-full bg-deep/80 px-3 py-1.5 text-snow backdrop-blur">
                   {current.caption}
                 </span>
               )}
@@ -61,7 +61,7 @@ export function ProductGallery({ images, title }: { images: Media[]; title: stri
               type="button"
               onClick={() => go(-1)}
               aria-label="Προηγούμενη εικόνα"
-              className="absolute left-3 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-ink/80 text-fg opacity-0 backdrop-blur transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+              className="absolute left-3 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-deep/80 text-snow opacity-0 backdrop-blur transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
             >
               ←
             </button>
@@ -69,7 +69,7 @@ export function ProductGallery({ images, title }: { images: Media[]; title: stri
               type="button"
               onClick={() => go(1)}
               aria-label="Επόμενη εικόνα"
-              className="absolute right-3 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-ink/80 text-fg opacity-0 backdrop-blur transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
+              className="absolute right-3 top-1/2 flex size-11 -translate-y-1/2 items-center justify-center rounded-full bg-deep/80 text-snow opacity-0 backdrop-blur transition-opacity group-hover:opacity-100 focus-visible:opacity-100"
             >
               →
             </button>
@@ -86,8 +86,8 @@ export function ProductGallery({ images, title }: { images: Media[]; title: stri
               onClick={() => setIndex(i)}
               aria-label={`Εικόνα ${i + 1}${img.caption ? `: ${img.caption}` : ""}`}
               aria-current={i === index}
-              className={`relative aspect-square w-16 shrink-0 overflow-hidden rounded-sm bg-paper transition-[opacity,outline-color] md:w-20 ${
-                i === index ? "opacity-100 outline outline-1 outline-offset-2 outline-edge" : "opacity-50 hover:opacity-90"
+              className={`relative aspect-square w-16 shrink-0 overflow-hidden rounded-sm bg-snow transition-[opacity,outline-color] md:w-20 ${
+                i === index ? "opacity-100 outline outline-1 outline-offset-2 outline-accent" : "opacity-50 hover:opacity-90"
               }`}
             >
               <Image src={img.src} alt="" fill sizes="5rem" className="object-cover" />

@@ -108,6 +108,7 @@ export function Header() {
   return (
     <>
       <header
+        data-theme="frost"
         className="fixed inset-x-0 top-0 z-50 transition-transform duration-500"
         style={{
           transform: hidden && !mega && !mobile ? "translateY(-100%)" : "translateY(0)",
@@ -119,7 +120,7 @@ export function Header() {
             solid ? "opacity-100" : "opacity-0"
           }`}
           style={{
-            background: "color-mix(in oklch, var(--ink) 78%, transparent)",
+            background: "color-mix(in oklch, var(--surface) 78%, transparent)",
             backdropFilter: "blur(18px) saturate(140%)",
             WebkitBackdropFilter: "blur(18px) saturate(140%)",
             borderBottom: "1px solid var(--line)",
@@ -182,11 +183,11 @@ export function Header() {
           <div className="flex items-center gap-3">
             <a
               href={contact.phoneHref}
-              className="group hidden items-center gap-3 rounded-full border border-line-strong py-2 pl-3 pr-4 text-[0.92rem] font-semibold transition-colors hover:border-edge hover:text-edge md:flex"
+              className="group hidden items-center gap-3 rounded-full border border-line-strong py-2 pl-3 pr-4 text-[0.92rem] font-semibold transition-colors hover:border-accent hover:text-accent md:flex"
             >
               <span className="relative flex size-2">
-                <span className="absolute inline-flex size-full animate-ping rounded-full bg-edge opacity-60" />
-                <span className="relative inline-flex size-2 rounded-full bg-edge" />
+                <span className="absolute inline-flex size-full animate-ping rounded-full bg-accent opacity-60" />
+                <span className="relative inline-flex size-2 rounded-full bg-accent" />
               </span>
               <span className="tabular">{contact.phone}</span>
             </a>
@@ -225,7 +226,7 @@ export function Header() {
               <div
                 className="border-b border-line"
                 style={{
-                  background: "color-mix(in oklch, var(--ink) 92%, transparent)",
+                  background: "color-mix(in oklch, var(--surface) 92%, transparent)",
                   backdropFilter: "blur(24px) saturate(140%)",
                   WebkitBackdropFilter: "blur(24px) saturate(140%)",
                 }}
@@ -235,7 +236,7 @@ export function Header() {
                     <div key={group.slug}>
                       <Link
                         href={`/${group.slug}`}
-                        className="t-label mb-5 flex items-center justify-between border-b border-line pb-3 text-edge"
+                        className="t-label mb-5 flex items-center justify-between border-b border-line pb-3 text-accent"
                         onMouseEnter={() => setPreview(group.image)}
                       >
                         {group.title}
@@ -257,7 +258,7 @@ export function Header() {
                       </ul>
                     </div>
                   ))}
-                  <div className="relative aspect-[4/5] overflow-hidden rounded-sm bg-ink-2">
+                  <div className="relative aspect-[4/5] overflow-hidden rounded-sm bg-surface-2">
                     <AnimatePresence mode="popLayout">
                       <motion.div
                         key={preview ?? getGroup("yalopinakes")!.image}
@@ -276,7 +277,7 @@ export function Header() {
                         />
                       </motion.div>
                     </AnimatePresence>
-                    <div className="absolute inset-0 bg-gradient-to-t from-ink/70 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-surface/70 to-transparent" />
                     <p className="t-label absolute bottom-4 left-4 right-4 text-fg">
                       {site.groups.reduce((n, g) => n + g.categories.reduce((m, c) => m + categories[c].products.length, 0), 0)} προϊόντα σε 14 κατηγορίες
                     </p>
@@ -296,7 +297,8 @@ export function Header() {
             animate={{ clipPath: "inset(0 0 0% 0)" }}
             exit={{ clipPath: "inset(0 0 100% 0)" }}
             transition={{ duration: 0.7, ease }}
-            className="fixed inset-0 z-40 overflow-y-auto bg-ink pt-[var(--header-h)] lg:hidden"
+            data-theme="frost"
+            className="fixed inset-0 z-40 overflow-y-auto bg-surface pt-[var(--header-h)] lg:hidden"
             data-lenis-prevent
           >
             <nav aria-label="Κινητό μενού" className="shell pb-16 pt-6">
@@ -345,7 +347,7 @@ function NavUnderline({ active }: { active: boolean }) {
   return (
     <span
       aria-hidden
-      className={`absolute inset-x-4 -bottom-0.5 h-px origin-left bg-edge transition-transform duration-500 ${
+      className={`absolute inset-x-4 -bottom-0.5 h-px origin-left bg-accent transition-transform duration-500 ${
         active ? "scale-x-100" : "scale-x-0"
       }`}
       style={{ transitionTimingFunction: "var(--ease-out)" }}

@@ -5,7 +5,7 @@ import { contact, legalLinks, site } from "@/lib/content";
 export function Footer() {
   const year = new Date().getFullYear();
   return (
-    <footer className="relative overflow-hidden border-t border-line bg-ink pt-20 md:pt-28">
+    <footer data-theme="deep" className="relative overflow-hidden border-t border-line bg-surface pt-20 md:pt-28">
       <div className="shell">
         <div className="grid gap-14 md:grid-cols-12">
           <div className="md:col-span-5">
@@ -54,7 +54,7 @@ export function Footer() {
                 href={contact.mapsHref}
                 target="_blank"
                 rel="noreferrer"
-                className="link-underline mt-4 inline-block text-sm font-semibold text-edge"
+                className="link-underline mt-4 inline-block text-sm font-semibold text-accent"
               >
                 Οδηγίες στον χάρτη ↗
               </a>

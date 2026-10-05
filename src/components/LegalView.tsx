@@ -11,7 +11,7 @@ export function LegalView({ slug }: { slug: string }) {
   return (
     <>
       <PageHero crumbs={[{ label: page.title }]} title={page.title} />
-      <section className="bg-paper text-on-paper section-y">
+      <section data-theme="frost" className="bg-surface section-y">
         <div className="shell">
           <Prose html={page.html} className="mx-auto [&_p]:break-words" />
         </div>

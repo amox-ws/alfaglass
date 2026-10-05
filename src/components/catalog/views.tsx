@@ -63,10 +63,10 @@ export function GroupView({ group }: { group: Group }) {
       />
 
       {rest && stripHtml(rest).length > 40 && (
-        <section className="bg-paper text-on-paper section-y">
+        <section data-theme="mist" className="bg-surface section-y">
           <div className="shell grid gap-10 md:grid-cols-12">
             <div className="md:col-span-4">
-              <Eyebrow tone="light">Σχετικά</Eyebrow>
+              <Eyebrow>Σχετικά</Eyebrow>
             </div>
             <Reveal className="md:col-span-7 md:col-start-6">
               <Prose html={rest} />
@@ -75,11 +75,11 @@ export function GroupView({ group }: { group: Group }) {
         </section>
       )}
 
-      <section className={`bg-paper text-on-paper ${rest ? "pb-[clamp(5rem,11vw,11rem)]" : "section-y"}`}>
+      <section data-theme="frost" className="bg-surface section-y">
         <div className="shell">
-          <div className="mb-12 flex items-baseline justify-between border-b border-paper-line pb-6 md:mb-16">
+          <div className="mb-12 flex items-baseline justify-between border-b border-line pb-6 md:mb-16">
             <h2 className="t-h2">{flat ? "Υλικά" : "Κατηγορίες"}</h2>
-            <span className="t-label text-on-paper-muted tabular">{flat ? total : cats.length}</span>
+            <span className="t-label text-fg-muted tabular">{flat ? total : cats.length}</span>
           </div>
           {flat ? (
             <ProductGrid items={productsOf(cats[0])} />
@@ -130,30 +130,30 @@ export function CategoryView({ category }: { category: Category }) {
       />
 
       {rest.length > 60 && (
-        <section className="bg-paper text-on-paper pt-[clamp(5rem,9vw,8rem)]">
+        <section data-theme="frost" className="bg-surface pt-[clamp(5rem,9vw,8rem)]">
           <div className="shell grid gap-10 md:grid-cols-12">
             <div className="md:col-span-4">
-              <Eyebrow tone="light">Σχετικά</Eyebrow>
+              <Eyebrow>Σχετικά</Eyebrow>
             </div>
             <Reveal className="md:col-span-7 md:col-start-6">
-              <p className="prose-glass text-on-paper-muted">{rest}</p>
+              <p className="prose-glass text-fg-muted">{rest}</p>
             </Reveal>
           </div>
         </section>
       )}
 
-      <section className="bg-paper text-on-paper section-y">
+      <section data-theme="frost" className="bg-surface section-y">
         <div className="shell">
-          <div className="mb-12 flex items-baseline justify-between border-b border-paper-line pb-6 md:mb-16">
+          <div className="mb-12 flex items-baseline justify-between border-b border-line pb-6 md:mb-16">
             <h2 className="t-h2">Προϊόντα</h2>
-            <span className="t-label text-on-paper-muted tabular">{items.length}</span>
+            <span className="t-label text-fg-muted tabular">{items.length}</span>
           </div>
           <ProductGrid items={items} />
         </div>
       </section>
 
       {siblings.length > 0 && (
-        <section className="bg-ink section-y">
+        <section data-theme="mist" className="bg-surface section-y">
           <div className="shell">
             <div className="mb-12 flex items-end justify-between gap-6">
               <MaskedLines as="h2" lines={["Άλλες κατηγορίες"]} className="t-h2" />
@@ -162,7 +162,6 @@ export function CategoryView({ category }: { category: Category }) {
               </Link>
             </div>
             <IndexList
-              tone="dark"
               rows={siblings.map((c) => ({
                 href: categoryHref(c),
                 title: c.title,
@@ -218,11 +217,11 @@ export function ProductView({ product }: { product: Product }) {
 
   return (
     <>
-      <section className="relative bg-ink pb-16 pt-[calc(var(--header-h)+3rem)] md:pb-24 md:pt-[calc(var(--header-h)+4rem)]">
+      <section data-theme="mist" className="relative bg-surface pb-16 pt-[calc(var(--header-h)+3rem)] md:pb-24 md:pt-[calc(var(--header-h)+4rem)]">
         <div className="shell grid gap-12 lg:grid-cols-12 lg:gap-16">
           <div className="lg:col-span-5">
             <Breadcrumbs items={crumbs} />
-            <p className="t-label mt-10 text-edge md:mt-14">{flat ? group.title : category.title}</p>
+            <p className="t-label mt-10 text-accent md:mt-14">{flat ? group.title : category.title}</p>
             <MaskedLines as="h1" lines={headlineLines(product.title, 16)} className="t-h1 mt-4" />
             {product.summary && (
               <Reveal delay={0.15}>
@@ -232,10 +231,10 @@ export function ProductView({ product }: { product: Product }) {
             <Reveal delay={0.25} className="mt-10 flex flex-wrap gap-3">
               <a
                 href={`mailto:${contact.email}?subject=${mailSubject}`}
-                className="group inline-flex items-center gap-3 rounded-full bg-fg py-3 pl-6 pr-3 font-semibold text-ink transition-colors hover:bg-edge"
+                className="group inline-flex items-center gap-3 rounded-full bg-fg py-3 pl-6 pr-3 font-semibold text-surface transition-colors hover:bg-accent"
               >
                 Ζητήστε προσφορά
-                <span className="flex size-8 items-center justify-center rounded-full bg-ink text-fg">→</span>
+                <span className="flex size-8 items-center justify-center rounded-full bg-surface text-fg">→</span>
               </a>
               <a
                 href={contact.phoneHref}
@@ -252,13 +251,13 @@ export function ProductView({ product }: { product: Product }) {
       </section>
 
       {sections.length > 0 && (
-        <section className="bg-paper text-on-paper section-y">
+        <section data-theme="frost" className="bg-surface section-y">
           <div className="shell grid gap-12 lg:grid-cols-12">
             <nav aria-label="Ενότητες προϊόντος" className="hidden lg:col-span-3 lg:block">
-              <ul className="sticky top-[calc(var(--header-h)+2rem)] grid gap-1 border-l border-paper-line">
+              <ul className="sticky top-[calc(var(--header-h)+2rem)] grid gap-1 border-l border-line">
                 {sections.map((s, i) => (
                   <li key={s.id}>
-                    <a href={`#${s.id}`} className="-ml-px flex gap-3 border-l border-transparent py-1.5 pl-5 text-on-paper-muted transition-colors hover:border-cobalt hover:text-on-paper">
+                    <a href={`#${s.id}`} className="-ml-px flex gap-3 border-l border-transparent py-1.5 pl-5 text-fg-muted transition-colors hover:border-accent hover:text-fg">
                       <span className="tabular text-sm">{String(i + 1).padStart(2, "0")}</span>
                       {s.title}
                     </a>
@@ -270,13 +269,13 @@ export function ProductView({ product }: { product: Product }) {
               {sections.map((s, i) => (
                 <Reveal key={s.id}>
                   <article id={s.id} className="scroll-mt-28">
-                    <div className="mb-8 flex items-baseline gap-4 border-b border-paper-line pb-5">
-                      <span className="tabular text-sm text-cobalt">{String(i + 1).padStart(2, "0")}</span>
+                    <div className="mb-8 flex items-baseline gap-4 border-b border-line pb-5">
+                      <span className="tabular text-sm text-accent">{String(i + 1).padStart(2, "0")}</span>
                       <h2 className="t-h3">{s.title}</h2>
                     </div>
                     <Prose
                       html={s.html}
-                      className={/εφαρμογ/i.test(s.title) ? "[&_ul]:flex [&_ul]:flex-wrap [&_ul]:gap-2 [&_ul>li]:rounded-full [&_ul>li]:border [&_ul>li]:border-paper-line [&_ul>li]:px-4 [&_ul>li]:py-1.5 [&_ul>li]:pl-4 [&_ul>li]:text-on-paper [&_ul>li::before]:hidden" : ""}
+                      className={/εφαρμογ/i.test(s.title) ? "[&_ul]:flex [&_ul]:flex-wrap [&_ul]:gap-2 [&_ul>li]:rounded-full [&_ul>li]:border [&_ul>li]:border-line [&_ul>li]:px-4 [&_ul>li]:py-1.5 [&_ul>li]:pl-4 [&_ul>li]:text-fg [&_ul>li::before]:hidden" : ""}
                     />
                   </article>
                 </Reveal>
@@ -287,12 +286,12 @@ export function ProductView({ product }: { product: Product }) {
       )}
 
       {related.length > 0 && (
-        <section className={`bg-paper text-on-paper ${sections.length ? "pb-[clamp(5rem,11vw,11rem)]" : "section-y"}`}>
+        <section data-theme="frost" className={`bg-surface ${sections.length ? "pb-[clamp(5rem,11vw,11rem)]" : "section-y"}`}>
           <div className="shell">
-            <div className="mb-12 flex items-baseline justify-between border-t border-paper-line pt-8">
+            <div className="mb-12 flex items-baseline justify-between border-t border-line pt-8">
               <h2 className="t-h2">Σχετικά προϊόντα</h2>
               {next && next.slug !== product.slug && (
-                <Link href={productHref(next)} className="link-underline t-label hidden text-on-paper sm:block">
+                <Link href={productHref(next)} className="link-underline t-label hidden text-fg sm:block">
                   Επόμενο: {next.title} →
                 </Link>
               )}
@@ -310,13 +309,13 @@ export function ProductView({ product }: { product: Product }) {
 
 export function EnquiryBand({ product }: { product?: string }) {
   return (
-    <section className="relative overflow-hidden bg-cobalt">
+    <section data-theme="azure" className="relative overflow-hidden bg-surface">
       <div
         aria-hidden
-        className="pointer-events-none absolute inset-0 opacity-50"
+        className="pointer-events-none absolute inset-0"
         style={{
           background:
-            "repeating-linear-gradient(90deg, transparent 0 46px, oklch(1 0 0 / 0.07) 46px 47px, transparent 47px 92px)",
+            "repeating-linear-gradient(90deg, transparent 0 46px, oklch(1 0 0 / 0.28) 46px 47px, transparent 47px 92px), linear-gradient(160deg, transparent 40%, oklch(0.7 0.1 240 / 0.5))",
         }}
       />
       <div className="shell relative flex flex-col gap-8 py-14 md:flex-row md:items-center md:justify-between md:py-20">

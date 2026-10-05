@@ -1,21 +1,21 @@
 # ALFA GLASS design system
 
 ## Concept
-Light through glass. Cinematic indigo-ink surfaces where light and refraction read best, frosted "paper" surfaces for reading, and a cobalt drench for calls to action. The hero is a real-time WebGL scene: float-glass panes (green attenuation at the edges, like real float glass) refract the tagline behind them.
+Daylight through glass. Light, calm surfaces like satin and float glass, with the ALFA GLASS indigo for type and the azure of the logo mark for accents. The hero is a real-time WebGL scene: float-glass panes (aqua-green attenuation, like the edge of real float glass) refract the indigo tagline behind them.
 
 ## Color (OKLCH, tokens in `src/app/globals.css`)
-| Token | Role |
-|---|---|
-| `--ink` / `--ink-2` / `--ink-3` | Brand indigo #281a6a pushed to near-black. Cinematic sections. |
-| `--fg`, `--fg-muted`, `--fg-dim` | Text on ink. |
-| `--paper`, `--paper-2` | Frosted glass. Catalogue and reading sections. |
-| `--on-paper`, `--on-paper-muted` | Text on paper. |
-| `--indigo` | Brand indigo, committed section (plastics). |
-| `--cobalt` | Drenched CTA surfaces, link accent on paper. |
-| `--edge` | Cyan light caught in a glass edge (from the logo mark). Accent on ink, ≤10%. |
-| `--float` | Float-glass green; used in the 3D material only. |
+Every section sets `data-theme`; components only use contextual tokens (`bg-surface`, `bg-surface-2`, `text-fg`, `text-fg-muted`, `text-fg-dim`, `border-line`, `border-line-strong`, `text-accent`, `bg-accent`, `text-accent-fg`). Change a theme block and every section using it follows.
 
-Section rhythm on the home page: ink → ink → paper → ink → indigo → ink → paper → cobalt → ink.
+| Theme | Surface | Type | Used for |
+|---|---|---|---|
+| `frost` (default) | satin white, faint aqua | softened brand indigo | most sections, page heroes |
+| `mist` | pale float-glass aqua | indigo | catalogue lists, alternating sections |
+| `deep` | brand indigo #281a6a, softened | frost white, cyan accent | one contrast moment per page (history, vision), footer |
+| `azure` | logo-mark cyan to blue | indigo | calls to action |
+
+Fixed brand colors: `brand-indigo`, `brand-azure`, `brand-cyan`, `float`, `deep` (dark pills over imagery), `snow` (product photo backgrounds).
+
+Home rhythm: frost hero, frost manifesto, mist catalogue, frost facilities, mist plastics, deep history, frost related and news, azure CTA, deep footer.
 
 ## Type
 - Display: **Sofia Sans Extra Condensed** (700–800, uppercase; tall like panes in a rack). Year numerals at weight 200.
@@ -30,8 +30,8 @@ Section rhythm on the home page: ink → ink → paper → ink → indigo → in
 
 ## Signature details
 - The "stamp": an etched manufacturer's mark (Alfa Glass · Est. 1999 · 13.000 m² · GR Aspropyrgos).
-- Fluted-glass line pattern on cobalt surfaces.
-- Header becomes frosted glass on scroll (the one intentional use of backdrop blur).
+- Fluted-glass line pattern on azure surfaces.
+- Header becomes frosted glass on scroll, and the warehouse photo frosts over like satin glass as you scroll (the two intentional uses of backdrop blur).
 
 ## Content pipeline
 `scripts/scrape-legacy.py` caches the legacy site, `scripts/build-content.py` turns it into `src/content/*.json` and `public/media/*`. Legacy URLs 308-redirect to the new ones (`next.config.ts`).

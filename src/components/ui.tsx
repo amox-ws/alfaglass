@@ -68,11 +68,11 @@ export function MaskedLines({
   );
 }
 
-export function Eyebrow({ index, children, tone = "dark" }: { index?: string; children: React.ReactNode; tone?: "dark" | "light" }) {
+export function Eyebrow({ index, children }: { index?: string; children: React.ReactNode }) {
   return (
-    <p className={`t-label flex items-center gap-3 ${tone === "dark" ? "text-fg-muted" : "text-on-paper-muted"}`}>
-      {index && <span className={tone === "dark" ? "text-edge" : "text-cobalt"}>{index}</span>}
-      <span aria-hidden className={`h-px w-8 ${tone === "dark" ? "bg-line-strong" : "bg-paper-line"}`} />
+    <p className="t-label flex items-center gap-3 text-fg-muted">
+      {index && <span className="text-accent">{index}</span>}
+      <span aria-hidden className="h-px w-8 bg-line-strong" />
       {children}
     </p>
   );
@@ -81,15 +81,13 @@ export function Eyebrow({ index, children, tone = "dark" }: { index?: string; ch
 export function ArrowLink({
   href,
   children,
-  tone = "dark",
   className = "",
 }: {
   href: string;
   children: React.ReactNode;
-  tone?: "dark" | "light";
   className?: string;
 }) {
-  const ring = tone === "dark" ? "border-line-strong group-hover:border-edge group-hover:bg-edge group-hover:text-ink" : "border-paper-line group-hover:border-cobalt group-hover:bg-cobalt group-hover:text-paper";
+  const ring = "border-line-strong group-hover:border-accent group-hover:bg-accent group-hover:text-accent-fg";
   return (
     <Link href={href} className={`group inline-flex items-center gap-4 font-semibold ${className}`}>
       <span className={`flex size-12 items-center justify-center rounded-full border transition-colors duration-300 ${ring}`}>
