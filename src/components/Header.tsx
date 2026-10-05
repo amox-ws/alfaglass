@@ -33,22 +33,15 @@ export function Header({ data }: { data: HeaderData }) {
   const d = t(lang);
   const pathname = usePathname();
   const [scrolled, setScrolled] = useState(false);
-  const [hidden, setHidden] = useState(false);
   const [mega, setMega] = useState(false);
   const [mobile, setMobile] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const hoverOpenedAt = useRef(0);
 
+  // The header is always visible; scrolling only turns it into the floating glass capsule.
   useEffect(() => {
-    let last = window.scrollY;
-    const onScroll = () => {
-      const y = window.scrollY;
-      setScrolled(y > 24);
-      setHidden(y > 320 && y > last + 4);
-      if (y < last - 4) setHidden(false);
-      last = y;
-    };
+    const onScroll = () => setScrolled(window.scrollY > 24);
     onScroll();
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -104,14 +97,7 @@ export function Header({ data }: { data: HeaderData }) {
 
   return (
     <>
-      <header
-        data-theme="frost"
-        className="fixed inset-x-0 top-0 z-50 transition-transform duration-500"
-        style={{
-          transform: hidden && !mega && !mobile ? "translateY(-100%)" : "translateY(0)",
-          transitionTimingFunction: "var(--ease-out)",
-        }}
-      >
+      <header data-theme="frost" className="fixed inset-x-0 top-0 z-50">
         {/* Floating glass capsule: materialises from the full-width bar into a pane once you scroll */}
         <div
           aria-hidden

@@ -35,7 +35,7 @@ export function History({ lang, items, engraving }: { lang: Lang; items: Item[];
   return (
     <section data-theme="deep" aria-labelledby="history-title" className="relative bg-surface">
       <div ref={ref} style={{ height: `calc(100svh + ${distance}px)` }} className="relative">
-        <div className="sticky top-0 flex h-[100svh] flex-col justify-center overflow-hidden">
+        <div className="sticky top-0 flex h-[100svh] flex-col justify-center overflow-hidden pt-[var(--header-h)]">
           <div className="shell mb-10 flex items-end justify-between gap-6 md:mb-14">
             <div>
               <Eyebrow index="05">{h.historyEyebrow}</Eyebrow>
@@ -55,7 +55,7 @@ export function History({ lang, items, engraving }: { lang: Lang; items: Item[];
           </div>
 
           <motion.div ref={track} style={{ x }} className="flex w-max gap-[clamp(1.5rem,3vw,3rem)] pl-[var(--gutter)] pr-[var(--gutter)]">
-            <figure className="relative h-[52svh] w-[min(78vw,30rem)] shrink-0 overflow-hidden rounded-sm">
+            <figure className="relative h-[min(52svh,calc(100svh-var(--header-h)-12rem))] w-[min(78vw,30rem)] shrink-0 overflow-hidden rounded-sm">
               <Image src={engraving} alt={h.engravingAlt} fill sizes="30rem" className="object-cover grayscale" />
               <div className="absolute inset-0 bg-deep/40 mix-blend-multiply" />
               <figcaption className="glass glass-dark t-label absolute bottom-3 left-3 right-3 rounded-[0.7rem] px-3.5 py-3 text-fg">{h.engravingCaption}</figcaption>
@@ -63,7 +63,7 @@ export function History({ lang, items, engraving }: { lang: Lang; items: Item[];
             {items.map((it, i) => (
               <article
                 key={it.year}
-                className="flex h-[52svh] w-[min(82vw,34rem)] shrink-0 flex-col justify-between border-l border-line pl-[clamp(1.25rem,2.5vw,2.5rem)]"
+                className="flex h-[min(52svh,calc(100svh-var(--header-h)-12rem))] w-[min(82vw,34rem)] shrink-0 flex-col justify-between border-l border-line pl-[clamp(1.25rem,2.5vw,2.5rem)]"
               >
                 <p className="font-display text-[clamp(6rem,15vw,15rem)] font-[200] leading-[0.8] text-fg tabular">{it.year}</p>
                 <div>
