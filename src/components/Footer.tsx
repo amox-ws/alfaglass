@@ -79,9 +79,22 @@ export function Footer() {
 
       <div className="border-t border-line">
         <div className="shell flex flex-col gap-6 py-8 text-sm text-fg-dim lg:flex-row lg:items-center lg:justify-between">
-          <p>
-            © {year} {contact.company} Όλα τα δικαιώματα διατηρούνται.
-          </p>
+          <div className="flex flex-col gap-1.5">
+            <p>
+              © {year} {contact.company} Όλα τα δικαιώματα διατηρούνται.
+            </p>
+            <p>
+              Powered by{" "}
+              <a
+                href="https://amox.gr"
+                target="_blank"
+                rel="noopener"
+                className="link-underline font-semibold tracking-[0.04em] text-fg-muted transition-colors hover:text-accent"
+              >
+                AMOX
+              </a>
+            </p>
+          </div>
           <ul className="flex flex-wrap gap-x-6 gap-y-2">
             {legalLinks.map((l) => (
               <li key={l.href}>
