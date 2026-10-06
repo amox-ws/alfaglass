@@ -43,3 +43,7 @@ next-env.d.ts
 # legacy site scrape cache
 /.legacy
 /.next-build
+
+# QA harness output (screenshots, reports, baselines)
+/qa/runs
+/qa/baseline
