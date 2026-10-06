@@ -4,7 +4,6 @@ import { Sofia_Sans, Sofia_Sans_Extra_Condensed } from "next/font/google";
 import "../globals.css";
 import { Header, type HeaderData } from "@/components/Header";
 import { Footer } from "@/components/Footer";
-import { SmoothScroll } from "@/components/SmoothScroll";
 import { cms } from "@/lib/content";
 import { LANGS, isLang, t, type Lang } from "@/lib/i18n";
 import { hrefFor, switchMap } from "@/lib/routes";
@@ -91,7 +90,6 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
   return (
     <html lang={lang} className={`${sofia.variable} ${sofiaXC.variable}`}>
       <body>
-        <SmoothScroll />
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-[100] focus:bg-fg focus:px-4 focus:py-2 focus:text-surface"

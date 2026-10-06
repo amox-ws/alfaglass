@@ -80,7 +80,7 @@ export function ProductGallery({ lang, images, title }: { lang: Lang; images: Me
       </div>
 
       {images.length > 1 && (
-        <div className="flex gap-2 overflow-x-auto pb-1" data-lenis-prevent>
+        <div className="flex gap-2 overflow-x-auto pb-1">
           {images.map((img, i) => (
             <button
               key={img.src}

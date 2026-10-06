@@ -1,6 +1,6 @@
 # ALFA GLASS website
 
-Redesign of [alfaglass.gr](https://alfaglass.gr): Next.js 16 (App Router), Tailwind CSS 4, Motion, Lenis and React Three Fiber.
+Redesign of [alfaglass.gr](https://alfaglass.gr): Next.js 16 (App Router), Tailwind CSS 4 and Motion.
 
 ## Develop
 
@@ -24,7 +24,7 @@ Greek is the default and lives at the root (`/etaireia`, `/yalopinakes/...`); En
 
 - `src/app/[lang]`: root layout (sets `<html lang>`) and the catch-all page. All pages are statically generated.
 - `src/views`: page views (home, company, facilities, news, contact, links, legal).
-- `src/components/home`: home page sections, including the WebGL glass hero (`GlassScene.tsx`).
+- `src/components/home`: home page sections.
 - `src/components/catalog`: catalogue views, product gallery and index lists.
 - `public/media`: images from the legacy site (resized). `public/docs`: PDFs.
 - `next.config.ts`: 308 redirects from every legacy URL (Greek and English) to its new address.

@@ -8,7 +8,6 @@ import { AnimatePresence, motion } from "motion/react";
 import { Logo } from "./Logo";
 import { contact } from "@/lib/content";
 import { t, type Lang } from "@/lib/i18n";
-import { getLenis } from "./SmoothScroll";
 
 const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -56,9 +55,6 @@ export function Header({ data }: { data: HeaderData }) {
   }
 
   useEffect(() => {
-    const lenis = getLenis();
-    if (mobile) lenis?.stop();
-    else lenis?.start();
     document.documentElement.style.overflow = mobile ? "hidden" : "";
   }, [mobile]);
 
@@ -290,7 +286,6 @@ export function Header({ data }: { data: HeaderData }) {
             transition={{ duration: 0.7, ease }}
             data-theme="frost"
             className="glass glass-thick fixed inset-0 z-40 overflow-y-auto pt-[var(--header-h)] lg:hidden"
-            data-lenis-prevent
           >
             <nav aria-label={d.a11y.mobileNav} className="shell pb-16 pt-6">
               <ul className="border-t border-line">

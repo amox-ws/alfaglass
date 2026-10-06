@@ -1,7 +1,9 @@
 # ALFA GLASS design system
 
 ## Concept
-Daylight through ultra-clear (low-iron) glass. Clean, cool, untinted surfaces, with the ALFA GLASS indigo for type and the blue of the logo mark for accents. No green or aqua tints anywhere. The hero is a real-time WebGL scene: crystal-clear panes, lit like a white photo studio, refract the indigo tagline behind them.
+Daylight through ultra-clear (low-iron) glass. Clean, cool, untinted surfaces, with the ALFA GLASS indigo for type and the blue of the logo mark for accents. No green or aqua tints anywhere.
+
+The audience is the trade (glaziers, fabricators), often on a phone, so speed comes first: the hero is plain HTML (headline, lead, call and catalogue buttons) above a wide photo of the warehouse, and that frame is where the film of the cutting machine goes once it is shot. No WebGL, no smooth-scroll library, no pinned or scroll-linked sections.
 
 ## Color (OKLCH, tokens in `src/app/globals.css`)
 Every section sets `data-theme`; components only use contextual tokens (`bg-surface`, `bg-surface-2`, `text-fg`, `text-fg-muted`, `text-fg-dim`, `border-line`, `border-line-strong`, `text-accent`, `bg-accent`, `text-accent-fg`). Change a theme block and every section using it follows.
@@ -25,28 +27,29 @@ Home rhythm: frost hero, frost manifesto, mist catalogue, frost facilities, mist
 
 ## Motion
 - Ease: `cubic-bezier(0.22, 1, 0.36, 1)` (expo-out). No bounce.
-- Patterns: masked line reveals (`MaskedLines`), fade-rise (`Reveal`), scroll-linked word lighting (Manifesto), a pane that opens into the warehouse (Facilities), a pinned horizontal timeline (History), cursor-following previews (`IndexList`).
-- Lenis smooth scroll; everything respects `prefers-reduced-motion` (the 3D hero falls back to HTML type).
+- Patterns: masked line reveals (`MaskedLines`), fade-rise (`Reveal`), cursor-following previews (`IndexList`, desktop hover only).
+- Native scrolling. Nothing above the fold waits for JavaScript to become visible. Everything respects `prefers-reduced-motion`.
 
 ## Glass material
 One CSS material in `globals.css` (`@layer components`), built to read as a real pane:
-frosted body (backdrop blur + saturation), bright bevel on top and a faint depth line below,
+a translucent tinted body, bright bevel on top and a faint depth line below,
 a 1px rim that fades from bright white (top-left) to cool silver (bottom-right), like a polished ultra-clear edge, and a soft top sheen.
+Only `glass-thick` adds backdrop blur: blur re-renders whatever is behind it on every frame of scrolling, so it is kept to the header and its menus.
 
 | Class | Use |
 |---|---|
 | `glass` | panels (CTA contact pane, enquiry band, preview frames) |
-| `glass glass-thin` | chips and small buttons over imagery or 3D |
-| `glass glass-thick` | header capsule, mega menu, mobile menu sheet |
+| `glass glass-thin` | chips and small buttons over imagery |
+| `glass glass-thick` | header capsule, mega menu, mobile menu sheet (the only blurred glass) |
 | `glass glass-dark` | over dark photos or the deep theme |
 | `glass-sheen` | adds a light sweep on hover (buttons only) |
 | `etched` | lettering engraved into a surface (the stamp) |
 
 Rules: only where something passes behind it; never glass on glass; bigger surface = thicker frost.
-Falls back to near-solid for `prefers-reduced-transparency`, `prefers-contrast: more` and browsers without backdrop-filter.
+Falls back to near-solid for `prefers-reduced-transparency` and `prefers-contrast: more`; the thick variant also for browsers without backdrop-filter.
 Elements using `.glass` must be positioned (`relative`/`absolute`/`fixed`) for the rim.
 
-Where it lives: header becomes a floating glass capsule on scroll; Products mega menu and the mobile menu are thick glass; hero secondary button, product-gallery controls, product-card badges and the catalogue hover preview are thin glass; contact panes in the CTA and enquiry band sit as glass over the fluted pattern; history caption and map buttons use dark glass; the warehouse photo frosts over as you scroll.
+Where it lives: header becomes a floating glass capsule on scroll; Products mega menu and the mobile menu are thick glass; hero secondary button, map button, product-gallery controls, product-card badges and the catalogue hover preview are thin glass; contact panes in the CTA and enquiry band sit as glass over the fluted pattern.
 
 ## Signature details
 - The "stamp": an etched manufacturer's mark (Alfa Glass · Est. 1999 · 13.000 m² · GR Aspropyrgos).

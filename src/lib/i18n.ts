@@ -68,7 +68,6 @@ const el = {
     viewProducts: "Δείτε τα προϊόντα",
     requestQuote: "Ζητήστε προσφορά",
     enquirySubject: "Ενδιαφέρον για",
-    scroll: "Κύλιση",
     openMaps: "Άνοιγμα στο Google Maps ↗",
     directions: "Οδηγίες στον χάρτη ↗",
     about: "Σχετικά",
@@ -97,10 +96,6 @@ const el = {
     productTitle: "Ρωτήστε μας για διαστάσεις και απόθεμα.",
   },
   home: {
-    heroLines: [
-      ["ΤΑ ΠΑΝΤΑ ΓΙΑ", "ΤΟ ΓΥΑΛΙ"],
-      ["ΤΑ ΠΑΝΤΑ", "ΓΙΑ ΤΟ", "ΓΥΑΛΙ"],
-    ],
     heroTitle: ["Τα πάντα για", "το γυαλί"],
     since: "Από το 1999",
     location: "Ασπρόπυργος · Έξοδος 4 Αττικής Οδού",
@@ -273,7 +268,6 @@ const en: Dict = {
     viewProducts: "View products",
     requestQuote: "Request a quote",
     enquirySubject: "Enquiry about",
-    scroll: "Scroll",
     openMaps: "Open in Google Maps ↗",
     directions: "Get directions ↗",
     about: "About",
@@ -302,10 +296,6 @@ const en: Dict = {
     productTitle: "Ask us about sizes and stock.",
   },
   home: {
-    heroLines: [
-      ["EVERYTHING", "IN GLASS"],
-      ["EVERYTHING", "IN", "GLASS"],
-    ],
     heroTitle: ["Everything", "in glass"],
     since: "Since 1999",
     location: "Aspropyrgos · Exit 4, Attiki Odos",
