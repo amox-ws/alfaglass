@@ -94,17 +94,13 @@ export function Header({ data }: { data: HeaderData }) {
   return (
     <>
       <header data-theme="frost" className="fixed inset-x-0 top-0 z-50">
-        {/* Floating glass capsule: materialises from the full-width bar into a pane once you scroll */}
+        {/* Floating glass capsule: settles into place once you scroll (opacity and scale only, so no layout work per frame) */}
         <div
           aria-hidden
-          className={`glass glass-thick pointer-events-none absolute transition-[inset,border-radius,opacity] duration-700 ${
-            solid ? "opacity-100" : "opacity-0"
+          className={`glass glass-thick pointer-events-none absolute rounded-[1.15rem] transition-[opacity,scale] duration-700 ${
+            solid ? "scale-100 opacity-100" : "scale-[1.03] opacity-0"
           }`}
-          style={{
-            inset: solid ? "0.55rem var(--capsule-x)" : "0",
-            borderRadius: solid ? "1.15rem" : "0",
-            transitionTimingFunction: "var(--ease-out)",
-          }}
+          style={{ inset: "0.55rem var(--capsule-x)", transitionTimingFunction: "var(--ease-out)" }}
         />
         <div className="shell relative flex h-[var(--header-h)] items-center justify-between gap-8">
           <Link href={data.homeHref} aria-label={d.a11y.home} className="shrink-0">

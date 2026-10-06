@@ -24,7 +24,7 @@ export function HomeView({ lang }: { lang: Lang }) {
 
   return (
     <>
-      <Hero lang={lang} productsHref={c.groupHref(glass)} image={imagery.warehouse} />
+      <Hero lang={lang} productsHref={c.groupHref(glass)} />
       <Manifesto lang={lang} companyHref={hrefFor(lang, { kind: "company" })} />
       <GlassIndex
         lang={lang}
@@ -37,7 +37,7 @@ export function HomeView({ lang }: { lang: Lang }) {
           count: cat.products.length,
         }))}
       />
-      <Facilities lang={lang} trucks={imagery.trucks} facilitiesHref={hrefFor(lang, { kind: "facilities" })} />
+      <Facilities lang={lang} warehouse={imagery.warehouse} trucks={imagery.trucks} facilitiesHref={hrefFor(lang, { kind: "facilities" })} />
       <Plastics
         lang={lang}
         allHref={c.groupHref(plastics)}
