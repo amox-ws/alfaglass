@@ -6,7 +6,7 @@ import { t, type Lang } from "@/lib/i18n";
 type Item = { href: string; title: string; image: string | null; count: number };
 
 const arrow =
-  "flex size-11 shrink-0 items-center justify-center rounded-full border border-line-strong bg-surface transition-colors duration-300 group-hover:border-accent group-hover:bg-accent group-hover:text-accent-fg";
+  "flex shrink-0 items-center justify-center rounded-full border border-line-strong bg-surface transition-colors duration-300 group-hover:border-accent group-hover:bg-accent group-hover:text-accent-fg";
 const settle = { transitionTimingFunction: "var(--ease-out)" };
 
 /**
@@ -55,7 +55,7 @@ export function Related({ lang, items, allHref }: { lang: Lang; items: Item[]; a
                     <p className="t-label tabular text-fg-muted">{d.count(lead.count)}</p>
                     <h3 className="t-h2 mt-2">{lead.title}</h3>
                   </div>
-                  <span aria-hidden className={arrow}>
+                  <span aria-hidden className={`${arrow} size-11`}>
                     →
                   </span>
                 </div>
@@ -87,7 +87,7 @@ export function Related({ lang, items, allHref }: { lang: Lang; items: Item[]; a
                       <p className="t-label tabular text-fg-muted">{d.count(it.count)}</p>
                       <h3 className="t-h3 mt-2">{it.title}</h3>
                     </div>
-                    <span aria-hidden className={`${arrow} hidden sm:flex`}>
+                    <span aria-hidden className={`${arrow} size-9 sm:size-11`}>
                       →
                     </span>
                   </div>

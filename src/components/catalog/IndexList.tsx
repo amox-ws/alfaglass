@@ -10,11 +10,36 @@ import { t, type Lang } from "@/lib/i18n";
 export type IndexRow = { href: string; title: string; summary: string; image: string | null; count?: number };
 
 /**
+ * Where the summary column starts. From md it holds about 25 characters at 768px, which is noise, not information:
+ * `lg` keeps it for wider screens and gives the title the space at md. `md` is the original layout.
+ */
+const COLUMNS = {
+  md: {
+    grid: "md:grid-cols-[4rem_minmax(0,1.2fr)_minmax(0,1fr)_6rem_3rem]",
+    summary: "md:line-clamp-2",
+  },
+  lg: {
+    grid: "md:grid-cols-[4rem_minmax(0,1fr)_6rem_3rem] lg:grid-cols-[4rem_minmax(0,1.2fr)_minmax(0,1fr)_6rem_3rem]",
+    summary: "lg:line-clamp-2",
+  },
+} as const;
+
+/**
  * Typographic index with a cursor-following image preview on pointer devices.
  * With `thumbnails`, a touch device (CSS `hover: none`, phones) gets a small picture and the count in every row instead:
  * the preview needs a pointer, and the markup stays the same everywhere, so a mouse never downloads the thumbnails.
  */
-export function IndexList({ lang, rows, thumbnails = false }: { lang: Lang; rows: IndexRow[]; thumbnails?: boolean }) {
+export function IndexList({
+  lang,
+  rows,
+  thumbnails = false,
+  summaryFrom = "md",
+}: {
+  lang: Lang;
+  rows: IndexRow[];
+  thumbnails?: boolean;
+  summaryFrom?: keyof typeof COLUMNS;
+}) {
   const d = t(lang);
   const [active, setActive] = useState<number | null>(null);
   // Preview images mount (and load) once the list nears the viewport on hover-capable devices,
@@ -42,6 +67,7 @@ export function IndexList({ lang, rows, thumbnails = false }: { lang: Lang; rows
     x.set(e.clientX);
     y.set(e.clientY);
   };
+  const columns = COLUMNS[summaryFrom];
   const line = "border-line";
   const muted = "text-fg-muted";
   const hover = "group-hover:text-accent";
@@ -67,7 +93,7 @@ export function IndexList({ lang, rows, thumbnails = false }: { lang: Lang; rows
                 setActive(i);
               }}
               onFocus={() => setActive(i)}
-              className={`group grid items-center gap-4 md:grid-cols-[4rem_minmax(0,1.2fr)_minmax(0,1fr)_6rem_3rem] md:gap-8 md:py-7 ${
+              className={`group grid items-center gap-4 ${columns.grid} md:gap-8 md:py-7 ${
                 thumbnails ? "grid-cols-[minmax(0,1fr)_auto] py-4" : "grid-cols-[2.5rem_1fr_auto] py-5"
               }`}
             >
@@ -93,7 +119,7 @@ export function IndexList({ lang, rows, thumbnails = false }: { lang: Lang; rows
                   </span>
                 </span>
               </span>
-              <span className={`t-small hidden md:line-clamp-2 ${muted}`}>{row.summary}</span>
+              <span className={`t-small hidden ${columns.summary} ${muted}`}>{row.summary}</span>
               <span className={`t-label hidden text-right md:block tabular ${muted}`}>{count}</span>
               <span
                 aria-hidden

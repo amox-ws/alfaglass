@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLink, Reveal, SectionHeader } from "@/components/ui";
-import { excerpt, formatDate, stripHtml } from "@/lib/content";
+import { formatDate, stripHtml, teaser } from "@/lib/content";
 import { t, type Lang } from "@/lib/i18n";
 
 type Article = { href: string; date: string; title: string; html: string; image: string };
@@ -36,7 +36,7 @@ export function News({ lang, article, allHref }: { lang: Lang; article: Article;
             <div className="lg:col-span-4 lg:col-start-9">
               <p className="t-label tabular text-accent">{formatDate(article.date, d.locale)}</p>
               <h3 className="t-h3 mt-5 transition-colors group-hover:text-accent">{article.title}</h3>
-              <p className="mt-6 text-fg-muted">{excerpt(stripHtml(article.html), 150)}</p>
+              <p className="mt-6 text-fg-muted">{teaser(stripHtml(article.html), 150)}</p>
             </div>
           </Link>
         </Reveal>

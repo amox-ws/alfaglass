@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { MaskedLines } from "@/components/reveal";
-import { excerpt } from "@/lib/content";
+import { excerpt, teaser } from "@/lib/content";
 import { mediaSize } from "@/lib/media";
 import { t, type Lang } from "@/lib/i18n";
 
@@ -70,18 +70,6 @@ const PHONE_ASPECT = 16 / 10;
 const COMPACT_LEAD_MAX = 100;
 
 /**
- * The start of a lead: `excerpt`, without a little word left hanging before the "…" ("…χρησιμοποιήθηκαν για να…" reads as
- * cut off, "…χρησιμοποιήθηκαν…" does not). The hero only teases the text, so nothing has to continue where it stops.
- */
-function leadStart(lead: string, max: number) {
-  const short = excerpt(lead, max);
-  if (!short.endsWith("…")) return short;
-  const text = short.slice(0, -1);
-  const trimmed = text.replace(/(?:\s+\p{L}{1,3})+$/u, "");
-  return `${trimmed.length >= max * 0.6 ? trimmed : text}…`;
-}
-
-/**
  * Page title block. Everything in it is in the server HTML and enters with CSS animations, so the headline, lead
  * and photo never wait for JavaScript.
  *
@@ -126,7 +114,7 @@ export function PageHero({
   const stripAspect = Math.max(STRIP_ASPECT, ratio ?? 0);
   const phoneAspect = ratio !== null && ratio > 2 ? ratio : PHONE_ASPECT;
   const long = title.length > LONG_TITLE;
-  const leadText = lead ? (compact ? leadStart(lead, COMPACT_LEAD_MAX) : lead) : null;
+  const leadText = lead ? (compact ? teaser(lead, COMPACT_LEAD_MAX) : lead) : null;
 
   const text = (
     <>

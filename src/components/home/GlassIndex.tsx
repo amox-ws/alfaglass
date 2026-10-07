@@ -17,7 +17,7 @@ export function GlassIndex({ lang, rows, allHref }: { lang: Lang; rows: IndexRow
         />
 
         <div className="mt-16 md:mt-24">
-          <IndexList lang={lang} rows={rows} thumbnails />
+          <IndexList lang={lang} rows={rows} thumbnails summaryFrom="lg" />
         </div>
       </div>
     </section>

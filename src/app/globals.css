@@ -591,7 +591,7 @@ img {
   }
 }
 
-/* Where the headline sits, the real one and its refracted copies in the panes: centred, a little above the middle */
+/* Where the headline sits, the real one and its copies in the panes: centred, a little above the middle */
 .hero-title-stage {
   position: absolute;
   inset: 0;
@@ -612,11 +612,14 @@ img {
   --pw: 13cqw;
   --ph: 54cqh;
   --spread: 1;
+  /* A pane's top edge sits this share of its height above the middle of the hero */
+  --rise: 0.62;
+  /* Each pane is tilted in a perspective of its own (viewer distance in px, without unit) and closes to this share of its tilt */
+  --persp: 1600;
+  --close: 0.15;
   position: absolute;
   inset: 0;
   pointer-events: none;
-  perspective: 1600px;
-  perspective-origin: 50% 46%;
 }
 /* Desktops that pass the capability check get the 3D scene instead; until the check runs, assume they will. */
 .hero[data-glass="3d"] .hero-panes {
@@ -627,11 +630,13 @@ img {
     display: none;
   }
 }
+/* Phones and tablets: two narrower panes either side of the middle, so about half of the headline stays outside the glass; they end above the lead */
 @container hero (aspect-ratio < 19 / 20) {
   .hero-panes {
-    --pw: 34cqw;
-    --ph: 44cqh;
-    --spread: 1.5;
+    --pw: 24cqw;
+    --ph: 42cqh;
+    --spread: 2.5;
+    --rise: 0.7;
   }
   .hero-pane[data-edge] {
     display: none;
@@ -639,7 +644,7 @@ img {
 }
 .hero-pane {
   --pl: calc(50cqw + var(--x) * var(--spread) * 100cqw - var(--pw) / 2);
-  --pt: calc(50cqh - var(--ph) * var(--h) * 0.62);
+  --pt: calc(50cqh - var(--ph) * var(--h) * var(--rise));
   position: absolute;
   left: var(--pl);
   top: var(--pt);
@@ -647,14 +652,19 @@ img {
   height: calc(var(--ph) * var(--h));
   overflow: hidden;
   border-radius: 0.45rem;
-  rotate: y var(--rot);
+  transform: perspective(calc(var(--persp) * 1px)) rotateY(var(--rot));
   box-shadow:
     0 50px 90px -50px oklch(0.29 0.085 282 / 0.45),
     0 12px 30px -18px oklch(0.29 0.085 282 / 0.22);
   animation: hero-pane-in 1.4s var(--ease-out) backwards;
   animation-delay: calc(0.25s + var(--i) * 0.12s);
 }
-/* What the pane "sees": the hero behind it, shifted and softened like light bent through thick glass */
+/*
+ * What the pane "sees": the hero behind it, a little lighter and with a colour fringe, like clear glass.
+ * Its headline lies exactly on the real one, so a letter that crosses the edge of a pane is not doubled or broken.
+ * The pane's tilt would squeeze and skew what it shows; the matrix is the inverse of that projection
+ * (x stretched by 1/cos, then the perspective turned the other way), about the centre of the pane.
+ */
 .hero-pane-view {
   position: absolute;
   left: calc(var(--pl) * -1);
@@ -663,14 +673,13 @@ img {
   height: 100cqh;
   background: var(--hero-bg);
   color: oklch(0.38 0.085 280);
-  translate: calc(var(--x) * -3cqw) 0;
-  scale: 1.035;
-  filter: blur(0.5px);
+  transform-origin: calc(var(--pl) + var(--pw) / 2) calc(var(--pt) + var(--ph) * var(--h) / 2);
+  transform: matrix3d(calc(1 / cos(var(--rot))), 0, 0, calc(tan(var(--rot)) / var(--persp) * -1), 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
 }
 .hero-pane-view p {
   text-shadow:
-    -2px 0 oklch(0.74 0.11 232 / 0.55),
-    2px 0 oklch(0.72 0.14 345 / 0.3);
+    -0.012em 0 oklch(0.74 0.11 232 / 0.55),
+    0.012em 0 oklch(0.72 0.14 345 / 0.3);
 }
 /* Surface of the pane: sheen, a bright polished rim and the edge catching the light */
 .hero-pane::after {
@@ -694,7 +703,16 @@ img {
 }
 @keyframes hero-pane-close {
   to {
-    rotate: y calc(var(--rot) * 0.15);
+    transform: perspective(calc(var(--persp) * 1px)) rotateY(calc(var(--rot) * var(--close)));
+  }
+}
+/* The copy keeps undoing the tilt while the pane closes. A matrix does not interpolate like an angle, so there is a step half way. */
+@keyframes hero-view-close {
+  50% {
+    transform: matrix3d(calc(1 / cos(var(--rot) * (1 + var(--close)) / 2)), 0, 0, calc(tan(var(--rot) * (1 + var(--close)) / 2) / var(--persp) * -1), 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  to {
+    transform: matrix3d(calc(1 / cos(var(--rot) * var(--close))), 0, 0, calc(tan(var(--rot) * var(--close)) / var(--persp) * -1), 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
   }
 }
 
@@ -805,13 +823,17 @@ img {
   --hist-fig: min(78vw, 30rem);
   --hist-card: min(82vw, 34rem);
   --hist-h: min(52svh, calc(100svh - var(--header-h) - 12rem));
+  /* How many px the row travels for each px of scrolling */
+  --hist-speed: 1;
   /* How far the row travels: everything in it, minus one screen */
   --hist-distance: max(0px, calc(2 * var(--gutter) + var(--hist-fig) + var(--hist-n) * (var(--hist-card) + var(--hist-gap)) - 100vw));
 }
-/* Below lg the cards are narrower: the row travels less, the pinned stretch of page is shorter */
+/* Below lg the cards are narrower and the row moves faster than the scroll, so the pinned stretch of page stays short (the tablet home page is about 14 000 px, and pages over 16 000 px cannot be shot whole) */
 @media (max-width: 63.99rem) {
   .hist {
-    --hist-card: min(82vw, 28rem);
+    --hist-fig: min(78vw, 24rem);
+    --hist-card: min(82vw, 20rem);
+    --hist-speed: 1.5;
   }
 }
 .hist-stage {
@@ -883,6 +905,11 @@ img {
       animation-timeline: auto, --hero;
       animation-range: normal, exit 0% exit 90%;
     }
+    .hero-pane-view {
+      animation: hero-view-close linear both;
+      animation-timeline: --hero;
+      animation-range: exit 0% exit 90%;
+    }
 
     .manifesto {
       view-timeline: --manifesto block;
@@ -896,6 +923,11 @@ img {
     .fac-track {
       height: 240svh;
       view-timeline: --fac block;
+    }
+    @media (max-width: 63.99rem) {
+      .fac-track {
+        height: 170svh;
+      }
     }
     .fac-stage {
       position: sticky;
@@ -939,7 +971,7 @@ img {
     }
 
     .hist-track {
-      height: calc(100svh + var(--hist-distance));
+      height: calc(100svh + var(--hist-distance) / var(--hist-speed));
       view-timeline: --hist block;
     }
     .hist-stage {

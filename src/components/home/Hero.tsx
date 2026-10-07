@@ -180,8 +180,9 @@ const PANES = [
 
 /**
  * Glass panes in plain CSS for phones, tablets and any desktop that skips the 3D scene.
- * Each pane shows a shifted, softened copy of the headline behind it, which reads as refraction,
- * and nothing in it repaints while scrolling: only transform and opacity move.
+ * Each pane shows a copy of the headline that lies exactly on the real one (a lighter ink and a colour fringe read as
+ * glass; the geometry is in globals.css, "scroll scenes"), and nothing in it repaints while scrolling:
+ * only transform and opacity move.
  */
 function HeroPanes({ title }: { title: string[] }) {
   return (

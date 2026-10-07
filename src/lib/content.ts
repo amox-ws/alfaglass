@@ -159,6 +159,24 @@ export function excerpt(text: string, max = 240) {
   return words.replace(/[\s,;:·–-]+$/, "") + "…";
 }
 
+/** A text should not stop on a little word ("…χρησιμοποιήθηκαν για να…" reads as cut off): one to three letters. */
+const HANGING_WORDS = /(?:\s+\p{L}{1,3})+$/u;
+
+/**
+ * `excerpt` for a hero or a card, where nothing has to continue at the cut: it also stops before a bracket that the cut
+ * would leave open ("(έκδοση που…") and before the little words (up to three letters) hanging at the end, as long as
+ * that keeps at least 60 % of `max`.
+ */
+export function teaser(text: string, max = 240) {
+  const short = excerpt(text, max);
+  if (!short.endsWith("…")) return short;
+  let words = short.slice(0, -1);
+  const open = words.lastIndexOf("(");
+  if (open > words.lastIndexOf(")") && open >= max * 0.6) words = words.slice(0, open).replace(/[\s,;:·–-]+$/, "");
+  const trimmed = words.replace(HANGING_WORDS, "").replace(/[\s,;:·–-]+$/, "");
+  return `${trimmed.length >= max * 0.6 ? trimmed : words}…`;
+}
+
 const ENTITIES: Record<string, string> = { "&amp;": "&", "&gt;": ">", "&lt;": "<", "&quot;": '"', "&#39;": "'", "&nbsp;": " " };
 
 /**

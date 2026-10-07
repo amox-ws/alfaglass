@@ -11,7 +11,7 @@ const AREA = 5200;
 
 /**
  * A quiet band (half the space of a section): the glass manufacturers of the useful-links page, in grey, in one row
- * (it wraps on phones).
+ * (on phones three and two, each row centred).
  * The whole band is one link to that page; the logos take their colour when it is hovered or focused.
  */
 export function Brands({ lang, brands, href }: { lang: Lang; brands: Brand[]; href: string }) {
@@ -33,7 +33,7 @@ export function Brands({ lang, brands, href }: { lang: Lang; brands: Brand[]; hr
               </span>
             </div>
             <ul
-              className="mt-6 flex flex-wrap items-center justify-between gap-x-8 gap-y-6 border-y border-line py-8 [--k:0.68] md:gap-x-8 md:py-10 md:[--k:0.7] lg:gap-x-12 lg:[--k:1]"
+              className="mt-6 flex flex-wrap items-center justify-center gap-x-6 gap-y-6 border-y border-line py-8 [--k:0.58] md:justify-between md:gap-x-8 md:py-10 md:[--k:0.7] lg:gap-x-12 lg:[--k:1]"
             >
               {brands.map((b) => {
                 const size = mediaSize(b.logo);
