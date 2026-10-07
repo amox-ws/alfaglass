@@ -59,7 +59,7 @@ export function CompanyView({ lang }: { lang: Lang }) {
       </section>
 
       {/* History */}
-      <section id="history" data-theme="mist" className="scroll-mt-20 bg-surface section-y">
+      <section id="istoria" data-theme="mist" className="scroll-mt-20 bg-surface section-y">
         <div className="shell">
           <div className="grid gap-8 md:grid-cols-12 md:items-end">
             <div className="md:col-span-7">
@@ -100,7 +100,7 @@ export function CompanyView({ lang }: { lang: Lang }) {
       </section>
 
       {/* Financial statements */}
-      <section id="financials" data-theme="mist" className="scroll-mt-20 bg-surface section-y">
+      <section id="oikonomika" data-theme="mist" className="scroll-mt-20 bg-surface section-y">
         <div className="shell grid gap-12 md:grid-cols-12">
           <div className="md:col-span-4">
             <Eyebrow index="05">{dc.transparency}</Eyebrow>

@@ -1,0 +1,291 @@
+/*
+ * Motion (DESIGN.md "Motion"). One language: expo-out, no bounce, and only `transform` and `opacity` ever move.
+ * Scroll-linked motion uses CSS scroll timelines (`view-timeline`, always with an inset of 0: the default inset is the page's
+ * scroll-padding-top, the header, which would start a pinned scene already partly played). The base rule is always the final frame,
+ * which is what browsers without scroll timelines and visitors who prefer reduced motion see; the animated versions sit in the
+ * @supports + no-preference blocks. Lanes attach `animation-timeline` and ranges to the keyframes below in their own stylesheet.
+ *
+ * Budget: at most one scroll-linked scene per screen height, one endless animation per page (the marquee), WebGL only in the home
+ * hero, numbers never count up (no animated counters, anywhere).
+ *
+ * Entrances (rise, mask, fade-rise) are in globals.css. The names below are the rest of the table:
+ *   glint  lift  edge-in  drift  fill  marquee  sweep  wipe  zones  zoom-out  film-in  route  morph  filter
+ */
+
+/* ------------------------------------------------------------------ glint */
+
+/*
+ * A 40%-wide band of light crosses an element once, skewed like the edge of a pane: glass panes, specimen plates, index rows, the
+ * closing call's pane. On hover and focus for pointer devices (`.glint`); once as a pane scrolls into view (`.glint-enter`).
+ * The host clips it (`overflow: hidden`), so give the class to the element that frames the surface, not to one with overhang.
+ */
+.glint {
+  position: relative;
+  overflow: hidden;
+}
+.glint::after,
+.glint-enter::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 40%;
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(100deg, transparent, oklch(1 0 0 / 0.5), transparent);
+  transform: translateX(-120%) skewX(-18deg);
+}
+.glint-enter {
+  position: relative;
+  overflow: hidden;
+}
+@keyframes glint {
+  from {
+    opacity: 0.5;
+    transform: translateX(-120%) skewX(-18deg);
+  }
+  to {
+    opacity: 0.5;
+    transform: translateX(220%) skewX(-18deg);
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  .glint:hover::after {
+    animation: glint 1.2s var(--ease-glint) 1 both;
+  }
+}
+.glint:focus-visible::after {
+  animation: glint 1.2s var(--ease-glint) 1 both;
+}
+
+/* On a specimen plate only the top edge catches the light: a 2px line of edge light, not a band */
+.glint-edge {
+  position: relative;
+}
+.glint-edge::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto auto 0;
+  width: 40%;
+  height: 2px;
+  z-index: 2;
+  pointer-events: none;
+  opacity: 0;
+  background: linear-gradient(90deg, transparent, var(--edge), transparent);
+  transform: translateX(-120%);
+}
+@keyframes glint-edge {
+  from {
+    opacity: 1;
+    transform: translateX(-120%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(260%);
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  .glint-edge:hover::before {
+    animation: glint-edge 1.2s var(--ease-glint) 1 both;
+  }
+}
+
+/* ------------------------------------------------------------------ lift */
+
+/* A row or a card rises 4px (and, with `.glint`, catches the light): pointer devices only */
+@media (hover: hover) and (pointer: fine) {
+  .lift {
+    transition: transform 0.4s var(--ease-out);
+  }
+  .lift:hover,
+  .lift:focus-visible {
+    transform: translateY(-4px);
+  }
+}
+
+/* ------------------------------------------------------------------ edge-in, drift, fill */
+
+/*
+ * edge-in: the bars of a gauge grow from the base, 600ms expo-out, 30ms apart in the order of their `--i`. A transition, armed when the gauge
+ * scrolls into view by the observer of `Reveal` (reveal.tsx); a gauge on screen at load, reduced motion, print and a full-page screenshot
+ * all show it finished. The gauge itself does not fade or move, only its bars.
+ */
+.edge-bar {
+  transform-origin: bottom;
+  transition: scale 0.6s var(--ease-out) calc(var(--i, 0) * 30ms);
+}
+.edge-gauge[data-rv] {
+  transition: none;
+}
+.edge-gauge[data-rv="hidden"] {
+  opacity: 1;
+  translate: none;
+}
+.edge-gauge[data-rv="hidden"] .edge-bar {
+  scale: 1 0;
+}
+
+/* A panorama settles into its frame: 1.18 → 1 and 4% → 0 over the first 60% of its crossing of the screen */
+.drift {
+  transform-origin: 30% 50%;
+}
+@keyframes drift {
+  from {
+    scale: 1.18;
+    translate: 4% 0;
+  }
+}
+
+/* A 1px edge line fills down a list as it is read */
+.fill {
+  transform-origin: top;
+}
+@keyframes fill {
+  from {
+    scale: 1 0;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .drift {
+      animation: drift linear both;
+      animation-timeline: view(block 0px);
+      animation-range: cover 0% cover 60%;
+    }
+    .fill {
+      animation: fill linear both;
+      animation-timeline: view(block 0px);
+      animation-range: entry 30% cover 70%;
+    }
+    .glint-enter::after {
+      animation: glint linear both;
+      animation-timeline: view(block 0px);
+      animation-range: entry 25% cover 30%;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ marquee */
+
+/* The one endless animation of a page: a loop of materials, 40s, paused on hover. Reduced motion stops it (globals.css). */
+@keyframes marquee {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* ------------------------------------------------------------------ the machine drawing (MachineBlueprint) */
+
+/*
+ * The keyframes of the drawing, all ending on the base rule (the finished drawing). The geometry that makes them work is in kit.css:
+ *   sweep    the gantry layer travels along the bed: translate 0 → calc(100% - var(--beam)) (set on the layer as its base rule)
+ *   wipe     a clip box and its content counter-translate, so the content stays still and a window opens over it: it replaces
+ *            stroke-dashoffset (a paint property) for every "line being drawn". The clip box moves from var(--wipe-from) to 0,
+ *            its child from var(--wipe-inv) to 0 on the same timeline. The two variables are per orientation (kit.css).
+ *   zones    the 8 vacuum-zone fills fade in one after another (give each its own animation-range, 6% of the scene apart: `--i`)
+ *   zoom-out the drawing is laid out at its start size and scaled down to its real size, so the raster is crisp at both ends
+ * Attach them in a lane stylesheet, e.g.
+ *   .bed-scene .bp-gantry { animation: sweep linear both; animation-timeline: --bed; animation-range: contain 45% contain 80%; }
+ */
+@keyframes sweep {
+  from {
+    translate: 0 0;
+  }
+}
+@keyframes wipe-clip {
+  from {
+    translate: var(--wipe-from, -100% 0);
+  }
+}
+@keyframes wipe-content {
+  from {
+    translate: var(--wipe-inv, 100% 0);
+  }
+}
+@keyframes zones {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes zoom-out {
+  from {
+    scale: 1;
+  }
+}
+
+/* A film over its poster: it appears only once it is playing (never before), 300ms */
+@keyframes film-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* ------------------------------------------------------------------ view transitions (a bonus, never a dependency) */
+
+/*
+ * Between pages the old one fades out in 160ms and the new one in 240ms (`<ViewTransition enter="route-in" exit="route-out">`
+ * wraps every page once, in app/[lang]/[[...path]]/page.tsx). A product photo that has the same `spec-<slug>` name on a card and on the
+ * product page morphs from one to the other in 380ms (`share="morph"`): the shared element. Both are off with reduced motion.
+ */
+::view-transition-group(.morph) {
+  animation-duration: 380ms;
+  animation-timing-function: var(--ease-out);
+}
+::view-transition-old(.route-out) {
+  animation: 160ms var(--ease-out) both route-fade reverse;
+}
+::view-transition-new(.route-in) {
+  animation: 240ms var(--ease-out) both route-fade;
+}
+@keyframes route-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+/*
+ * The header is not named: a `view-transition-name` makes its element a backdrop root, and the glass capsule and the menus inside it
+ * would stop seeing the page behind them (no blur). It does not need one: the old and new snapshots of the root are the same header.
+ */
+/*
+ * The Έργα filter re-flows its cards with `document.startViewTransition` (each card carries its own `view-transition-name`): the lane sets
+ * `data-vt="filter"` on <html> for the length of that transition, and the cards move in 300ms expo-out. Instant with reduced motion.
+ */
+:root[data-vt="filter"]::view-transition-group(*) {
+  animation-duration: 300ms;
+  animation-timing-function: var(--ease-out);
+}
+:root[data-vt="filter"]::view-transition-old(*),
+:root[data-vt="filter"]::view-transition-new(*) {
+  animation-duration: 300ms;
+}
+
+/* A click during a transition goes through to the live page */
+::view-transition {
+  pointer-events: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation: none !important;
+  }
+}
+
+/* ------------------------------------------------------------------ the lightbox and the filters */
+
+@keyframes lightbox-in {
+  from {
+    opacity: 0;
+    scale: 0.98;
+  }
+}
+@keyframes lightbox-out {
+  to {
+    opacity: 0;
+    scale: 0.98;
+  }
+}

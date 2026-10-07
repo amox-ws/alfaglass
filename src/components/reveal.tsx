@@ -44,22 +44,28 @@ function useArm<T extends HTMLElement>(enabled = true) {
 
 /* ------------------------------------------------------------------ components */
 
-/** Fade and rise when scrolled into view. */
+/**
+ * Fade and rise when scrolled into view. `attrs` are extra attributes for the element (a `data-*` hook, a role).
+ * An element can also take the arming for itself and animate its own parts: `[data-rv="hidden"]` is its "before" state
+ * (see `.edge-gauge` in kit.css, whose bars grow while the gauge itself stays put).
+ */
 export function Reveal({
   children,
   delay = 0,
-  y = 28,
+  y = 16,
   className,
   as = "div",
+  attrs,
 }: {
   children: ReactNode;
   delay?: number;
   y?: number;
   className?: string;
   as?: "div" | "li" | "p" | "span" | "section";
+  attrs?: Record<string, string>;
 }) {
   const ref = useArm<HTMLElement>();
-  return createElement(as, { ref, className, style: { "--rv-delay": `${delay}s`, "--rv-y": `${y}px` } as CSSProperties }, children);
+  return createElement(as, { ref, className, ...attrs, style: { "--rv-delay": `${delay}s`, "--rv-y": `${y}px` } as CSSProperties }, children);
 }
 
 const HYPHENATED = /\p{L}-\p{L}/u;

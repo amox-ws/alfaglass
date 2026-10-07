@@ -1,4 +1,6 @@
+import { works } from "@/content/works";
 import { cms } from "./content";
+import { features } from "./features";
 import { LANGS, type Lang } from "./i18n";
 
 /** A page, independent of language. Ids/keys are shared by both languages. */
@@ -10,14 +12,34 @@ export type Route =
   | { kind: "article"; index: number }
   | { kind: "contact" }
   | { kind: "links" }
+  | { kind: "service" }
+  | { kind: "works" }
+  | { kind: "work"; slug: string }
   | { kind: "legal"; key: string }
   | { kind: "group"; key: string }
   | { kind: "category"; id: number }
   | { kind: "product"; id: number };
 
-const STATIC: Record<Lang, Record<"company" | "facilities" | "news" | "contact" | "links", string>> = {
-  el: { company: "etaireia", facilities: "egkatastaseis", news: "nea", contact: "epikoinonia", links: "xrisimoi-syndesmoi" },
-  en: { company: "company", facilities: "facilities", news: "news", contact: "contact", links: "useful-links" },
+const STATIC: Record<Lang, Record<"company" | "facilities" | "news" | "contact" | "links" | "service" | "works", string>> = {
+  el: {
+    company: "etaireia",
+    facilities: "egkatastaseis",
+    news: "nea",
+    contact: "epikoinonia",
+    links: "xrisimoi-syndesmoi",
+    service: "cnc-kopi-katergasia",
+    works: "erga",
+  },
+  // The English slugs of the cutting service and of the works are provisional: phase 4 reviews them
+  en: {
+    company: "company",
+    facilities: "facilities",
+    news: "news",
+    contact: "contact",
+    links: "useful-links",
+    service: "cnc-cutting",
+    works: "projects",
+  },
 };
 
 const LEGAL: Record<Lang, Record<string, string>> = {
@@ -44,6 +66,8 @@ function routeKey(r: Route) {
     case "legal":
     case "group":
       return `${r.kind}:${r.key}`;
+    case "work":
+      return `work:${r.slug}`;
     case "category":
     case "product":
       return `${r.kind}:${r.id}`;
@@ -69,7 +93,11 @@ function segmentsFor(lang: Lang, r: Route): string[] | null {
     case "news":
     case "contact":
     case "links":
+    case "service":
+    case "works":
       return [STATIC[lang][r.kind]];
+    case "work":
+      return [STATIC[lang].works, r.slug];
     case "article": {
       const a = c.site.news[r.index];
       return a ? [STATIC[lang].news, a.slug] : null;
@@ -106,6 +134,9 @@ function allRoutes(lang: Lang): Route[] {
     { kind: "news" },
     { kind: "contact" },
     { kind: "links" },
+    { kind: "service" },
+    { kind: "works" },
+    ...works.map((w) => ({ kind: "work" as const, slug: w.slug })),
     ...c.site.news.map((_, index) => ({ kind: "article" as const, index })),
     ...LEGAL_KEYS.map((key) => ({ kind: "legal" as const, key })),
     ...c.site.groups.map((g) => ({ kind: "group" as const, key: g.key })),
@@ -161,4 +192,12 @@ export function switchMap(): Record<string, string> {
     map[a.en] = a.el;
   }
   return map;
+}
+
+/**
+ * Whether a page belongs in the sitemap and may be indexed. Έργα (the list and every case study) stays out while there are
+ * fewer than three real works: until then /erga is an honest, unlinked empty state.
+ */
+export function indexable(r: Route) {
+  return features.works || (r.kind !== "works" && r.kind !== "work");
 }

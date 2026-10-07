@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import * as React from "react";
 import { HomeView } from "@/views/HomeView";
 import { CompanyView } from "@/views/CompanyView";
 import { FacilitiesView } from "@/views/FacilitiesView";
@@ -7,13 +8,18 @@ import { ArticleView, NewsView } from "@/views/NewsView";
 import { ContactView } from "@/views/ContactView";
 import { LinksView } from "@/views/LinksView";
 import { LegalView } from "@/views/LegalView";
+import { ServiceView } from "@/views/ServiceView";
+import { WorkView } from "@/views/WorkView";
+import { WorksView } from "@/views/WorksView";
 import { CategoryView, GroupView, ProductView } from "@/components/catalog/views";
 import { JsonLd } from "@/components/JsonLd";
+import { works } from "@/content/works";
 import { cms, excerpt, imagery, stripHtml } from "@/lib/content";
 import { LANGS, isLang, t, type Lang } from "@/lib/i18n";
+import { slots } from "@/lib/media-slots";
 import { mediaSize } from "@/lib/media";
-import { alternatesFor, resolve, staticSegments, type Route } from "@/lib/routes";
-import { breadcrumbLd, organizationLd } from "@/lib/seo";
+import { alternatesFor, indexable, resolve, staticSegments, type Route } from "@/lib/routes";
+import { breadcrumbLd, organizationLd, serviceLd } from "@/lib/seo";
 
 /** Every page of both languages is prerendered; anything else is a 404 (app/global-not-found.tsx). */
 export const dynamicParams = false;
@@ -55,6 +61,14 @@ function titleAndDescription(lang: Lang, route: Route): { title?: string; descri
       return { title: d.nav.contact, description: `${d.contact.phone} · ${d.contact.address}` };
     case "links":
       return { title: d.nav.links, description: d.links.metaDescription };
+    case "service":
+      return { title: d.nav.serviceLong, description: `${d.machine.promise} ${d.machine.lead}` };
+    case "works":
+      return { title: d.nav.works };
+    case "work": {
+      const w = works.find((x) => x.slug === route.slug)!;
+      return { title: w.title, description: excerpt(w.summary, 160) };
+    }
     case "legal":
       return { title: c.site.legal[route.key].title };
     case "group": {
@@ -80,6 +94,11 @@ function shareImage(lang: Lang, route: Route): string {
       return imagery.buildingStorm;
     case "facilities":
       return imagery.warehouse;
+    case "service":
+      // the building, until ALFA GLASS's own machine has been photographed
+      return slots.machineStill.still?.src ?? imagery.building;
+    case "work":
+      return works.find((x) => x.slug === route.slug)?.cover.src ?? imagery.building;
     case "article": {
       const { images } = c.site.news[route.index];
       return images[1] ?? images[0] ?? imagery.building;
@@ -125,6 +144,8 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/[[...path]
     },
     openGraph: { locale: d.ogLocale, siteName: "ALFA GLASS", type: "website", url: alt[hit.lang], ...shared },
     twitter: { card: "summary_large_image", ...shared },
+    // Έργα stays out of search results until there are real works to show (the page itself still answers)
+    ...(!indexable(hit.route) && { robots: { index: false, follow: true } }),
   };
 }
 
@@ -145,6 +166,12 @@ function view(lang: Lang, route: Route) {
       return <ContactView lang={lang} />;
     case "links":
       return <LinksView lang={lang} />;
+    case "service":
+      return <ServiceView lang={lang} />;
+    case "works":
+      return <WorksView lang={lang} />;
+    case "work":
+      return <WorkView lang={lang} slug={route.slug} />;
     case "legal":
       return <LegalView lang={lang} legalKey={route.key} />;
     case "group":
@@ -156,17 +183,33 @@ function view(lang: Lang, route: Route) {
   }
 }
 
+/**
+ * Every page is wrapped once in a view transition: the old page fades out in 160ms and the new one in 240ms (motion.css). A bonus, never a
+ * dependency: without `ViewTransition` (the React canary of the App Router ships it) or without browser support the page simply renders.
+ */
+const ViewTransition = (React as unknown as { ViewTransition?: React.ComponentType<{ enter?: string; exit?: string; default?: string; children: React.ReactNode }> }).ViewTransition;
+
 export default async function Page({ params }: PageProps<"/[lang]/[[...path]]">) {
   const { lang: rawLang, path } = await params;
   const hit = lookup(rawLang, path);
   if (!hit) notFound();
   const { lang, route } = hit;
-  const structured = route.kind === "home" || route.kind === "contact" ? organizationLd(lang) : breadcrumbLd(lang, route);
+  const structured =
+    route.kind === "home" || route.kind === "contact"
+      ? [organizationLd(lang)]
+      : [breadcrumbLd(lang, route), ...(route.kind === "service" ? [serviceLd(lang)] : [])];
+  const content = view(lang, route);
 
   return (
     <>
-      {view(lang, route)}
-      {structured && <JsonLd data={structured} />}
+      {ViewTransition ? (
+        <ViewTransition enter="route-in" exit="route-out" default="none">
+          {content}
+        </ViewTransition>
+      ) : (
+        content
+      )}
+      {structured.map((data, i) => data && <JsonLd key={i} data={data} />)}
     </>
   );
 }

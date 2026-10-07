@@ -4,7 +4,8 @@ import elProducts from "@/content/el/products.json";
 import enSite from "@/content/en/site.json";
 import enCategories from "@/content/en/categories.json";
 import enProducts from "@/content/en/products.json";
-import type { Lang } from "./i18n";
+import thickness from "@/content/thickness.json";
+import { t, type Lang } from "./i18n";
 
 export type Media = { src: string; caption: string | null };
 
@@ -81,7 +82,12 @@ export const SITE_URL = "https://alfaglass.gr";
 
 export { contact } from "./contact";
 
-/** Hand-picked imagery from the legacy media library. */
+/**
+ * Hand-picked imagery from the legacy media library.
+ * The plain names are the legacy files, as they are. The `Night` / `Day` names are graded copies (scripts/grade-media.mjs):
+ * `Night` is the indigo duotone for chapters with type on a photo, `Day` is the cooled, slightly desaturated grade for photos that
+ * are the content. Product photos are never graded: their colour is information. A graded copy keeps the alt text of its source.
+ */
 export const imagery = {
   warehouse: "/media/439a284966.jpg",
   trucks: "/media/4b79e00574.jpg",
@@ -90,6 +96,28 @@ export const imagery = {
   aerial: "/media/9a0710970e.jpg",
   floatStack: "/media/b47b25db6e.jpg",
   engraving: "/media/c0c7dff009.jpg",
+
+  /** The warehouse interior, 2000 × 1500. */
+  warehouseNight: "/media/439a284966-night.jpg",
+  warehouseDay: "/media/439a284966-day.jpg",
+  /** The façade with the logo under a stormy sky, 2000 × 1500 (the company hero; `b2fdf78b2e` is the same file). */
+  buildingDay: "/media/f85c9da8d8-day.jpg",
+  buildingNight: "/media/f85c9da8d8-night.jpg",
+  /** The façade under a clear sky, 2000 × 1500. */
+  facadeDay: "/media/d32636d1bc-day.jpg",
+  facadeNight: "/media/d32636d1bc-night.jpg",
+  /** The trucks, a panorama of 1936 × 673. */
+  trucksDay: "/media/4b79e00574-day.jpg",
+  trucksNight: "/media/4b79e00574-night.jpg",
+  /** The aerial view, a panorama of 1926 × 408. */
+  aerialDay: "/media/9a0710970e-day.jpg",
+  aerialNight: "/media/9a0710970e-night.jpg",
+  /** A stock architectural panorama of 1900 × 402: an illustration of glass, never ALFA GLASS's premises. */
+  officeDay: "/media/d43cadbad1-day.jpg",
+  officeNight: "/media/d43cadbad1-night.jpg",
+  /** The two engravings, night only (the second is a thin strip with a small plate on white). */
+  engravingNight: "/media/c0c7dff009-night.jpg",
+  engravingStripNight: "/media/1232fb0c7b-night.jpg",
 };
 
 /** Localized content plus the helpers that depend on it. */
@@ -229,4 +257,35 @@ function dropLeadingText(html: string, lead: string) {
 export function productCopy(product: Product, max = 320) {
   const summary = excerpt(product.summary, max);
   return { summary, description: dropLeadingText(product.body, summary.replace(/…$/, "")) };
+}
+
+/* ------------------------------------------------------------------ thickness (scripts/extract-thickness.mjs) */
+
+const THICKNESS = thickness as Record<string, number[]>;
+
+/** The thicknesses (mm) a product is sold in, from the strict extraction of its tables; [] when the content does not say. */
+export function productThickness(slug: string): number[] {
+  return THICKNESS[slug] ?? [];
+}
+
+/**
+ * A family's thicknesses: the union of its products' values, shown only when at least half of its products have values
+ * (otherwise the gauge would speak for products it knows nothing about). [] when it is not shown.
+ */
+export function familyThickness(category: Category): number[] {
+  const withValues = category.products.filter((slug) => productThickness(slug).length > 0);
+  if (withValues.length === 0 || withValues.length * 2 < category.products.length) return [];
+  return [...new Set(withValues.flatMap(productThickness))].sort((a, b) => a - b);
+}
+
+/** "2–19" from a list of thicknesses (a single value is just "6"). */
+export function thicknessRange(values: number[]): string {
+  if (values.length === 0) return "";
+  const fmt = (n: number) => String(n).replace(".", ",");
+  return values.length === 1 ? fmt(values[0]) : `${fmt(values[0])}–${fmt(values[values.length - 1])}`;
+}
+
+/** The company's years: the content's timeline, then 2025, the machine (it lives in the dictionary, not in site.json). */
+export function historyTimeline(lang: Lang): { year: string; text: string }[] {
+  return [...stores[lang].site.history.timeline, { year: "2025", text: t(lang).machine.timeline2025 }];
 }

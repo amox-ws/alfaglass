@@ -1,0 +1,152 @@
+/*
+ * The whole type scale (DESIGN.md): three voices, nothing else.
+ *   display  Sofia Sans Extra Condensed, uppercase: big claims (t-giga … t-h3)
+ *   text     Sofia Sans: reading (t-lead, t-body, t-small)
+ *   spec     JetBrains Mono: thicknesses, counts, years, codes, dates, phone numbers in labels (t-data, t-label)
+ * Components use these classes (plus `font-*` weights) and nothing else: no `text-sm`…`text-4xl`, no `text-[…]`, no `!` overrides.
+ * They sit in the components layer, so a utility such as `font-semibold` or `text-fg-muted` still composes with them.
+ * Sizes are fluid from 390px to 1440px of viewport (variables in globals.css) and clamped at both ends.
+ */
+
+/* Digits only: "13.000", "6.050", "404". Its leading would cut Greek diacritics, so it never sets words. */
+.t-giga {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--fs-giga);
+  line-height: 0.82;
+  letter-spacing: -0.01em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums lining-nums;
+}
+
+/* Home hero title, contact title, the closing phone number from lg */
+.t-mega {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--fs-mega);
+  line-height: 0.86;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+/*
+ * Page titles (up to 24 characters), chapter titles. Headings that wrap are balanced (even lines, no one-word last line), so a
+ * title is set as one block and left to wrap: no hand-made line breaks.
+ */
+.t-display {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-size: var(--fs-display);
+  line-height: 0.9;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+/* Long page titles (over 24 characters), product titles */
+.t-h1 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-h1);
+  line-height: 0.94;
+  letter-spacing: 0;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+/* Section titles, index row titles from lg */
+.t-h2 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-h2);
+  line-height: 1;
+  letter-spacing: 0.005em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+/* List rows, card titles, mega-menu groups */
+.t-h3 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: var(--fs-h3);
+  line-height: 1.08;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  text-wrap: balance;
+}
+
+/* Leads, article prose */
+.t-lead {
+  font-size: var(--fs-lead);
+  line-height: 1.45;
+  font-weight: 400;
+}
+
+/* Running text: the page default. The class is for elements that do not inherit it. */
+.t-body {
+  font-size: var(--fs-body);
+  line-height: 1.6;
+}
+
+/* Captions, menu items, small print: 16px on phones (nothing readable is smaller), 15px from md */
+.t-small {
+  font-size: 1rem;
+  line-height: 1.5;
+}
+@media (min-width: 48rem) {
+  .t-small {
+    font-size: 0.9375rem;
+  }
+}
+
+/* Numbers in tables and gauges, codes, dimensions: the only readable text under 16px on a phone, because it is digits */
+.t-data {
+  font-family: var(--font-mono);
+  font-weight: 400;
+  font-size: 0.9375rem;
+  line-height: 1.4;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Eyebrows, indexes, breadcrumbs, chips, counts */
+.t-label {
+  font-family: var(--font-mono);
+  font-weight: 500;
+  font-size: 0.78125rem;
+  line-height: 1.2;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+
+/* A unit keeps its SI case inside an uppercase label: "2–19 mm", "22,20 m²", "9 kW", never "MM" or "M²" (M is mega) */
+.unit {
+  text-transform: none;
+}
+
+/* From lg a heading takes the next size up (the closing call). Must come after the scale. */
+@media (min-width: 64rem) {
+  .t-lg-h1 {
+    font-size: var(--fs-h1);
+    line-height: 0.94;
+  }
+  .t-lg-mega {
+    font-size: var(--fs-mega);
+    line-height: 0.86;
+  }
+  .t-lg-display {
+    font-size: var(--fs-display);
+    line-height: 0.9;
+  }
+  .t-lg-h2 {
+    font-size: var(--fs-h2);
+    line-height: 1;
+  }
+}
+@media (min-width: 80rem) {
+  .t-xl-h1 {
+    font-size: var(--fs-h1);
+    line-height: 0.94;
+  }
+}

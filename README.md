@@ -23,10 +23,13 @@ Greek is the default and lives at the root (`/etaireia`, `/yalopinakes/...`); En
 ## Structure
 
 - `src/app/[lang]`: root layout (sets `<html lang>`) and the catch-all page. All pages are statically generated. `src/app/global-not-found.tsx` is the designed 404 (Next's `globalNotFound` option), in the language the proxy names.
-- `src/components`: the shared frame and building blocks: `SiteShell` (header, main, footer), `Header`, `Footer`, `PageHero`, `SectionHeader`, `Cta`, `Reveal` / `MaskedLines` (`reveal.tsx`). Rules and tokens are in `DESIGN.md`.
-- `src/views`: page views (home, company, facilities, news, contact, links, legal).
-- `src/components/home`: home page sections, including the WebGL glass hero (`GlassScene.tsx`, desktop only) and its CSS glass panes (`Hero.tsx`). The scroll scenes (Manifesto, Facilities, History) run on CSS scroll timelines in `src/app/globals.css`; see `DESIGN.md`, "Motion".
+- `src/components`: the shared frame and building blocks: `SiteShell` (header, main, footer), `Header`, `Footer`, `PageHero`, `SectionHeader`, `Cta` (the closing call), `Reveal` / `MaskedLines` (`reveal.tsx`). Rules and tokens are in `DESIGN.md`.
+- `src/components/kit`: the design system's parts: `EdgeGauge`, `EdgeIndex`, `SpecimenPlate`, `SpecTable`, `SpecPlate`, the media kit (`MediaSlot`, `DroneBand`, `MediaGallery` with its `Lightbox`) and `MachineBlueprint`, the CNC machine drawn to scale.
+- `src/app/styles`: the stylesheets `globals.css` imports (type, glass, motion, kit) and one per lane (home, company, catalogue, service, misc). The home scroll scenes (Facilities, History) run on CSS scroll timelines in `styles/home.css`; see `DESIGN.md`, "Motion".
+- `src/views`: page views (home, company, facilities, news, contact, links, legal, the CNC service, Έργα).
+- `src/components/home`: home page sections, including the WebGL glass hero (`GlassScene.tsx`, desktop only) and its CSS glass panes (`Hero.tsx`).
 - `src/components/catalog`: catalogue views, product gallery and index lists.
+- `src/lib/media-slots.ts`: the places for photographs and films (a still today, a film when it exists: one line of data). `public/video`: the films, with their encoding commands.
 - `public/media`: images from the legacy site (resized). `public/docs`: PDFs.
 - `next.config.ts`: 308 redirects from every legacy URL (Greek and English) to its new address.
 
@@ -38,6 +41,10 @@ python3 scripts/build-content.py .legacy          # Greek -> src/content/el (the
 python3 scripts/build-content-en.py .legacy/en    # English -> src/content/en, mirrors the Greek ids
 ```
 
-Requires Python 3 with `beautifulsoup4` and `Pillow`. After `public/media` changes, run `node scripts/media-sizes.mjs` to refresh `src/content/media-sizes.json` (natural image sizes, used so no photo is shown larger than its file).
+Requires Python 3 with `beautifulsoup4` and `Pillow`. After `public/media` changes, run `node scripts/media-sizes.mjs` to refresh `src/content/media-sizes.json` (natural image sizes, used so no photo is shown larger than its file). `node scripts/grade-media.mjs` writes the graded copies of the facility photos (`*-night.jpg`, `*-day.jpg`) and the film grain; `node scripts/extract-thickness.mjs` writes `src/content/thickness.json`, the thicknesses of each product, by a strict rule.
+
+## QA
+
+`npm run qa` is the harness (`scripts/qa/README.md`). The QA-only kit page (`/kit`) answers 404 unless the site is built with `KIT=1`: `KIT=1 npm run qa -- --pages /kit`.
 
 See `PRODUCT.md` for the brief and `DESIGN.md` for the design system.

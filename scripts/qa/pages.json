@@ -1,5 +1,5 @@
 {
-  "_comment": "One representative URL per template per language, grouped like docs/redesign/PLAN.md 'Page groups'. Greek URLs are unprefixed, English live under /en. expectStatus defaults to 200. Add data-qa-allow-overlap to an element to silence an intentional text overlap.",
+  "_comment": "One representative URL per template per language, grouped like docs/redesign/PLAN.md 'Page groups'. Greek URLs are unprefixed, English live under /en. expectStatus defaults to 200. Add data-qa-allow-overlap to an element to silence an intentional text overlap. The kit page (/kit, QA only, built with KIT=1) and the work detail pages (fixture builds only) are run with --pages, not listed here.",
   "groups": {
     "home": [
       { "id": "home-el", "url": "/", "lang": "el", "template": "home" },
@@ -44,6 +44,14 @@
       { "id": "links-en", "url": "/en/useful-links", "lang": "en", "template": "useful links" },
       { "id": "legal-en", "url": "/en/privacy-policy", "lang": "en", "template": "legal (longest text)" },
       { "id": "notfound-en", "url": "/en/this-page-does-not-exist", "lang": "en", "template": "404", "expectStatus": 404 }
+    ],
+    "service": [
+      { "id": "service-el", "url": "/cnc-kopi-katergasia", "lang": "el", "template": "CNC service" },
+      { "id": "service-en", "url": "/en/cnc-cutting", "lang": "en", "template": "CNC service" }
+    ],
+    "works": [
+      { "id": "works-el", "url": "/erga", "lang": "el", "template": "works list (empty state until three real works exist)" },
+      { "id": "works-en", "url": "/en/projects", "lang": "en", "template": "works list (empty state until three real works exist)" }
     ]
   }
 }

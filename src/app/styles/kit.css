@@ -1,0 +1,1288 @@
+/*
+ * The kit (src/components/kit and the shared shells): every shared component's surface, in one place. Classes are named after their
+ * component. Tokens only (surface, fg, line, accent, edge); only transform and opacity animate (motion.css has the keyframes).
+ */
+
+/* ------------------------------------------------------------------ links */
+
+/* A link that is visibly a link at rest, and a 44px target on touch */
+.text-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2.75rem;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+  text-decoration-color: color-mix(in oklab, currentColor 45%, transparent);
+  transition: text-decoration-color 0.3s;
+}
+.text-link:hover,
+.text-link:focus-visible {
+  text-decoration-color: currentColor;
+}
+
+/* ------------------------------------------------------------------ rack lines, grain */
+
+.rack-lines span {
+  border-left: 1px solid var(--line-faint);
+}
+
+/*
+ * A static 3% noise over a night chapter with photos: it hides the JPEG blocks of the legacy photos. A tile of 128px drawn once
+ * (scripts/grade-media.mjs wrote it as public/media/grain.png), on a pseudo-element, so it is no content and no a11y node.
+ */
+.grain {
+  position: relative;
+}
+.grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+  background: url("/media/grain.png") 0 0 / 128px 128px repeat;
+  opacity: 0.03;
+}
+
+/* ------------------------------------------------------------------ edge gauge */
+
+.edge-gauge {
+  --k: 1.6;
+  --h: 40px;
+  --gap: 6px;
+  display: block;
+}
+.edge-gauge[data-size="sm"] {
+  --k: 0.9;
+  --h: 20px;
+  --gap: 4px;
+}
+.edge-gauge[data-size="lg"] {
+  --k: 2;
+  --h: 96px;
+  --gap: 8px;
+}
+@media (min-width: 48rem) {
+  .edge-gauge[data-size="lg"] {
+    --k: 3;
+    --h: 120px;
+    --gap: 10px;
+  }
+}
+.edge-gauge-in {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  max-width: 100%;
+}
+.edge-bars {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--gap);
+}
+.edge-slot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.375rem;
+}
+.edge-gauge[data-size="lg"] .edge-bars {
+  font-family: var(--font-mono);
+  font-size: 0.9375rem;
+}
+.edge-gauge[data-size="lg"] .edge-slot {
+  min-width: 2.6ch;
+}
+/* One bar per thickness, as wide as the sheet is thick: the glass-edge gradient with a bright 1px core */
+.edge-bar {
+  position: relative;
+  display: block;
+  flex: none;
+  width: max(2px, calc(var(--mm) * var(--k) * 1px));
+  height: var(--h);
+  background: var(--edge-gradient);
+}
+.edge-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 50%;
+  width: 1px;
+  margin-left: -0.5px;
+  background: var(--edge);
+}
+.edge-val {
+  color: var(--fg-muted);
+  line-height: 1;
+}
+.edge-cap {
+  color: var(--fg-muted);
+  white-space: nowrap;
+}
+
+/* ------------------------------------------------------------------ specimen plate and card */
+
+.specimen {
+  display: block;
+  width: 100%;
+}
+.specimen-plate {
+  position: relative;
+  display: block;
+  overflow: hidden;
+  background: var(--snow);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+}
+.specimen-cap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+  margin-top: 0.75rem;
+}
+.specimen-arrow,
+.edge-row-arrow {
+  display: flex;
+  flex: none;
+  width: 2.5rem;
+  height: 2.5rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 9999px;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s,
+    color 0.3s;
+}
+.specimen-card:hover .specimen-arrow,
+.specimen-card:focus-visible .specimen-arrow,
+.edge-row:hover .edge-row-arrow,
+.edge-row:focus-visible .edge-row-arrow {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+/* ------------------------------------------------------------------ spec plate */
+
+.spec-plate {
+  position: relative;
+  background: color-mix(in oklab, var(--snow) 70%, var(--surface));
+  border: 1px solid var(--line-strong);
+}
+.spec-plate .rivet {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border: 1px solid var(--line-strong);
+  border-radius: 9999px;
+  background: var(--surface);
+}
+.rivet[data-at="tl"] {
+  top: 8px;
+  left: 8px;
+}
+.rivet[data-at="tr"] {
+  top: 8px;
+  right: 8px;
+}
+.rivet[data-at="bl"] {
+  bottom: 8px;
+  left: 8px;
+}
+.rivet[data-at="br"] {
+  bottom: 8px;
+  right: 8px;
+}
+.spec-cells,
+.spec-rows {
+  overflow: hidden;
+}
+/* The hairlines between cells are the left and top edge of each cell (the plate's frame hides the outer ones) */
+.spec-cell {
+  padding: 2rem 1.5rem 1.75rem;
+  box-shadow:
+    -1px 0 0 var(--line-strong),
+    0 -1px 0 var(--line-strong);
+}
+.spec-row {
+  display: grid;
+  gap: 0.25rem 2rem;
+  padding: 0.875rem 2rem;
+  box-shadow: 0 -1px 0 var(--line);
+}
+@media (min-width: 48rem) {
+  .spec-row {
+    grid-template-columns: 15rem minmax(0, 1fr);
+    align-items: baseline;
+  }
+}
+
+/* ------------------------------------------------------------------ spec table */
+
+.spec-table {
+  position: relative;
+}
+.spec-scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: thin;
+  border-top: 1px solid var(--line-strong);
+  border-bottom: 1px solid var(--line-strong);
+}
+.spec-grid {
+  width: max-content;
+  min-width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  text-align: left;
+}
+@media (min-width: 64rem) {
+  .spec-grid {
+    width: 100%;
+  }
+}
+.spec-grid th,
+.spec-grid td {
+  padding: 0.75rem 1rem;
+  text-align: left;
+  vertical-align: top;
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+  color: var(--fg);
+}
+.spec-grid thead th {
+  background: var(--mist);
+  color: var(--fg-muted);
+  vertical-align: bottom;
+  border-bottom-color: var(--line-strong);
+}
+.spec-grid tbody tr:hover td,
+.spec-grid tbody tr:hover th {
+  background: var(--surface-2);
+}
+.spec-grid .spec-sticky {
+  position: sticky;
+  left: 0;
+  z-index: 1;
+  background: var(--surface);
+}
+.spec-grid thead .spec-sticky {
+  background: var(--mist);
+  z-index: 2;
+}
+.spec-grid tbody tr:hover .spec-sticky {
+  background: var(--surface-2);
+}
+.spec-line {
+  display: block;
+}
+.spec-chip {
+  display: inline-block;
+  margin: 0 0.375rem 0.25rem 0;
+  padding: 0.0625rem 0.5rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+}
+/* The edge that still has more to show fades; it goes when the table is scrolled to its end, and is not there when the table fits */
+.spec-fade {
+  position: absolute;
+  inset: 1px 0 1px auto;
+  width: 2.5rem;
+  pointer-events: none;
+  background: linear-gradient(to right, transparent, var(--surface));
+  opacity: 0;
+}
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .spec-table {
+      timeline-scope: --spec-x;
+    }
+    .spec-scroll {
+      scroll-timeline: --spec-x x;
+    }
+    .spec-fade {
+      animation: spec-fade linear both;
+      animation-timeline: --spec-x;
+    }
+  }
+}
+@supports not (animation-timeline: scroll()) {
+  .spec-fade {
+    opacity: 1;
+  }
+}
+@media (min-width: 64rem) {
+  .spec-fade {
+    display: none;
+  }
+}
+@keyframes spec-fade {
+  from {
+    opacity: 1;
+  }
+  90%,
+  to {
+    opacity: 0;
+  }
+}
+
+/* ------------------------------------------------------------------ marquee */
+
+.marquee {
+  display: flex;
+  overflow: hidden;
+  white-space: nowrap;
+  border-block: 1px solid var(--line);
+  padding-block: 1.5rem;
+}
+.marquee-track {
+  display: flex;
+  flex: none;
+  align-items: center;
+  animation: marquee 40s linear infinite;
+}
+@media (hover: hover) {
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
+  }
+}
+.marquee-item {
+  display: flex;
+  align-items: center;
+}
+/* Viewport-sized on purpose: signature type outside the scale (DESIGN.md exceptions) */
+.marquee-text {
+  padding-inline: 1.5rem;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 7vw, 7rem);
+  font-weight: 800;
+  line-height: 1;
+  text-transform: uppercase;
+}
+.marquee-dot {
+  width: 0.75rem;
+  height: 0.75rem;
+  background: var(--accent);
+  transform: rotate(45deg);
+}
+@media (min-width: 48rem) {
+  .marquee-text {
+    padding-inline: 2.5rem;
+  }
+}
+
+/* ------------------------------------------------------------------ the Attiki Odos exit */
+
+.attiki {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1000 / 620;
+  overflow: hidden;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-radius: 2px;
+}
+.attiki-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.attiki-label {
+  position: absolute;
+  padding: 0.125rem 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--fg);
+  white-space: nowrap;
+}
+.attiki-place {
+  max-width: 9.5rem;
+  white-space: normal;
+  text-align: right;
+  transform: translateY(-50%);
+}
+@media (min-width: 48rem) {
+  .attiki-place {
+    max-width: none;
+    white-space: nowrap;
+  }
+}
+.attiki-sign {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transform: translate(-50%, -50%);
+}
+.attiki-sign .attiki-label {
+  position: static;
+}
+.attiki-sign-no {
+  display: grid;
+  width: 2.25rem;
+  height: 2.25rem;
+  place-items: center;
+  background: var(--accent);
+  color: var(--accent-fg);
+  font-family: var(--font-display);
+  font-size: 1.5rem;
+  font-weight: 700;
+  line-height: 1;
+  border-radius: 2px;
+}
+
+/* ------------------------------------------------------------------ edge index */
+
+.edge-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 1rem;
+  padding-block: 1rem;
+}
+.edge-row-index,
+.edge-row-summary,
+.edge-row-gauge,
+.edge-row-count {
+  display: none;
+}
+.edge-row-main {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  gap: 1rem;
+}
+.edge-row-lead {
+  display: block;
+  margin-bottom: 0.25rem;
+}
+.edge-row-gauge-in {
+  margin-top: 0.75rem;
+}
+.edge-row-arrow {
+  justify-self: end;
+}
+/* A thumbnail only where there is no mouse to follow: the preview needs a pointer and touch never downloads it */
+.edge-thumb {
+  display: none;
+  flex: none;
+  width: 4.5rem;
+  aspect-ratio: 1;
+}
+@media (hover: none) {
+  .edge-thumb {
+    display: block;
+  }
+}
+@media (min-width: 48rem) {
+  .edge-row {
+    grid-template-columns: 3rem minmax(0, 1fr) 6rem 3rem;
+    column-gap: 1.5rem;
+    padding-block: 1.25rem;
+  }
+  .edge-row-index,
+  .edge-row-count {
+    display: block;
+  }
+  .edge-row-lead {
+    display: none;
+  }
+  .edge-row-count {
+    text-align: right;
+  }
+  .edge-row .edge-row-gauge-in[data-size] {
+    --k: 1.6;
+    --h: 40px;
+    --gap: 6px;
+  }
+  .edge-thumb {
+    width: 6rem;
+  }
+}
+@media (min-width: 64rem) {
+  .edge-row {
+    grid-template-columns: 3rem minmax(0, 1fr) 17rem 6rem 3rem;
+    min-height: 6rem;
+  }
+  .edge-row-gauge {
+    display: block;
+  }
+  .edge-row-gauge-in {
+    display: none;
+  }
+}
+@media (min-width: 80rem) {
+  .edge-row {
+    grid-template-columns: 3rem minmax(0, 1.3fr) minmax(0, 1fr) 17rem 6rem 3rem;
+  }
+  .edge-row-summary {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-wrap: pretty;
+  }
+}
+
+/* ------------------------------------------------------------------ the machine drawing */
+
+/*
+ * The geometry of MachineBlueprint (the component says what is drawn). Layers are absolutely stacked in one aspect-ratio box and each
+ * is its own element, so it can move on the compositor. Strokes do not scale (1px, 1.5px for the cut path). The base rule of every
+ * layer is the finished drawing; the lanes attach the keyframes of motion.css (sweep, wipe-*, zones, zoom-out).
+ */
+.bp {
+  container: bp / inline-size;
+  --bp-line: oklch(0.97 0.006 255 / 0.55);
+  --bp-faint: oklch(0.97 0.006 255 / 0.1);
+  --bp-cut: var(--edge);
+  --bp-piece: var(--edge-deep);
+  /* The beam is 260 of the 6.050 mm of the track */
+  --beam: 4.2975%;
+  /* How much larger the drawing is laid out than it ends up (zoom-out): 1 = not at all. Lanes set 2.6 (1.8 below md), see .bp-zoomable */
+  --z0: 1;
+  --wipe-from: -100% 0;
+  --wipe-inv: 100% 0;
+  position: relative;
+  width: 100%;
+}
+.bp[data-tone="light"] {
+  --bp-line: var(--fg);
+  --bp-faint: color-mix(in oklab, var(--fg) 7%, transparent);
+  --bp-cut: var(--edge-deep);
+}
+.bp[data-o="portrait"] {
+  --wipe-from: 0 -100%;
+  --wipe-inv: 0 100%;
+}
+.bp-zoomable {
+  --z0: 2.6;
+}
+@media (max-width: 47.99rem) {
+  .bp-zoomable {
+    --z0: 1.8;
+  }
+}
+.bp-layer {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+/* The drawing is laid out at its start size and scaled down to its real size around the person, so the raster is crisp at both ends */
+.bp-zoom {
+  position: absolute;
+  width: calc(100% * var(--z0));
+  height: calc(100% * var(--z0));
+  left: calc((1 - var(--z0)) * var(--bp-fx, 0.5) * 100%);
+  top: calc((1 - var(--z0)) * var(--bp-fy, 0.5) * 100%);
+  transform-origin: calc(var(--bp-fx, 0.5) * 100%) calc(var(--bp-fy, 0.5) * 100%);
+  scale: calc(1 / var(--z0));
+}
+.bp svg * {
+  vector-effect: non-scaling-stroke;
+}
+.bp-bed {
+  fill: none;
+  stroke: var(--bp-line);
+  stroke-width: 1px;
+}
+.bp-zone {
+  fill: var(--bp-faint);
+  stroke: none;
+}
+.bp-seam {
+  fill: none;
+  stroke: var(--bp-line);
+  stroke-width: 1px;
+  opacity: 0.4;
+}
+.bp-slot {
+  fill: none;
+  stroke: var(--bp-line);
+  stroke-width: 1px;
+  stroke-dasharray: 3 5;
+  opacity: 0.5;
+}
+.bp-person {
+  fill: none;
+  stroke: var(--bp-line);
+  stroke-width: 1px;
+}
+.bp-dim {
+  fill: none;
+  stroke: var(--bp-line);
+  stroke-width: 1px;
+}
+.bp-arrow {
+  fill: var(--bp-line);
+  stroke: none;
+}
+.bp-cut {
+  fill: none;
+  stroke: var(--bp-cut);
+  stroke-width: 1.5px;
+}
+.bp-groove {
+  stroke-width: 1px;
+  stroke-dasharray: 6 4;
+}
+.bp-beam {
+  fill: var(--bp-faint);
+  stroke: var(--bp-line);
+  stroke-width: 1px;
+}
+.bp-carriage {
+  fill: color-mix(in oklab, var(--bp-cut) 22%, transparent);
+  stroke: var(--bp-cut);
+  stroke-width: 1.5px;
+}
+.bp-spindle {
+  fill: var(--bp-cut);
+  stroke: none;
+}
+.bp-tool {
+  fill: none;
+  stroke: var(--bp-line);
+  stroke-width: 1px;
+}
+.bp-piece {
+  fill: color-mix(in oklab, var(--bp-piece) 15%, transparent);
+  stroke: var(--bp-piece);
+  stroke-width: 1.5px;
+}
+/* The track of the gantry and of the cut path: exactly the bed's length, so one translate crosses the bed */
+.bp-track {
+  position: absolute;
+  pointer-events: none;
+}
+.bp[data-o="landscape"] .bp-track {
+  inset: 0 auto 0 5.8394%;
+  width: 88.3212%;
+}
+.bp[data-o="portrait"] .bp-track {
+  inset: 5.8394% 0 auto 0;
+  height: 88.3212%;
+}
+/* The track clips what travels inside it, so the moving layer never sticks out of the drawing */
+.bp-gantry-box {
+  overflow: clip;
+}
+/* The gantry layer is as long as the bed. Base rule: it has crossed the bed (`--bp-rest`, 0 to 1, is how far) */
+.bp-gantry {
+  position: absolute;
+  inset: 0;
+  translate: calc((100% - var(--beam)) * var(--bp-rest, 1)) 0;
+}
+.bp[data-o="portrait"] .bp-gantry {
+  translate: 0 calc((100% - var(--beam)) * var(--bp-rest, 1));
+}
+/* A wipe: this clip box and its child counter-translate, so the content stays still and a window opens over it */
+.bp-wipe {
+  overflow: hidden;
+  pointer-events: none;
+}
+.bp-wipe-in {
+  position: absolute;
+  inset: 0;
+}
+/* The words: HTML, outside any scaled layer, so they stay crisp and are checked like all text */
+.bp-labels {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.bp-label {
+  position: absolute;
+  display: block;
+  color: var(--fg);
+  line-height: 1.15;
+  text-align: center;
+  white-space: nowrap;
+  transform: translate(-50%, -50%);
+}
+.bp-label-len,
+.bp-label-wid {
+  padding: 1px 6px;
+  background: var(--surface);
+}
+.bp-br {
+  display: none;
+}
+.bp[data-o="landscape"] .bp-label-wid {
+  right: 0;
+  left: auto;
+  transform: translateY(-50%);
+}
+.bp[data-o="landscape"] .bp-label-wid .bp-br {
+  display: block;
+}
+/* The 400 mm margin is 5.8% of the drawing: "2.100 mm" in one line needs about 72px of it, so a drawing narrower than about 1230px stacks it */
+@container bp (min-width: 1230px) {
+  .bp[data-o="landscape"] .bp-label-wid .bp-br {
+    display: none;
+  }
+}
+.bp[data-o="portrait"] .bp-label-len {
+  left: 0;
+  transform: translateY(-50%);
+}
+.bp[data-o="portrait"] .bp-label-len .bp-br {
+  display: block;
+}
+.bp-label-person {
+  max-width: 50%;
+  text-align: left;
+  text-wrap: balance;
+  white-space: normal;
+  transform: translateY(-50%);
+}
+/* Upright, the person stands in the margin to the right of the bed: the words wrap into it (and into the stage's margin) */
+.bp[data-o="portrait"] .bp-label-person {
+  max-width: 4.75rem;
+}
+.bp-label-schematic {
+  right: 0;
+  bottom: 0;
+  color: var(--fg-muted);
+  transform: none;
+}
+.bp[data-o="portrait"] .bp-label-schematic {
+  top: 0;
+  bottom: auto;
+}
+.bp-anchors {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.bp-anchor {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+
+/* ------------------------------------------------------------------ media slot and loop */
+
+.media-slot {
+  position: relative;
+  width: 100%;
+  margin-inline: auto;
+  overflow: hidden;
+  aspect-ratio: var(--r);
+  background: var(--surface-2);
+}
+@media (min-width: 48rem) {
+  .media-slot {
+    aspect-ratio: var(--r-md);
+  }
+}
+.media-slot-fill {
+  position: absolute;
+  inset: 0;
+  aspect-ratio: auto;
+  max-width: none;
+}
+/* An empty slot shows its designed fallback (the drawing), centred in the frame */
+.media-slot[data-empty] {
+  display: grid;
+  place-items: center;
+}
+.media-slot[data-empty] > .bp {
+  max-height: 100%;
+}
+/* A caption over a photo sits on its own bottom scrim, so it stays legible on any picture */
+.media-cap {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 2;
+  padding: 3rem var(--gutter) 1.25rem;
+  color: var(--fg);
+  background: linear-gradient(to top, oklch(0.17 0.045 280 / 0.85), transparent);
+}
+.media-loop {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.media-loop-video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+}
+.media-loop-video[data-playing] {
+  opacity: 1;
+  animation: film-in 0.3s var(--ease-out);
+}
+/* A 44px button over a film: glass, but with no backdrop blur (a blur over a playing video repaints every frame), so a firmer tint */
+.media-loop-btn {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 3;
+  display: flex;
+  width: 2.75rem;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  color: oklch(0.29 0.085 282);
+  pointer-events: auto;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  --glass-tint: oklch(0.99 0.003 255 / 0.8);
+}
+
+/* ------------------------------------------------------------------ drone band */
+
+.drone-scroll {
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.drone-scroll::-webkit-scrollbar {
+  display: none;
+}
+/* Below md: a strip 220px tall at its natural ratio that you pan; never upscaled */
+.drone-frame {
+  position: relative;
+  flex: none;
+  width: calc(220px * var(--drone-ratio));
+  height: 220px;
+  overflow: hidden;
+}
+.drone-clip {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 4 / 5;
+}
+.drone-cap {
+  padding-block: 1rem;
+}
+@media (min-width: 48rem) {
+  .drone-scroll {
+    overflow: hidden;
+  }
+  .drone-frame {
+    width: 100%;
+    height: auto;
+    aspect-ratio: var(--drone-ratio);
+  }
+  .drone-clip {
+    aspect-ratio: 21 / 9;
+  }
+  .drone-hint {
+    display: none;
+  }
+}
+
+/* ------------------------------------------------------------------ gallery */
+
+.gallery-open {
+  display: block;
+  width: 100%;
+  cursor: zoom-in;
+  text-align: left;
+}
+.gallery-film {
+  position: absolute;
+  left: 0.75rem;
+  bottom: 0.75rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.625rem;
+  background: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--line-strong);
+  font-family: var(--font-mono);
+  font-size: 0.78125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+/* strip: snapping plates, a bar with the counter and the arrows, and thumbnails */
+.gallery-track {
+  position: relative;
+  display: flex;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.gallery-track::-webkit-scrollbar {
+  display: none;
+}
+.gallery-slide {
+  flex: 0 0 100%;
+  min-width: 0;
+  scroll-snap-align: start;
+}
+.gallery-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+.gallery-bar-caption {
+  margin-left: 1rem;
+}
+.gallery-arrow,
+.lb-nav,
+.lb-close {
+  display: flex;
+  width: 2.75rem;
+  height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line-strong);
+  border-radius: 9999px;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s,
+    color 0.3s;
+}
+.gallery-arrow:hover:not(:disabled),
+.lb-nav:hover:not(:disabled),
+.lb-close:hover {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+/* A disabled arrow keeps its text colour (a faded glyph would fail contrast); it loses its border and its cursor */
+.gallery-arrow:disabled,
+.lb-nav:disabled {
+  border-color: var(--line);
+  color: var(--fg-dim);
+  cursor: default;
+}
+.gallery-thumbs {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  overflow-x: auto;
+  padding-bottom: 0.25rem;
+  scrollbar-width: thin;
+}
+.gallery-thumb {
+  position: relative;
+  flex: none;
+  width: 4.5rem;
+  height: 3.5rem;
+  opacity: 0.55;
+  transition: opacity 0.3s;
+}
+.gallery-thumb:hover,
+.gallery-thumb[aria-current="true"] {
+  opacity: 1;
+}
+.gallery-thumb[aria-current="true"] {
+  border-color: var(--accent);
+}
+
+/* plates */
+.gallery-plates {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+@media (min-width: 48rem) {
+  .gallery-plates {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+@media (min-width: 64rem) {
+  .gallery-plates {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* editorial: 7 + 5, 5 + 7, 4 + 4 + 4 at lg; 6 + 6 at md; one column on a phone; each image in its own ratio, never upscaled */
+.gallery-editorial {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2rem;
+  align-items: start;
+}
+@media (min-width: 48rem) {
+  .gallery-editorial {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+  }
+}
+.gallery-frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  overflow: hidden;
+  background: var(--surface-2);
+}
+
+/* ------------------------------------------------------------------ lightbox */
+
+dialog.lightbox {
+  position: fixed;
+  inset: 0;
+  width: 100%;
+  max-width: none;
+  height: 100%;
+  max-height: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  overflow: hidden;
+  background: var(--surface);
+  color: var(--fg);
+}
+dialog.lightbox::backdrop {
+  background: transparent;
+}
+dialog.lightbox[open] {
+  animation: lightbox-in 0.24s var(--ease-out) backwards;
+}
+dialog.lightbox[data-closing] {
+  animation: lightbox-out 0.2s var(--ease-out) forwards;
+}
+.lb {
+  position: relative;
+  display: grid;
+  height: 100%;
+  grid-template-rows: auto minmax(0, 1fr) auto;
+}
+.lb-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem var(--gutter);
+}
+.lb-track {
+  display: flex;
+  min-height: 0;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+.lb-track::-webkit-scrollbar {
+  display: none;
+}
+.lb-slide {
+  position: relative;
+  display: grid;
+  flex: 0 0 100%;
+  min-width: 0;
+  place-items: center;
+  scroll-snap-align: center;
+  padding-inline: var(--gutter);
+}
+.lb-frame {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+.lb-video {
+  height: auto;
+  max-height: 100%;
+  background: var(--night);
+}
+.lb-nav {
+  position: absolute;
+  top: 50%;
+  z-index: 2;
+  transform: translateY(-50%);
+  background: color-mix(in oklab, var(--surface) 70%, transparent);
+}
+.lb-nav[data-dir="prev"] {
+  left: 0.75rem;
+}
+.lb-nav[data-dir="next"] {
+  right: 0.75rem;
+}
+.lb-cap {
+  padding: 1rem var(--gutter) 1.25rem;
+  text-align: center;
+}
+/* The static frame of the QA kit page: the same inside, in a box */
+.lightbox-inline {
+  position: relative;
+  height: 26rem;
+  overflow: hidden;
+  background: var(--surface);
+  color: var(--fg);
+  border: 1px solid var(--line);
+}
+
+/* ------------------------------------------------------------------ page shells: the cinematic hero, the closing call, the footer */
+
+.hero-cine {
+  padding-top: calc(var(--header-h) + 1rem);
+  padding-bottom: 3rem;
+}
+.hero-cine[data-media="photo"] {
+  min-height: max(34rem, 70svh);
+}
+@media (min-width: 48rem) {
+  .hero-cine {
+    padding-bottom: 4rem;
+  }
+  .hero-cine[data-media="photo"] {
+    min-height: max(34rem, 88svh);
+  }
+}
+.hero-cine[data-media="none"] .hero-cine-body {
+  margin-top: 3rem;
+}
+.hero-cine-media {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  margin-inline: auto;
+}
+/* A darker top, so the transparent header reads over any photo (and over the flat surface of a hero without one); with a photo, also night where the title sits */
+.hero-cine-scrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  /* the surface itself, fading out: over a flat hero it changes nothing you can see, and it tells the harness what the header lies on */
+  background: linear-gradient(to bottom, var(--surface), transparent 24%);
+}
+.hero-cine[data-media="photo"] .hero-cine-scrim {
+  background:
+    linear-gradient(to bottom, color-mix(in oklab, var(--surface) 72%, transparent), transparent 24%),
+    linear-gradient(to top, var(--surface) 0%, color-mix(in oklab, var(--surface) 60%, transparent) 45%, transparent 75%);
+}
+.hero-cine-top,
+.hero-cine-body {
+  z-index: 2;
+}
+
+.cta-pane {
+  background:
+    repeating-linear-gradient(90deg, transparent 0 46px, oklch(1 0 0 / 0.1) 46px 47px, transparent 47px 92px),
+    radial-gradient(60% 80% at 70% 40%, oklch(0.6 0.12 232 / 0.35), transparent),
+    linear-gradient(180deg, oklch(1 0 0 / 0.1), oklch(1 0 0 / 0) 46%),
+    var(--glass-tint);
+}
+.cta-call {
+  display: grid;
+  flex: none;
+  width: 3.5rem;
+  height: 3.5rem;
+  place-items: center;
+  border-radius: 9999px;
+  background: var(--accent);
+  color: var(--accent-fg);
+  transition: transform 0.5s var(--ease-out);
+}
+.cta-pane:hover .cta-call,
+.cta-pane:focus-visible .cta-call {
+  transform: rotate(-12deg) scale(1.06);
+}
+@media (min-width: 48rem) {
+  .cta-call {
+    width: 4.5rem;
+    height: 4.5rem;
+  }
+}
+.cta-rows {
+  border-bottom: 1px solid var(--line);
+}
+.cta-row {
+  display: flex;
+  min-height: 4rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  border-top: 1px solid var(--line);
+  padding-block: 0.75rem;
+  transition: color 0.3s;
+}
+.cta-row:hover {
+  color: var(--accent);
+}
+
+/* The header: two logos, one shown; over a dark first section it wears the night tokens, light chips become dark glass */
+.site-header .logo-dark {
+  display: none;
+}
+body:has(main > [data-hero="dark"]:first-child) .site-header[data-solid="false"] .logo-light {
+  display: none;
+}
+body:has(main > [data-hero="dark"]:first-child) .site-header[data-solid="false"] .logo-dark {
+  display: block;
+}
+body:has(main > [data-hero="dark"]:first-child) .site-header[data-solid="false"] .glass {
+  --glass-tint: oklch(0.17 0.045 280 / 0.5);
+  --glass-rim-hi: oklch(1 0 0 / 0.45);
+  --glass-rim-lo: oklch(0.85 0.03 250 / 0.4);
+  --glass-bevel: oklch(1 0 0 / 0.22);
+  --glass-depth: oklch(0 0 0 / 0.2);
+  --glass-shadow: 0 14px 34px -16px oklch(0.15 0.05 282 / 0.5);
+}
+.mega-row {
+  display: flex;
+  min-height: 2rem;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  margin-inline: -0.5rem;
+  border-radius: 0.5rem;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+.mega-row:hover,
+.mega-row:focus-visible {
+  background: color-mix(in oklab, var(--surface) 55%, transparent);
+  color: var(--fg);
+}
+.menu-row {
+  display: flex;
+  min-height: 2.5rem;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.5rem;
+  transition:
+    background-color 0.3s,
+    color 0.3s;
+}
+.menu-row:hover,
+.menu-row:focus-visible {
+  background: color-mix(in oklab, var(--surface) 55%, transparent);
+  color: var(--fg);
+}
+.mega-card {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-radius: 0.9rem;
+  background: var(--surface);
+  color: var(--fg);
+}
+.mobile-row {
+  display: flex;
+  min-height: 3.5rem;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding-block: 0.75rem;
+}
+.mobile-group summary {
+  list-style: none;
+  cursor: pointer;
+}
+.mobile-group summary::-webkit-details-marker {
+  display: none;
+}
+.mobile-group[open] .mobile-chevron {
+  transform: rotate(180deg);
+}

@@ -1,34 +1,76 @@
 @import "tailwindcss";
 
+/*
+ * The system, in files (DESIGN.md says what each one is for).
+ * System partials come first, lane partials after them: all of them in the components layer, so a lane rule wins a tie with a System
+ * rule and Tailwind utilities still win over both. Tokens, base rules, layout and entrances stay in this file.
+ */
+@import "./styles/type.css" layer(components);
+@import "./styles/glass.css" layer(components);
+@import "./styles/motion.css" layer(components);
+@import "./styles/kit.css" layer(components);
+@import "./styles/home.css" layer(components);
+@import "./styles/company.css" layer(components);
+@import "./styles/catalogue.css" layer(components);
+@import "./styles/service.css" layer(components);
+@import "./styles/misc.css" layer(components);
+
 /* ------------------------------------------------------------------ tokens */
 
 /*
- * Palette: daylight through ultra-clear (low-iron) glass, rooted in the ALFA GLASS identity.
- * - indigo   the wordmark (#281a6a), softened: all type
+ * One idea carries the whole site: 13.000 m² of glass standing on edge. Glass seen from its edge is a thin bright line with depth,
+ * so the palette is the daylight a buyer reads in (frost, mist), the night of the warehouse (night) and the blueprint of the
+ * machine (deep), all rooted in the ALFA GLASS identity.
+ * - indigo   the wordmark (#281a6a): all type by day
  * - azure    the blue of the logo mark: accents
- * - mist     a cool, clean pale blue-grey for alternating sections
- * - frost    clean cool white: the default surface
- * Sections pick a theme with data-theme; components only use the
- * contextual tokens (surface, fg, line, accent), never raw colors.
+ * - edge     the bright core of a glass edge: hairlines, gauges, the cut path of the drawing, the focus ring at night
+ * Sections pick a theme with data-theme; components only use the contextual tokens (surface, fg, line, accent), never raw colours.
  */
 :root {
-  /* Fixed brand colors */
+  /* Fixed brand colours */
   --brand-indigo: oklch(0.29 0.12 286);
   --brand-azure: oklch(0.6 0.12 232);
   --brand-cyan: oklch(0.82 0.08 228);
   --deep: oklch(0.28 0.075 279);
   --snow: oklch(0.985 0.004 255);
+  /* The mist surface as a fixed colour: the header row of a table on a frost page */
+  --mist: oklch(0.953 0.011 252);
+
+  /* The night of the warehouse, and the edge of a sheet of glass */
+  --night: oklch(0.17 0.045 280);
+  --edge: oklch(0.88 0.08 222);
+  --edge-deep: oklch(0.6 0.12 232);
+  --edge-gradient: linear-gradient(90deg, var(--edge-deep), var(--edge) 45%, var(--edge) 55%, var(--edge-deep));
+
+  /* The only error colour (the estimator, form errors): always with an icon and words. Measured in DESIGN.md: 4.8:1 on mist surface-2 (the estimator's panel), 5.4:1 on frost surface-2, 7.5:1 on night surface-2 */
+  --signal: oklch(0.52 0.19 27);
+  --signal-night: oklch(0.75 0.14 30);
+
+  /* The retired azure section theme: its values stay for small surfaces only (the fluted pane tint, chips) */
+  --tint-azure: oklch(0.83 0.065 242);
+  --tint-azure-2: oklch(0.76 0.085 248);
 
   --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --ease-glint: cubic-bezier(0.45, 0, 0.2, 1);
 
   --gutter: clamp(1rem, 4vw, 3.5rem);
   --header-h: 5rem;
   /* Horizontal inset of the floating header capsule: aligned just outside the content column */
   --capsule-x: max(0.5rem, calc((100% - 108rem) / 2 + var(--gutter) - 1.1rem), calc(var(--gutter) - 1.1rem));
+
+  /* Fluid type scale (type.css): each size grows linearly from 390px to 1440px of viewport and is clamped at both ends */
+  --fs-giga: clamp(6rem, 1.543rem + 18.286vw, 18rem);
+  --fs-mega: clamp(4.25rem, 0.629rem + 14.857vw, 14rem);
+  --fs-display: clamp(3.25rem, 1.486rem + 7.238vw, 8rem);
+  --fs-h1: clamp(2.5rem, 1.386rem + 4.571vw, 5.5rem);
+  --fs-h2: clamp(2rem, 1.35rem + 2.667vw, 3.75rem);
+  --fs-h3: clamp(1.5rem, 1.268rem + 0.952vw, 2.125rem);
+  --fs-lead: clamp(1.1875rem, 1.095rem + 0.381vw, 1.4375rem);
+  --fs-body: clamp(1.0625rem, 1.039rem + 0.095vw, 1.125rem);
 }
 
-/* Frost: the default surface. */
+/* Frost: the default surface. Reading, catalogue, product. */
 :root,
 [data-theme="frost"] {
   --surface: oklch(0.985 0.004 255);
@@ -38,11 +80,13 @@
   --fg-dim: oklch(0.52 0.035 255);
   --line: oklch(0.29 0.085 282 / 0.12);
   --line-strong: oklch(0.29 0.085 282 / 0.24);
+  --line-faint: oklch(0.29 0.085 282 / 0.06);
   --accent: oklch(0.51 0.12 232);
   --accent-fg: oklch(0.985 0.004 255);
+  --signal-ink: var(--signal);
 }
 
-/* Mist: cool, clean blue-grey. */
+/* Mist: cool, clean blue-grey. Alternate daylight bands, the spec plate, the table header. */
 [data-theme="mist"] {
   --surface: oklch(0.953 0.011 252);
   --surface-2: oklch(0.922 0.016 252);
@@ -51,11 +95,28 @@
   --fg-dim: oklch(0.49 0.035 255);
   --line: oklch(0.29 0.085 282 / 0.13);
   --line-strong: oklch(0.29 0.085 282 / 0.26);
+  --line-faint: oklch(0.29 0.085 282 / 0.065);
   --accent: oklch(0.485 0.11 235);
   --accent-fg: oklch(0.985 0.004 255);
+  --signal-ink: var(--signal);
 }
 
-/* Deep: the brand indigo, used sparingly for contrast. */
+/* Night: the warehouse after dark. Cinematic chapters, the closing call, the footer, the mobile menu. At most three chapters a page. */
+[data-theme="night"] {
+  --surface: oklch(0.17 0.045 280);
+  --surface-2: oklch(0.215 0.055 281);
+  --fg: oklch(0.97 0.006 255);
+  --fg-muted: oklch(0.83 0.025 258);
+  --fg-dim: oklch(0.72 0.03 262);
+  --line: oklch(0.97 0.006 255 / 0.12);
+  --line-strong: oklch(0.97 0.006 255 / 0.26);
+  --line-faint: oklch(0.97 0.006 255 / 0.06);
+  --accent: oklch(0.84 0.085 226);
+  --accent-fg: oklch(0.17 0.045 280);
+  --signal-ink: var(--signal-night);
+}
+
+/* Deep: the brand indigo, a blueprint (white and edge-cyan lines). One brand statement per page: vision, 404, the CNC chapters. Not a night chapter. */
 [data-theme="deep"] {
   --surface: oklch(0.28 0.075 279);
   --surface-2: oklch(0.33 0.08 279);
@@ -64,24 +125,30 @@
   --fg-dim: oklch(0.73 0.035 260);
   --line: oklch(0.985 0.004 255 / 0.15);
   --line-strong: oklch(0.985 0.004 255 / 0.3);
+  --line-faint: oklch(0.985 0.004 255 / 0.075);
   --accent: oklch(0.84 0.07 235);
   --accent-fg: oklch(0.28 0.075 279);
-}
-
-/* Azure: the blue of the logo mark, for calls to action. */
-[data-theme="azure"] {
-  --surface: oklch(0.83 0.065 242);
-  --surface-2: oklch(0.76 0.085 248);
-  --fg: oklch(0.27 0.09 282);
-  --fg-muted: oklch(0.36 0.08 270);
-  --fg-dim: oklch(0.37 0.07 262);
-  --line: oklch(0.27 0.09 282 / 0.2);
-  --line-strong: oklch(0.27 0.09 282 / 0.4);
-  --accent: oklch(0.29 0.12 286);
-  --accent-fg: oklch(0.985 0.004 255);
+  --signal-ink: var(--signal-night);
 }
 
 [data-theme] {
+  color: var(--fg);
+}
+
+/*
+ * The header lies over the first screen without a background, so over a dark first section (data-hero="dark", set by the cinematic
+ * page hero) it wears the night tokens until the glass capsule arrives (data-solid). The capsule itself is light glass.
+ */
+body:has(main > [data-hero="dark"]:first-child) .site-header[data-solid="false"] {
+  --surface: oklch(0.17 0.045 280);
+  --surface-2: oklch(0.215 0.055 281);
+  --fg: oklch(0.97 0.006 255);
+  --fg-muted: oklch(0.83 0.025 258);
+  --fg-dim: oklch(0.72 0.03 262);
+  --line: oklch(0.97 0.006 255 / 0.12);
+  --line-strong: oklch(0.97 0.006 255 / 0.3);
+  --accent: oklch(0.84 0.085 226);
+  --accent-fg: oklch(0.17 0.045 280);
   color: var(--fg);
 }
 
@@ -93,17 +160,23 @@
   --color-fg-dim: var(--fg-dim);
   --color-line: var(--line);
   --color-line-strong: var(--line-strong);
+  --color-line-faint: var(--line-faint);
   --color-accent: var(--accent);
   --color-accent-fg: var(--accent-fg);
+  --color-signal: var(--signal-ink);
 
   --color-brand-indigo: var(--brand-indigo);
   --color-brand-azure: var(--brand-azure);
   --color-brand-cyan: var(--brand-cyan);
   --color-deep: var(--deep);
   --color-snow: var(--snow);
+  --color-night: var(--night);
+  --color-edge: var(--edge);
+  --color-edge-deep: var(--edge-deep);
 
   --font-sans: var(--font-sofia), ui-sans-serif, system-ui, sans-serif;
   --font-display: var(--font-sofia-xc), var(--font-sofia), ui-sans-serif, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
   --ease-out-expo: var(--ease-out);
 }
@@ -111,10 +184,11 @@
 /*
  * Spacing scale: Tailwind's 4px steps, of which the layout uses only these:
  *   gap-8 (grid)  mt-5 eyebrow→title  mt-6 title→body  mt-10 body→actions  mt-16 / md:mt-24 block→block
- * plus one named step for the space around a section (`.section-y`, `py-section`).
+ * plus two named steps: the space around a section (`.section-y`, `py-section`) and around a night chapter (`py-chapter`).
  */
 @theme {
   --spacing-section: clamp(5rem, 11vw, 11rem);
+  --spacing-chapter: clamp(6rem, 14vw, 14rem);
 }
 
 /* The block → block gap (`mt-16`, `md:mt-24`) as a variable, for rules that cannot use the utility classes */
@@ -139,7 +213,6 @@
   }
 }
 
-
 html {
   -webkit-text-size-adjust: 100%;
   text-rendering: optimizeLegibility;
@@ -153,7 +226,7 @@ body {
   color: var(--fg);
   font-family: var(--font-sans);
   font-size: var(--fs-body);
-  line-height: 1.7;
+  line-height: 1.6;
   font-feature-settings: "kern", "liga";
   overflow-x: clip;
 }
@@ -163,128 +236,19 @@ body {
   color: var(--brand-indigo);
 }
 
+/* The focus ring is the edge of a sheet: 2px, azure by day and cyan at night (the accent). Never removed, never only a colour change. */
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 3px;
-  border-radius: 2px;
 }
 
 img {
   user-select: none;
 }
 
-/* ------------------------------------------------------------------ type */
-
-/*
- * The whole type scale. Components use these classes (plus `font-*` weights) and nothing else:
- * no `text-sm`…`text-4xl`, no `text-[…]`, no `!` overrides. Exceptions are listed in DESIGN.md.
- * They sit in the components layer, so a utility such as `font-semibold` or `text-fg-muted` still wins.
- */
-:root {
-  --fs-mega: clamp(4.25rem, 15.5vw, 17rem);
-  --fs-display: clamp(3.25rem, 8.4vw, 9rem);
-  --fs-h1: clamp(2.75rem, 6vw, 6.25rem);
-  --fs-h2: clamp(2.25rem, 4.4vw, 4.5rem);
-  --fs-h3: clamp(1.6rem, 2.3vw, 2.35rem);
-  --fs-lead: clamp(1.2rem, 1.55vw, 1.5rem);
-  --fs-body: 1.0625rem;
-}
-
 .font-display {
   font-family: var(--font-display);
   font-feature-settings: "kern", "lnum";
-}
-
-@layer components {
-  /* Home hero title, contact title, 404 */
-  .t-mega {
-    font-family: var(--font-display);
-    font-weight: 800;
-    font-size: var(--fs-mega);
-    line-height: 0.8;
-    letter-spacing: -0.01em;
-    text-transform: uppercase;
-  }
-
-  /*
-   * Page titles, big section titles. Headings that wrap are balanced (even lines, no one-word last line), so a
-   * title is set as one block and left to wrap: no hand-made line breaks.
-   */
-  .t-display {
-    font-family: var(--font-display);
-    font-weight: 750;
-    font-size: var(--fs-display);
-    line-height: 0.86;
-    letter-spacing: -0.005em;
-    text-transform: uppercase;
-    text-wrap: balance;
-  }
-
-  .t-h1 {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: var(--fs-h1);
-    line-height: 0.9;
-    text-transform: uppercase;
-    text-wrap: balance;
-  }
-
-  .t-h2 {
-    font-family: var(--font-display);
-    font-weight: 700;
-    font-size: var(--fs-h2);
-    line-height: 0.94;
-    text-transform: uppercase;
-    text-wrap: balance;
-  }
-
-  /* From lg a `t-h2` takes the size and leading of `t-h1` (the closing call to action). Must come after `.t-h2`. */
-  @media (min-width: 64rem) {
-    .t-lg-h1 {
-      font-size: var(--fs-h1);
-      line-height: 0.9;
-    }
-  }
-
-  .t-h3 {
-    font-family: var(--font-display);
-    font-weight: 650;
-    font-size: var(--fs-h3);
-    line-height: 1;
-    text-transform: uppercase;
-    text-wrap: balance;
-  }
-
-  .t-lead {
-    font-size: var(--fs-lead);
-    line-height: 1.5;
-    font-weight: 400;
-  }
-
-  /* Running text: 17px, the page default. The class is for elements that do not inherit it. */
-  .t-body {
-    font-size: var(--fs-body);
-    line-height: 1.7;
-  }
-
-  /* Captions, table cells, small print: 16px on phones (nothing readable is smaller), 14px from md */
-  .t-small {
-    font-size: 1rem;
-    line-height: 1.5;
-  }
-  @media (min-width: 48rem) {
-    .t-small {
-      font-size: 0.875rem;
-    }
-  }
-
-  .t-label {
-    font-size: 0.78rem;
-    font-weight: 600;
-    letter-spacing: 0.14em;
-    text-transform: uppercase;
-    line-height: 1.3;
-  }
 }
 
 .tabular {
@@ -322,12 +286,12 @@ img {
 .prose-glass {
   max-width: 68ch;
   font-size: var(--fs-body);
-  line-height: 1.75;
+  line-height: 1.7;
 }
 /* The same text at lead size (news articles) */
 .prose-lead {
   font-size: var(--fs-lead);
-  line-height: 1.55;
+  line-height: 1.5;
 }
 .prose-glass > * + * {
   margin-top: 1.1em;
@@ -344,7 +308,7 @@ img {
   font-family: var(--font-display);
   text-transform: uppercase;
   font-weight: 700;
-  line-height: 1;
+  line-height: 1.08;
   margin-top: 2em;
   font-size: var(--fs-h3);
 }
@@ -377,7 +341,7 @@ img {
   text-decoration-thickness: 1px;
   text-underline-offset: 0.2em;
 }
-/* Wide tables scroll inside their own box, never the page */
+/* Wide tables scroll inside their own box, never the page (the product tables are `SpecTable`; this is for legacy html such as the legal pages) */
 .prose-glass table {
   width: 100%;
   border-collapse: collapse;
@@ -388,7 +352,7 @@ img {
 }
 @media (min-width: 48rem) {
   .prose-glass table {
-    font-size: 0.875rem;
+    font-size: 0.9375rem;
   }
 }
 .prose-glass th,
@@ -407,614 +371,12 @@ img {
 }
 .prose-glass th,
 .prose-glass thead td {
+  font-family: var(--font-mono);
   font-size: 0.78rem;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--fg-muted);
-}
-
-/* ------------------------------------------------------------------ glass material */
-
-/*
- * One material, three thicknesses. Built to read as a real pane, not a blurred box:
- * - body:   frosted tint + backdrop blur/saturation
- * - bevel:  bright inset line on top (light catching the edge), faint dark line below (thickness)
- * - rim:    1px gradient border, bright white top-left fading to a cool silver bottom-right,
- *           like the polished edge of ultra-clear glass
- * - sheen:  soft top highlight; optional hover sweep (.glass-sheen)
- * Use only where something passes behind it, never stack glass on glass.
- * Layered as components so utilities (position, radius, padding) still win.
- */
-@layer components {
-  .glass {
-    --glass-tint: oklch(0.99 0.003 255 / 0.4);
-    --glass-blur: 16px;
-    --glass-rim-hi: oklch(1 0 0 / 0.95);
-    --glass-rim-lo: oklch(0.82 0.02 255 / 0.55);
-    --glass-bevel: oklch(1 0 0 / 0.75);
-    --glass-depth: oklch(0.29 0.085 282 / 0.07);
-    --glass-shadow: 0 14px 34px -16px oklch(0.29 0.085 282 / 0.3), 0 2px 6px -3px oklch(0.29 0.085 282 / 0.12);
-    isolation: isolate;
-    background:
-      linear-gradient(180deg, oklch(1 0 0 / 0.38), oklch(1 0 0 / 0) 46%),
-      var(--glass-tint);
-    -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(140%) brightness(1.05);
-    backdrop-filter: blur(var(--glass-blur)) saturate(140%) brightness(1.05);
-    box-shadow:
-      inset 0 1px 0 0 var(--glass-bevel),
-      inset 0 -1px 0 0 var(--glass-depth),
-      var(--glass-shadow);
-  }
-  .glass::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: -1;
-    border-radius: inherit;
-    padding: 1px;
-    pointer-events: none;
-    background: linear-gradient(
-      140deg,
-      var(--glass-rim-hi) 0%,
-      oklch(1 0 0 / 0.18) 32%,
-      oklch(1 0 0 / 0.06) 62%,
-      var(--glass-rim-lo) 100%
-    );
-    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-    -webkit-mask-composite: xor;
-    mask-composite: exclude;
-  }
-
-  /* Small chips and buttons: thin, clear */
-  .glass-thin {
-    --glass-tint: oklch(0.99 0.003 255 / 0.55);
-    --glass-blur: 10px;
-    --glass-shadow: 0 8px 20px -12px oklch(0.29 0.085 282 / 0.3);
-  }
-
-  /* Menus, sheets, large panels: thick frost, deeper shadow, legible text */
-  .glass-thick {
-    --glass-tint: oklch(0.985 0.004 255 / 0.72);
-    --glass-blur: 28px;
-    --glass-shadow: 0 40px 80px -36px oklch(0.29 0.085 282 / 0.38), 0 10px 24px -14px oklch(0.29 0.085 282 / 0.18);
-  }
-
-  /* Over dark imagery or the deep theme */
-  .glass-dark {
-    --glass-tint: oklch(0.26 0.07 279 / 0.42);
-    --glass-rim-hi: oklch(1 0 0 / 0.45);
-    --glass-rim-lo: oklch(0.85 0.03 250 / 0.4);
-    --glass-bevel: oklch(1 0 0 / 0.22);
-    --glass-depth: oklch(0 0 0 / 0.2);
-    --glass-shadow: 0 14px 34px -16px oklch(0.15 0.05 282 / 0.5);
-    background:
-      linear-gradient(180deg, oklch(1 0 0 / 0.12), oklch(1 0 0 / 0) 46%),
-      var(--glass-tint);
-  }
-
-  /* Light sweeping across the pane on hover */
-  .glass-sheen {
-    overflow: hidden;
-  }
-  .glass-sheen::after {
-    content: "";
-    position: absolute;
-    inset: -20% auto -20% 0;
-    width: 45%;
-    z-index: 1;
-    pointer-events: none;
-    background: linear-gradient(100deg, transparent, oklch(1 0 0 / 0.55), transparent);
-    transform: translateX(-160%) skewX(-18deg);
-    transition: transform 0.9s var(--ease-out);
-  }
-  .glass-sheen:hover::after,
-  .glass-sheen:focus-visible::after {
-    transform: translateX(330%) skewX(-18deg);
-  }
-
-  /* Etched lettering, as if engraved into the pane */
-  .etched {
-    color: color-mix(in oklch, var(--fg) 72%, transparent);
-    text-shadow: 0 1px 0 oklch(1 0 0 / 0.7);
-  }
-}
-
-@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
-  .glass {
-    --glass-tint: oklch(0.985 0.004 255 / 0.94);
-  }
-  .glass-dark {
-    --glass-tint: oklch(0.26 0.07 279 / 0.92);
-  }
-}
-
-@media (prefers-reduced-transparency: reduce) {
-  .glass {
-    -webkit-backdrop-filter: none;
-    backdrop-filter: none;
-    --glass-tint: oklch(0.985 0.004 255);
-  }
-  .glass-dark {
-    --glass-tint: oklch(0.26 0.07 279);
-  }
-}
-
-@media (prefers-contrast: more) {
-  .glass {
-    --glass-tint: oklch(0.99 0.003 255 / 0.96);
-    --glass-rim-hi: var(--fg);
-    --glass-rim-lo: var(--fg);
-  }
-}
-
-/* ------------------------------------------------------------------ scroll scenes */
-
-/*
- * The home page's scroll effects run on CSS scroll timelines and move only transform and opacity,
- * so the browser animates them off the main thread and scrolling never waits on JavaScript.
- * The base rules below are the resting state (final frame), which is what browsers without
- * scroll timelines and visitors who prefer reduced motion see. The animated versions sit in the
- * @supports block at the end of this section.
- */
-
-/* Hero: headline entrance, and CSS glass panes where the 3D scene does not run */
-.hero {
-  container: hero / size;
-  --hero-bg: radial-gradient(60% 50% at 50% 44%, oklch(0.9 0.045 250 / 0.55), oklch(0.95 0.02 252 / 0.25) 45%, transparent 75%), var(--surface);
-  background: var(--hero-bg);
-}
-.hero-rise {
-  animation: hero-rise 1.1s var(--ease-out) backwards;
-}
-.hero-fade {
-  animation: hero-fade 1s var(--ease-out) backwards;
-}
-@keyframes hero-rise {
-  from {
-    opacity: 0;
-    translate: 0 40px;
-  }
-}
-@keyframes hero-fade {
-  from {
-    opacity: 0;
-  }
-}
-/* The cue under the hero: a short line travelling down */
-@keyframes scrollcue {
-  from {
-    transform: translateY(-100%);
-  }
-  to {
-    transform: translateY(200%);
-  }
-}
-
-/* Where the headline sits, the real one and its copies in the panes: centred, a little above the middle */
-.hero-title-stage {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding-inline: var(--gutter);
-  padding-bottom: 6vh;
-}
-/* On the narrowest phones the lead and the buttons take half of the screen: the headline moves up to clear them */
-@container hero (max-width: 21rem) {
-  .hero-title-stage {
-    padding-bottom: 40cqh;
-  }
-}
-
-.hero-panes {
-  --pw: 13cqw;
-  --ph: 54cqh;
-  --spread: 1;
-  /* A pane's top edge sits this share of its height above the middle of the hero */
-  --rise: 0.62;
-  /* Each pane is tilted in a perspective of its own (viewer distance in px, without unit) and closes to this share of its tilt */
-  --persp: 1600;
-  --close: 0.15;
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-/* Desktops that pass the capability check get the 3D scene instead; until the check runs, assume they will. */
-.hero[data-glass="3d"] .hero-panes {
-  display: none;
-}
-@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
-  .hero[data-glass="auto"] .hero-panes {
-    display: none;
-  }
-}
-/* Phones and tablets: two narrower panes either side of the middle, so about half of the headline stays outside the glass; they end above the lead */
-@container hero (aspect-ratio < 19 / 20) {
-  .hero-panes {
-    --pw: 24cqw;
-    --ph: 42cqh;
-    --spread: 2.5;
-    --rise: 0.7;
-  }
-  .hero-pane[data-edge] {
-    display: none;
-  }
-}
-.hero-pane {
-  --pl: calc(50cqw + var(--x) * var(--spread) * 100cqw - var(--pw) / 2);
-  --pt: calc(50cqh - var(--ph) * var(--h) * var(--rise));
-  position: absolute;
-  left: var(--pl);
-  top: var(--pt);
-  width: var(--pw);
-  height: calc(var(--ph) * var(--h));
-  overflow: hidden;
-  border-radius: 0.45rem;
-  transform: perspective(calc(var(--persp) * 1px)) rotateY(var(--rot));
-  box-shadow:
-    0 50px 90px -50px oklch(0.29 0.085 282 / 0.45),
-    0 12px 30px -18px oklch(0.29 0.085 282 / 0.22);
-  animation: hero-pane-in 1.4s var(--ease-out) backwards;
-  animation-delay: calc(0.25s + var(--i) * 0.12s);
-}
-/*
- * What the pane "sees": the hero behind it, a little lighter and with a colour fringe, like clear glass.
- * Its headline lies exactly on the real one, so a letter that crosses the edge of a pane is not doubled or broken.
- * The pane's tilt would squeeze and skew what it shows; the matrix is the inverse of that projection
- * (x stretched by 1/cos, then the perspective turned the other way), about the centre of the pane.
- */
-.hero-pane-view {
-  position: absolute;
-  left: calc(var(--pl) * -1);
-  top: calc(var(--pt) * -1);
-  width: 100cqw;
-  height: 100cqh;
-  background: var(--hero-bg);
-  color: oklch(0.38 0.085 280);
-  transform-origin: calc(var(--pl) + var(--pw) / 2) calc(var(--pt) + var(--ph) * var(--h) / 2);
-  transform: matrix3d(calc(1 / cos(var(--rot))), 0, 0, calc(tan(var(--rot)) / var(--persp) * -1), 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-}
-.hero-pane-view p {
-  text-shadow:
-    -0.012em 0 oklch(0.74 0.11 232 / 0.55),
-    0.012em 0 oklch(0.72 0.14 345 / 0.3);
-}
-/* Surface of the pane: sheen, a bright polished rim and the edge catching the light */
-.hero-pane::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: inherit;
-  background:
-    linear-gradient(100deg, oklch(1 0 0 / 0) 0%, oklch(1 0 0 / 0.38) 16%, oklch(1 0 0 / 0.06) 32%, oklch(1 0 0 / 0) 58%, oklch(1 0 0 / 0.2) 86%, oklch(1 0 0 / 0.05)),
-    linear-gradient(180deg, oklch(1 0 0 / 0.24), oklch(0.93 0.02 250 / 0.1) 60%, oklch(1 0 0 / 0.16));
-  box-shadow:
-    inset 0 0 0 1px oklch(1 0 0 / 0.8),
-    inset 3px 0 0 oklch(1 0 0 / 0.55),
-    inset -2px 0 0 oklch(0.8 0.03 250 / 0.55);
-}
-@keyframes hero-pane-in {
-  from {
-    opacity: 0;
-    translate: 0 10%;
-  }
-}
-@keyframes hero-pane-close {
-  to {
-    transform: perspective(calc(var(--persp) * 1px)) rotateY(calc(var(--rot) * var(--close)));
-  }
-}
-/* The copy keeps undoing the tilt while the pane closes. A matrix does not interpolate like an angle, so there is a step half way. */
-@keyframes hero-view-close {
-  50% {
-    transform: matrix3d(calc(1 / cos(var(--rot) * (1 + var(--close)) / 2)), 0, 0, calc(tan(var(--rot) * (1 + var(--close)) / 2) / var(--persp) * -1), 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-  }
-  to {
-    transform: matrix3d(calc(1 / cos(var(--rot) * var(--close))), 0, 0, calc(tan(var(--rot) * var(--close)) / var(--persp) * -1), 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
-  }
-}
-
-/* Manifesto: words light up one after another */
-@keyframes word-light {
-  from {
-    opacity: 0.14;
-  }
-}
-
-/* Facilities: a narrow pane opens onto the warehouse, then a clear pane rises in front */
-.fac-stage {
-  position: relative;
-  height: 100svh;
-  overflow: hidden;
-}
-.fac-zoom,
-.fac-shade {
-  position: absolute;
-  inset: 0;
-}
-.fac-shutter {
-  display: none;
-  position: absolute;
-  background: var(--surface);
-}
-.fac-shutter[data-side="top"] {
-  inset: 0 0 auto 0;
-  height: 14%;
-  --to: 0 -100%;
-}
-.fac-shutter[data-side="bottom"] {
-  inset: auto 0 0 0;
-  height: 14%;
-  --to: 0 100%;
-}
-.fac-shutter[data-side="left"] {
-  inset: 0 auto 0 0;
-  width: 38%;
-  --to: -100% 0;
-}
-.fac-shutter[data-side="right"] {
-  inset: 0 0 0 auto;
-  width: 38%;
-  --to: 100% 0;
-}
-/* The pane moves: no backdrop blur on it, its glass reads through rim, bevel and glare */
-.fac-pane {
-  overflow: hidden;
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-}
-.fac-glare {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 200%;
-  background:
-    linear-gradient(112deg, transparent 0 33%, oklch(1 0 0 / 0.26) 39%, oklch(1 0 0 / 0.06) 46%, transparent 51%, transparent 62%, oklch(1 0 0 / 0.14) 66%, transparent 70%),
-    linear-gradient(180deg, oklch(1 0 0 / 0.08), oklch(1 0 0 / 0.02));
-  translate: -17.5% 0;
-}
-.fac-head {
-  opacity: 0;
-}
-@keyframes fac-open {
-  to {
-    translate: var(--to);
-  }
-}
-@keyframes fac-zoom {
-  from {
-    scale: 1.25;
-  }
-}
-@keyframes fac-pane {
-  from {
-    translate: 0 104%;
-  }
-}
-@keyframes fac-glare {
-  from {
-    translate: 17.5% 0;
-  }
-}
-@keyframes fac-fade-in {
-  from {
-    opacity: 0;
-  }
-}
-@keyframes fac-copy {
-  from {
-    opacity: 0;
-    translate: 0 30px;
-  }
-}
-@keyframes fac-head {
-  from {
-    opacity: 1;
-  }
-  to {
-    opacity: 0;
-  }
-}
-
-/* History: the years travel sideways; at rest, a swipeable strip */
-.hist {
-  --hist-gap: clamp(1.5rem, 3vw, 3rem);
-  --hist-fig: min(78vw, 30rem);
-  --hist-card: min(82vw, 34rem);
-  --hist-h: min(52svh, calc(100svh - var(--header-h) - 12rem));
-  /* How many px the row travels for each px of scrolling */
-  --hist-speed: 1;
-  /* How far the row travels: everything in it, minus one screen */
-  --hist-distance: max(0px, calc(2 * var(--gutter) + var(--hist-fig) + var(--hist-n) * (var(--hist-card) + var(--hist-gap)) - 100vw));
-}
-/* Below lg the cards are narrower and the row moves faster than the scroll, so the pinned stretch of page stays short (the tablet home page is about 14 000 px, and pages over 16 000 px cannot be shot whole) */
-@media (max-width: 63.99rem) {
-  .hist {
-    --hist-fig: min(78vw, 24rem);
-    --hist-card: min(82vw, 20rem);
-    --hist-speed: 1.5;
-  }
-}
-.hist-stage {
-  padding-block: var(--spacing-section);
-}
-.hist-row {
-  display: flex;
-  gap: var(--hist-gap);
-  padding-inline: var(--gutter);
-  overflow-x: auto;
-  scroll-snap-type: x mandatory;
-  scroll-padding-inline: var(--gutter);
-  scrollbar-width: none;
-}
-.hist-row > * {
-  scroll-snap-align: start;
-}
-.hist-figure {
-  width: var(--hist-fig);
-  height: var(--hist-h);
-}
-.hist-card {
-  width: var(--hist-card);
-  height: var(--hist-h);
-}
-.hist-progress {
-  display: none;
-}
-/* The swipe hint belongs to the strip: the scroll-driven version below hides it */
-.hist-hint {
-  display: flex;
-}
-.hist-hint-arrow {
-  animation: hist-nudge 2s var(--ease-in-out) infinite;
-}
-@keyframes hist-nudge {
-  50% {
-    translate: 6px 0;
-  }
-}
-.hist-bar {
-  transform-origin: left;
-}
-/* The caption travels with the row: tint instead of blur */
-.hist .glass {
-  -webkit-backdrop-filter: none;
-  backdrop-filter: none;
-}
-@keyframes hist-slide {
-  to {
-    translate: calc(var(--hist-distance) * -1) 0;
-  }
-}
-@keyframes hist-bar {
-  from {
-    scale: 0 1;
-  }
-}
-
-/*
- * Every view timeline is measured against the whole viewport (`view-timeline-inset: 0`). By default the inset is the
- * scroller's `scroll-padding` (the header's height, set on `html` for anchor links), and a pinned scene would already be
- * that far into its animation when it reaches the top of the screen: the history strip started slid to the left.
- */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .hero {
-      view-timeline: --hero block;
-      view-timeline-inset: 0;
-    }
-    /* As the hero scrolls away, the fanned panes close into a wall of glass */
-    .hero-pane {
-      animation: hero-pane-in 1.4s var(--ease-out) backwards, hero-pane-close linear both;
-      animation-delay: calc(0.25s + var(--i) * 0.12s), 0s;
-      animation-timeline: auto, --hero;
-      animation-range: normal, exit 0% exit 90%;
-    }
-    .hero-pane-view {
-      animation: hero-view-close linear both;
-      animation-timeline: --hero;
-      animation-range: exit 0% exit 90%;
-    }
-
-    .manifesto {
-      view-timeline: --manifesto block;
-      view-timeline-inset: 0;
-    }
-    .manifesto-word {
-      animation: word-light linear both;
-      animation-timeline: --manifesto;
-      animation-range: cover var(--from) cover var(--to);
-    }
-
-    .fac-track {
-      height: 240svh;
-      view-timeline: --fac block;
-      view-timeline-inset: 0;
-    }
-    @media (max-width: 63.99rem) {
-      .fac-track {
-        height: 170svh;
-      }
-    }
-    .fac-stage {
-      position: sticky;
-      top: 0;
-    }
-    .fac-shutter {
-      display: block;
-      animation: fac-open linear both;
-      animation-timeline: --fac;
-      animation-range: contain 0% contain 50%;
-    }
-    .fac-zoom {
-      animation: fac-zoom linear both;
-      animation-timeline: --fac;
-      animation-range: contain 0% contain 55%;
-    }
-    .fac-pane {
-      animation: fac-pane linear both;
-      animation-timeline: --fac;
-      animation-range: contain 36% contain 64%;
-    }
-    .fac-glare {
-      animation: fac-glare linear both;
-      animation-timeline: --fac;
-      animation-range: contain 36% contain 100%;
-    }
-    .fac-shade {
-      animation: fac-fade-in linear both;
-      animation-timeline: --fac;
-      animation-range: contain 44% contain 64%;
-    }
-    .fac-copy {
-      animation: fac-copy linear both;
-      animation-timeline: --fac;
-      animation-range: contain 50% contain 66%;
-    }
-    .fac-head {
-      animation: fac-head linear both;
-      animation-timeline: --fac;
-      animation-range: contain 0% contain 22%;
-    }
-
-    .hist-track {
-      height: calc(100svh + var(--hist-distance) / var(--hist-speed));
-      view-timeline: --hist block;
-      view-timeline-inset: 0;
-    }
-    .hist-stage {
-      position: sticky;
-      top: 0;
-      display: flex;
-      height: 100svh;
-      flex-direction: column;
-      justify-content: center;
-      overflow: hidden;
-      padding-block: var(--header-h) 0;
-    }
-    .hist-row {
-      width: max-content;
-      overflow: visible;
-      scroll-snap-type: none;
-      animation: hist-slide linear both;
-      animation-timeline: --hist;
-      animation-range: contain 0% contain 100%;
-    }
-    .hist-hint {
-      display: none;
-    }
-    @media (min-width: 48rem) {
-      .hist-progress {
-        display: block;
-      }
-    }
-    .hist-bar {
-      animation: hist-bar linear both;
-      animation-timeline: --hist;
-      animation-range: contain 0% contain 100%;
-    }
-  }
 }
 
 /* ------------------------------------------------------------------ entrances and reveals */
@@ -1025,15 +387,36 @@ img {
  * Content further down is armed by `Reveal` / `MaskedLines` after hydration, and only if it is below the
  * fold at that moment (`data-rv="hidden"`); without JavaScript, or with reduced motion, it simply stays visible.
  * Only transform and opacity ever move.
+ *   rise       24px → 0 and opacity, 1100ms expo-out, 80ms stagger: everything above the fold
+ *   mask       each line from 105% to 0 inside its mask, 900ms expo-out, 80ms stagger: headings
+ *   fade-rise  16px → 0 and opacity, 700ms expo-out: blocks below the fold
  */
+.hero-rise {
+  animation: hero-rise 1.1s var(--ease-out) backwards;
+}
+.hero-fade {
+  animation: hero-fade 1s var(--ease-out) backwards;
+}
+@keyframes hero-rise {
+  from {
+    opacity: 0;
+    translate: 0 24px;
+  }
+}
+@keyframes hero-fade {
+  from {
+    opacity: 0;
+  }
+}
+
 [data-rv] {
   transition:
-    opacity 1s var(--ease-out) var(--rv-delay, 0s),
-    translate 1s var(--ease-out) var(--rv-delay, 0s);
+    opacity 0.7s var(--ease-out) var(--rv-delay, 0s),
+    translate 0.7s var(--ease-out) var(--rv-delay, 0s);
 }
 [data-rv="hidden"] {
   opacity: 0;
-  translate: 0 var(--rv-y, 28px);
+  translate: 0 var(--rv-y, 16px);
 }
 @media print {
   [data-rv="hidden"] {
@@ -1062,14 +445,14 @@ img {
 }
 .mask-line > span {
   display: block;
-  transition: translate 1.1s var(--ease-out) calc(var(--rv-delay, 0s) + var(--i, 0) * 90ms);
+  transition: translate 0.9s var(--ease-out) calc(var(--rv-delay, 0s) + var(--i, 0) * 80ms);
 }
 [data-rv="hidden"] .mask-line > span {
   translate: 0 140%;
 }
 .mask-eager .mask-line > span {
-  animation: mask-rise 1.1s var(--ease-out) backwards;
-  animation-delay: calc(var(--rv-delay, 0s) + var(--i, 0) * 90ms);
+  animation: mask-rise 0.9s var(--ease-out) backwards;
+  animation-delay: calc(var(--rv-delay, 0s) + var(--i, 0) * 80ms);
 }
 @keyframes mask-rise {
   from {
@@ -1107,15 +490,7 @@ img {
   -webkit-text-stroke: 1px var(--line-strong);
 }
 
-/* Fluted glass: light split by a ribbed pane, on the azure call-to-action surfaces */
-.fluted {
-  background:
-    repeating-linear-gradient(90deg, transparent 0 46px, oklch(1 0 0 / 0.28) 46px 47px, transparent 47px 92px),
-    radial-gradient(120% 90% at 85% 0%, oklch(0.95 0.03 240 / 0.85), transparent 60%),
-    linear-gradient(160deg, transparent 40%, oklch(0.7 0.1 240 / 0.6));
-}
-
-/* Mobile menu: a native modal dialog (focus trap, Esc and inert page behind come from the browser) */
+/* Mobile menu: a native modal dialog on night (focus trap, Esc and inert page behind come from the browser) */
 dialog.menu-sheet {
   position: fixed;
   inset: 0;
@@ -1128,6 +503,7 @@ dialog.menu-sheet {
   border: 0;
   overflow-y: auto;
   overscroll-behavior: contain;
+  background: var(--surface);
   color: var(--fg);
 }
 dialog.menu-sheet::backdrop {
@@ -1165,30 +541,6 @@ dialog.menu-sheet[data-closing] {
 .link-underline:hover,
 .link-underline:focus-visible {
   background-size: 100% 1px;
-}
-
-/* A link that is visibly a link at rest, and a 44px target on touch */
-@layer components {
-  .text-link {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2.75rem;
-    text-decoration: underline;
-    text-decoration-thickness: 1px;
-    text-underline-offset: 0.3em;
-    text-decoration-color: color-mix(in oklch, currentColor 45%, transparent);
-    transition: text-decoration-color 0.3s;
-  }
-  .text-link:hover,
-  .text-link:focus-visible {
-    text-decoration-color: currentColor;
-  }
-}
-
-@keyframes marquee {
-  to {
-    transform: translate3d(-50%, 0, 0);
-  }
 }
 
 @media (prefers-reduced-motion: reduce) {

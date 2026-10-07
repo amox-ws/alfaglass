@@ -1,9 +1,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties } from "react";
+import { MediaSlot } from "@/components/kit/MediaSlot";
+import { RackLines } from "@/components/kit/RackLines";
 import { MaskedLines } from "@/components/reveal";
 import { excerpt, teaser } from "@/lib/content";
 import { mediaSize } from "@/lib/media";
+import type { Slot } from "@/lib/media-slots";
 import { t, type Lang } from "@/lib/i18n";
 
 export type Crumb = { label: string; href?: string };
@@ -12,7 +15,7 @@ export type Crumb = { label: string; href?: string };
 const CURRENT_CRUMB_MAX = 36;
 
 /**
- * The trail above a page title, the "eyebrow" of the page.
+ * The trail above a page title, the "eyebrow" of the page, in mono.
  * From md it is the whole path: each crumb a 44px target, a separator attached to the crumb before it (so a row
  * never starts with "/"), and the current page shortened, because an article's crumb would repeat its headline.
  * On phones it is one back link (44px) to the nearest parent page, so the eyebrow of a product page is one row and
@@ -66,8 +69,39 @@ const STRIP_MIN_WIDTH = 1328;
 const STRIP_ASPECT = 21 / 8;
 /** On phones a photo is 16:10; only a panorama (wider than 2:1) keeps its own proportion. */
 const PHONE_ASPECT = 16 / 10;
-/** The lead of a compact hero, at every width: two or three lines, ended at a word or a sentence ("…" added), never cut inside a word. */
+/** The lead of a compact or index hero, at every width: two or three lines, ended at a word or a sentence ("…" added), never cut inside a word. */
 const COMPACT_LEAD_MAX = 100;
+
+type HeroProps = {
+  lang: Lang;
+  crumbs: Crumb[];
+  title: string;
+  lead?: string;
+  /** Another page's children go under the text of the hero (actions, a drawing). */
+  children?: React.ReactNode;
+  /**
+   * - `default` (the foundation's hero): a photo beside the title or as a strip, meta under the lead; `compact` is the catalogue's.
+   * - `index`: no photo; the title, a mono facts line ("9 ΟΙΚΟΓΕΝΕΙΕΣ · 43 ΕΙΔΗ · 2–19 mm"), a lead clipped to 100 characters, rack lines behind.
+   *   The catalogue groups and the news list.
+   * - `cinematic`: a full-bleed photo (88svh, 70svh on a phone) with the title bottom-left on a scrim, lead and mono facts under it.
+   */
+  variant?: "default" | "index" | "cinematic";
+  /** default */
+  image?: string | null;
+  imageAlt?: string;
+  meta?: React.ReactNode;
+  compact?: boolean;
+  /** index and cinematic: the mono facts line. */
+  facts?: React.ReactNode;
+  /** cinematic: the photograph (or, one day, the film) of the slot; its poster is the LCP. */
+  media?: Slot;
+  /** cinematic: what an empty slot shows (the CNC hero's dimension line). */
+  fallback?: React.ReactNode;
+  /** cinematic: the surface under the photo and its scrim, `night` (the default) or `deep`. */
+  theme?: "night" | "deep";
+  /** cinematic: the alt text of the photo, when the page is not Greek. */
+  alt?: string;
+};
 
 /**
  * Page title block. Everything in it is in the server HTML and enters with CSS animations, so the headline, lead
@@ -75,38 +109,87 @@ const COMPACT_LEAD_MAX = 100;
  *
  * The title is one block that wraps and balances itself (no hand-made line breaks, a hyphenated name never splits).
  *
- * The photo never shows larger than its source: a wide photo runs full width as a strip (a panorama as a wider strip,
+ * `default`: the photo never shows larger than its source: a wide photo runs full width as a strip (a panorama as a wider strip,
  * on phones too), a narrower one sits beside the title at lg and above, at most as wide as the file. `compact`
  * (catalogue pages) always uses the side layout, shows only the start of the lead at every width (two or three lines;
  * the full text belongs in the page's "about" section), puts a 16:9 photo capped at 30svh after the meta on phones
  * and tablets (40svh beside the text from lg) and keeps the space below short, so the first list items stay above
- * the fold at 1440 × 900 and come within about 1.3 screens at 390 × 844 (measured: 0.9 to 1.15).
+ * the fold at 1440 × 900 and come within about 1.3 screens at 390 × 844.
  *
- * A hero without a strip photo (bare, or compact) ends one half block gap below its text and the section after it
+ * A hero without a strip photo (bare, compact or index) ends one half block gap below its text and the section after it
  * starts one half block gap further down (`.page-hero-tight`, globals.css): the title and the first text are 64px
  * (phones) or 96px (md and up) apart, not the hero's padding plus the next section's.
  */
-export function PageHero({
-  lang,
-  crumbs,
-  title,
-  lead,
-  image,
-  imageAlt = "",
-  meta,
-  compact = false,
-  children,
-}: {
-  lang: Lang;
-  crumbs: Crumb[];
-  title: string;
-  lead?: string;
-  image?: string | null;
-  imageAlt?: string;
-  meta?: React.ReactNode;
-  compact?: boolean;
-  children?: React.ReactNode;
-}) {
+export function PageHero(props: HeroProps) {
+  if (props.variant === "cinematic") return <CinematicHero {...props} />;
+  if (props.variant === "index") return <IndexHero {...props} />;
+  return <DefaultHero {...props} />;
+}
+
+function IndexHero({ lang, crumbs, title, lead, facts, children }: HeroProps) {
+  const long = title.length > LONG_TITLE;
+  return (
+    <section data-theme="frost" className="page-hero-tight relative overflow-hidden bg-surface pt-[calc(var(--header-h)+3rem)] md:pt-[calc(var(--header-h)+5rem)]">
+      <RackLines />
+      <div className="shell relative">
+        <div className="hero-fade">
+          <Breadcrumbs lang={lang} items={crumbs} />
+        </div>
+        <MaskedLines as="h1" eager lines={[title]} className={`mt-5 ${long ? "t-h1 max-w-[30ch]" : "t-display max-w-[18ch]"}`} />
+        {facts && (
+          <p className="hero-rise t-label mt-6 text-fg-muted" style={{ animationDelay: "0.25s" }}>
+            {facts}
+          </p>
+        )}
+        {lead && (
+          <p className="hero-rise t-lead mt-5 max-w-[60ch] text-fg-muted" style={{ animationDelay: "0.3s" }}>
+            {teaser(lead, COMPACT_LEAD_MAX)}
+          </p>
+        )}
+        {children}
+      </div>
+    </section>
+  );
+}
+
+function CinematicHero({ lang, crumbs, title, lead, facts, media = {}, fallback, theme = "night", alt, children }: HeroProps) {
+  const still = media.still ?? media.loop?.poster;
+  const size = still ? mediaSize(still.src) : null;
+  const long = title.length > LONG_TITLE;
+  return (
+    <section data-theme={theme} data-hero="dark" data-media={still ? "photo" : "none"} className="hero-cine relative isolate flex flex-col justify-between overflow-hidden bg-surface">
+      {still && (
+        <div className="hero-cine-media" style={size ? { maxWidth: size.w } : undefined}>
+          <MediaSlot slot={media} ratio="3 / 2" fill preload sizes="100vw" alt={alt} lang={lang} className="img-settle" />
+        </div>
+      )}
+      {/* Always there, photo or not: over a flat colour the transparent header would otherwise look, to the harness, like text on the page's frost body */}
+      <div aria-hidden className="hero-cine-scrim" />
+      <div className="shell hero-cine-top relative">
+        <div className="hero-fade">
+          <Breadcrumbs lang={lang} items={crumbs} />
+        </div>
+      </div>
+      <div className="shell hero-cine-body relative">
+        <MaskedLines as="h1" eager lines={[title]} className={long ? "t-h1 max-w-[24ch]" : "t-display max-w-[18ch]"} />
+        {lead && (
+          <p className="hero-rise t-lead mt-6 max-w-[60ch] text-fg-muted" style={{ animationDelay: "0.25s" }}>
+            {lead}
+          </p>
+        )}
+        {facts && (
+          <p className="hero-rise t-label mt-6 text-fg-muted" style={{ animationDelay: "0.35s" }}>
+            {facts}
+          </p>
+        )}
+        {children}
+        {!still && fallback}
+      </div>
+    </section>
+  );
+}
+
+function DefaultHero({ lang, crumbs, title, lead, image, imageAlt = "", meta, compact = false, children }: HeroProps) {
   const size = image ? mediaSize(image) : null;
   const ratio = size ? size.w / size.h : null;
   const side = Boolean(image) && (compact || (size !== null && size.w < STRIP_MIN_WIDTH));
@@ -159,7 +242,7 @@ export function PageHero({
                 className={`relative overflow-hidden rounded-sm bg-surface-2 ${compact ? "aspect-video max-h-[30svh] w-full lg:aspect-[4/3] lg:max-h-[40svh] lg:w-auto" : "aspect-[4/3] lg:max-h-[40svh]"}`}
                 style={size ? { maxWidth: size.w } : undefined}
               >
-                <Image src={image} alt={imageAlt} fill priority sizes="(min-width: 1024px) 40vw, 100vw" className="img-settle object-cover" />
+                <Image src={image} alt={imageAlt} fill preload sizes="(min-width: 1024px) 40vw, 100vw" className="img-settle object-cover" />
               </div>
             </div>
           </div>
@@ -171,7 +254,7 @@ export function PageHero({
                 className="relative mt-16 aspect-(--hero-aspect-sm) overflow-hidden rounded-sm bg-surface-2 md:mt-24 md:aspect-(--hero-aspect)"
                 style={{ "--hero-aspect": stripAspect, "--hero-aspect-sm": phoneAspect } as CSSProperties}
               >
-                <Image src={image} alt={imageAlt} fill priority sizes="(min-width: 1728px) 1616px, 100vw" className="img-settle object-cover" />
+                <Image src={image} alt={imageAlt} fill preload sizes="(min-width: 1728px) 1616px, 100vw" className="img-settle object-cover" />
               </div>
             )}
           </>

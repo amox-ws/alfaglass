@@ -1,11 +1,19 @@
 import { SITE_URL, cms, contact, imagery } from "./content";
+import { works } from "@/content/works";
 import { t, type Lang } from "./i18n";
 import { hrefFor, type Route } from "./routes";
 
 const absolute = (href: string) => `${SITE_URL}${href === "/" ? "" : href}`;
 
 /** Where the premises are: the place "ALFA GLASS A.E.E." on Google Maps, the same one the contact page embeds. */
-const GEO = { latitude: 38.085753, longitude: 23.618321 };
+export const GEO = { latitude: 38.085753, longitude: 23.618321 };
+
+/** The coordinates as a mono caption, "38.0858° Β · 23.6183° Α · ΑΣΠΡΟΠΥΡΓΟΣ" (the drone band): the same place, formatted. */
+export function geoCaption(lang: Lang) {
+  const north = lang === "el" ? "Β" : "N";
+  const east = lang === "el" ? "Α" : "E";
+  return `${GEO.latitude.toFixed(4)}° ${north} · ${GEO.longitude.toFixed(4)}° ${east} · ${ADDRESS[lang].addressLocality.toUpperCase()}`;
+}
 
 const ADDRESS: Record<Lang, { streetAddress: string; addressLocality: string }> = {
   el: { streetAddress: "Θέση Κύριλλος", addressLocality: "Ασπρόπυργος" },
@@ -50,8 +58,17 @@ export function organizationLd(lang: Lang) {
 /** Home → group → category → product, the same trail the page shows (null for pages without one). */
 export function breadcrumbLd(lang: Lang, route: Route) {
   const c = cms(lang);
-  const trail = [{ name: t(lang).nav.home, href: hrefFor(lang, { kind: "home" }) }];
-  if (route.kind === "group") {
+  const d = t(lang);
+  const trail = [{ name: d.nav.home, href: hrefFor(lang, { kind: "home" }) }];
+  if (route.kind === "service") {
+    trail.push({ name: d.nav.serviceLong, href: hrefFor(lang, { kind: "service" }) });
+  } else if (route.kind === "works") {
+    trail.push({ name: d.nav.works, href: hrefFor(lang, { kind: "works" }) });
+  } else if (route.kind === "work") {
+    const w = works.find((x) => x.slug === route.slug);
+    trail.push({ name: d.nav.works, href: hrefFor(lang, { kind: "works" }) });
+    if (w) trail.push({ name: w.title, href: hrefFor(lang, route) });
+  } else if (route.kind === "group") {
     const g = c.groupByKey(route.key);
     trail.push({ name: g.title, href: c.groupHref(g) });
   } else if (route.kind === "category") {
@@ -68,5 +85,18 @@ export function breadcrumbLd(lang: Lang, route: Route) {
     "@context": "https://schema.org",
     "@type": "BreadcrumbList",
     itemListElement: trail.map((step, i) => ({ "@type": "ListItem", position: i + 1, name: step.name, item: absolute(step.href) })),
+  };
+}
+
+/** The cutting service: the existing organization is its provider; nothing else is claimed (no areas, no offers, no prices). */
+export function serviceLd(lang: Lang) {
+  const d = t(lang);
+  return {
+    "@context": "https://schema.org",
+    "@type": "Service",
+    serviceType: lang === "el" ? "CNC κοπή και κατεργασία" : "CNC cutting and machining",
+    name: d.nav.serviceLong,
+    url: absolute(hrefFor(lang, { kind: "service" })),
+    provider: { "@type": "Organization", "@id": `${SITE_URL}/#organization`, name: d.contact.company, url: absolute(hrefFor(lang, { kind: "home" })) },
   };
 }

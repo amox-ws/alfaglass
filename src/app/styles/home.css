@@ -1,0 +1,452 @@
+/*
+ * Home (lane Home): the scroll scenes of the home page. Moved here from globals.css by the System so that the lane owns them and can
+ * change them: this file is in the components layer, after every System rule, so a rule here wins a tie with a System one.
+ * The hero entrance animations (`hero-rise`, `hero-fade`) are shared and stay in globals.css.
+ *
+ * The home page's scroll effects run on CSS scroll timelines and move only transform and opacity, so the browser animates them
+ * off the main thread and scrolling never waits on JavaScript. The base rules are the resting state (final frame), which is
+ * what browsers without scroll timelines and visitors who prefer reduced motion see. The animated versions sit in the
+ * @supports block at the end.
+ */
+
+/* Hero: headline entrance, and CSS glass panes where the 3D scene does not run */
+.hero {
+  container: hero / size;
+  --hero-bg: radial-gradient(60% 50% at 50% 44%, oklch(0.9 0.045 250 / 0.55), oklch(0.95 0.02 252 / 0.25) 45%, transparent 75%), var(--surface);
+  background: var(--hero-bg);
+}
+/* The cue under the hero: a short line travelling down */
+@keyframes scrollcue {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(200%);
+  }
+}
+
+/* Where the headline sits, the real one and its copies in the panes: centred, a little above the middle */
+.hero-title-stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: var(--gutter);
+  padding-bottom: 6vh;
+}
+/* On the narrowest phones the lead and the buttons take half of the screen: the headline moves up to clear them */
+@container hero (max-width: 21rem) {
+  .hero-title-stage {
+    padding-bottom: 40cqh;
+  }
+}
+
+.hero-panes {
+  --pw: 13cqw;
+  --ph: 54cqh;
+  --spread: 1;
+  /* A pane's top edge sits this share of its height above the middle of the hero */
+  --rise: 0.62;
+  /* Each pane is tilted in a perspective of its own (viewer distance in px, without unit) and closes to this share of its tilt */
+  --persp: 1600;
+  --close: 0.15;
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+/* Desktops that pass the capability check get the 3D scene instead; until the check runs, assume they will. */
+.hero[data-glass="3d"] .hero-panes {
+  display: none;
+}
+@media (min-width: 1024px) and (hover: hover) and (pointer: fine) {
+  .hero[data-glass="auto"] .hero-panes {
+    display: none;
+  }
+}
+/* Phones and tablets: two narrower panes either side of the middle, so about half of the headline stays outside the glass; they end above the lead */
+@container hero (aspect-ratio < 19 / 20) {
+  .hero-panes {
+    --pw: 24cqw;
+    --ph: 42cqh;
+    --spread: 2.5;
+    --rise: 0.7;
+  }
+  .hero-pane[data-edge] {
+    display: none;
+  }
+}
+.hero-pane {
+  --pl: calc(50cqw + var(--x) * var(--spread) * 100cqw - var(--pw) / 2);
+  --pt: calc(50cqh - var(--ph) * var(--h) * var(--rise));
+  position: absolute;
+  left: var(--pl);
+  top: var(--pt);
+  width: var(--pw);
+  height: calc(var(--ph) * var(--h));
+  overflow: hidden;
+  border-radius: 0.45rem;
+  transform: perspective(calc(var(--persp) * 1px)) rotateY(var(--rot));
+  box-shadow:
+    0 50px 90px -50px oklch(0.29 0.085 282 / 0.45),
+    0 12px 30px -18px oklch(0.29 0.085 282 / 0.22);
+  animation: hero-pane-in 1.4s var(--ease-out) backwards;
+  animation-delay: calc(0.25s + var(--i) * 0.12s);
+}
+/*
+ * What the pane "sees": the hero behind it, a little lighter and with a colour fringe, like clear glass.
+ * Its headline lies exactly on the real one, so a letter that crosses the edge of a pane is not doubled or broken.
+ * The pane's tilt would squeeze and skew what it shows; the matrix is the inverse of that projection
+ * (x stretched by 1/cos, then the perspective turned the other way), about the centre of the pane.
+ */
+.hero-pane-view {
+  position: absolute;
+  left: calc(var(--pl) * -1);
+  top: calc(var(--pt) * -1);
+  width: 100cqw;
+  height: 100cqh;
+  background: var(--hero-bg);
+  color: oklch(0.38 0.085 280);
+  transform-origin: calc(var(--pl) + var(--pw) / 2) calc(var(--pt) + var(--ph) * var(--h) / 2);
+  transform: matrix3d(calc(1 / cos(var(--rot))), 0, 0, calc(tan(var(--rot)) / var(--persp) * -1), 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+}
+.hero-pane-view p {
+  text-shadow:
+    -0.012em 0 oklch(0.74 0.11 232 / 0.55),
+    0.012em 0 oklch(0.72 0.14 345 / 0.3);
+}
+/* Surface of the pane: sheen, a bright polished rim and the edge catching the light */
+.hero-pane::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background:
+    linear-gradient(100deg, oklch(1 0 0 / 0) 0%, oklch(1 0 0 / 0.38) 16%, oklch(1 0 0 / 0.06) 32%, oklch(1 0 0 / 0) 58%, oklch(1 0 0 / 0.2) 86%, oklch(1 0 0 / 0.05)),
+    linear-gradient(180deg, oklch(1 0 0 / 0.24), oklch(0.93 0.02 250 / 0.1) 60%, oklch(1 0 0 / 0.16));
+  box-shadow:
+    inset 0 0 0 1px oklch(1 0 0 / 0.8),
+    inset 3px 0 0 oklch(1 0 0 / 0.55),
+    inset -2px 0 0 oklch(0.8 0.03 250 / 0.55);
+}
+@keyframes hero-pane-in {
+  from {
+    opacity: 0;
+    translate: 0 10%;
+  }
+}
+@keyframes hero-pane-close {
+  to {
+    transform: perspective(calc(var(--persp) * 1px)) rotateY(calc(var(--rot) * var(--close)));
+  }
+}
+/* The copy keeps undoing the tilt while the pane closes. A matrix does not interpolate like an angle, so there is a step half way. */
+@keyframes hero-view-close {
+  50% {
+    transform: matrix3d(calc(1 / cos(var(--rot) * (1 + var(--close)) / 2)), 0, 0, calc(tan(var(--rot) * (1 + var(--close)) / 2) / var(--persp) * -1), 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+  to {
+    transform: matrix3d(calc(1 / cos(var(--rot) * var(--close))), 0, 0, calc(tan(var(--rot) * var(--close)) / var(--persp) * -1), 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1);
+  }
+}
+
+/* Manifesto: words light up one after another */
+@keyframes word-light {
+  from {
+    opacity: 0.14;
+  }
+}
+
+/* Facilities: a narrow pane opens onto the warehouse, then a clear pane rises in front */
+.fac-stage {
+  position: relative;
+  height: 100svh;
+  overflow: hidden;
+}
+.fac-zoom,
+.fac-shade {
+  position: absolute;
+  inset: 0;
+}
+.fac-shutter {
+  display: none;
+  position: absolute;
+  background: var(--surface);
+}
+.fac-shutter[data-side="top"] {
+  inset: 0 0 auto 0;
+  height: 14%;
+  --to: 0 -100%;
+}
+.fac-shutter[data-side="bottom"] {
+  inset: auto 0 0 0;
+  height: 14%;
+  --to: 0 100%;
+}
+.fac-shutter[data-side="left"] {
+  inset: 0 auto 0 0;
+  width: 38%;
+  --to: -100% 0;
+}
+.fac-shutter[data-side="right"] {
+  inset: 0 0 0 auto;
+  width: 38%;
+  --to: 100% 0;
+}
+/* The pane moves: no backdrop blur on it, its glass reads through rim, bevel and glare */
+.fac-pane {
+  overflow: hidden;
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+.fac-glare {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 200%;
+  background:
+    linear-gradient(112deg, transparent 0 33%, oklch(1 0 0 / 0.26) 39%, oklch(1 0 0 / 0.06) 46%, transparent 51%, transparent 62%, oklch(1 0 0 / 0.14) 66%, transparent 70%),
+    linear-gradient(180deg, oklch(1 0 0 / 0.08), oklch(1 0 0 / 0.02));
+  translate: -17.5% 0;
+}
+.fac-head {
+  opacity: 0;
+}
+@keyframes fac-open {
+  to {
+    translate: var(--to);
+  }
+}
+@keyframes fac-zoom {
+  from {
+    scale: 1.25;
+  }
+}
+@keyframes fac-pane {
+  from {
+    translate: 0 104%;
+  }
+}
+@keyframes fac-glare {
+  from {
+    translate: 17.5% 0;
+  }
+}
+@keyframes fac-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes fac-copy {
+  from {
+    opacity: 0;
+    translate: 0 30px;
+  }
+}
+@keyframes fac-head {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+/* History: the years travel sideways; at rest, a swipeable strip */
+.hist {
+  --hist-gap: clamp(1.5rem, 3vw, 3rem);
+  --hist-fig: min(78vw, 30rem);
+  --hist-card: min(82vw, 34rem);
+  --hist-h: min(52svh, calc(100svh - var(--header-h) - 12rem));
+  /* How many px the row travels for each px of scrolling */
+  --hist-speed: 1;
+  /* How far the row travels: everything in it, minus one screen */
+  --hist-distance: max(0px, calc(2 * var(--gutter) + var(--hist-fig) + var(--hist-n) * (var(--hist-card) + var(--hist-gap)) - 100vw));
+}
+/* Below lg the cards are narrower and the row moves faster than the scroll, so the pinned stretch of page stays short (the tablet home page is about 14 000 px, and pages over 16 000 px cannot be shot whole) */
+@media (max-width: 63.99rem) {
+  .hist {
+    --hist-fig: min(78vw, 24rem);
+    --hist-card: min(82vw, 20rem);
+    --hist-speed: 1.5;
+  }
+}
+.hist-stage {
+  padding-block: var(--spacing-section);
+}
+.hist-row {
+  display: flex;
+  gap: var(--hist-gap);
+  padding-inline: var(--gutter);
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding-inline: var(--gutter);
+  scrollbar-width: none;
+}
+.hist-row > * {
+  scroll-snap-align: start;
+}
+.hist-figure {
+  width: var(--hist-fig);
+  height: var(--hist-h);
+}
+.hist-card {
+  width: var(--hist-card);
+  height: var(--hist-h);
+}
+.hist-progress {
+  display: none;
+}
+/* The swipe hint belongs to the strip: the scroll-driven version below hides it */
+.hist-hint {
+  display: flex;
+}
+.hist-hint-arrow {
+  animation: hist-nudge 2s var(--ease-in-out) infinite;
+}
+@keyframes hist-nudge {
+  50% {
+    translate: 6px 0;
+  }
+}
+.hist-bar {
+  transform-origin: left;
+}
+/* The caption travels with the row: tint instead of blur */
+.hist .glass {
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+}
+@keyframes hist-slide {
+  to {
+    translate: calc(var(--hist-distance) * -1) 0;
+  }
+}
+@keyframes hist-bar {
+  from {
+    scale: 0 1;
+  }
+}
+
+/*
+ * Every view timeline is measured against the whole viewport (`view-timeline-inset: 0`). By default the inset is the
+ * scroller's `scroll-padding` (the header's height, set on `html` for anchor links), and a pinned scene would already be
+ * that far into its animation when it reaches the top of the screen: the history strip started slid to the left.
+ */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .hero {
+      view-timeline: --hero block;
+      view-timeline-inset: 0;
+    }
+    /* As the hero scrolls away, the fanned panes close into a wall of glass */
+    .hero-pane {
+      animation: hero-pane-in 1.4s var(--ease-out) backwards, hero-pane-close linear both;
+      animation-delay: calc(0.25s + var(--i) * 0.12s), 0s;
+      animation-timeline: auto, --hero;
+      animation-range: normal, exit 0% exit 90%;
+    }
+    .hero-pane-view {
+      animation: hero-view-close linear both;
+      animation-timeline: --hero;
+      animation-range: exit 0% exit 90%;
+    }
+
+    .manifesto {
+      view-timeline: --manifesto block;
+      view-timeline-inset: 0;
+    }
+    .manifesto-word {
+      animation: word-light linear both;
+      animation-timeline: --manifesto;
+      animation-range: cover var(--from) cover var(--to);
+    }
+
+    .fac-track {
+      height: 240svh;
+      view-timeline: --fac block;
+      view-timeline-inset: 0;
+    }
+    @media (max-width: 63.99rem) {
+      .fac-track {
+        height: 170svh;
+      }
+    }
+    .fac-stage {
+      position: sticky;
+      top: 0;
+    }
+    .fac-shutter {
+      display: block;
+      animation: fac-open linear both;
+      animation-timeline: --fac;
+      animation-range: contain 0% contain 50%;
+    }
+    .fac-zoom {
+      animation: fac-zoom linear both;
+      animation-timeline: --fac;
+      animation-range: contain 0% contain 55%;
+    }
+    .fac-pane {
+      animation: fac-pane linear both;
+      animation-timeline: --fac;
+      animation-range: contain 36% contain 64%;
+    }
+    .fac-glare {
+      animation: fac-glare linear both;
+      animation-timeline: --fac;
+      animation-range: contain 36% contain 100%;
+    }
+    .fac-shade {
+      animation: fac-fade-in linear both;
+      animation-timeline: --fac;
+      animation-range: contain 44% contain 64%;
+    }
+    .fac-copy {
+      animation: fac-copy linear both;
+      animation-timeline: --fac;
+      animation-range: contain 50% contain 66%;
+    }
+    .fac-head {
+      animation: fac-head linear both;
+      animation-timeline: --fac;
+      animation-range: contain 0% contain 22%;
+    }
+
+    .hist-track {
+      height: calc(100svh + var(--hist-distance) / var(--hist-speed));
+      view-timeline: --hist block;
+      view-timeline-inset: 0;
+    }
+    .hist-stage {
+      position: sticky;
+      top: 0;
+      display: flex;
+      height: 100svh;
+      flex-direction: column;
+      justify-content: center;
+      overflow: hidden;
+      padding-block: var(--header-h) 0;
+    }
+    .hist-row {
+      width: max-content;
+      overflow: visible;
+      scroll-snap-type: none;
+      animation: hist-slide linear both;
+      animation-timeline: --hist;
+      animation-range: contain 0% contain 100%;
+    }
+    .hist-hint {
+      display: none;
+    }
+    @media (min-width: 48rem) {
+      .hist-progress {
+        display: block;
+      }
+    }
+    .hist-bar {
+      animation: hist-bar linear both;
+      animation-timeline: --hist;
+      animation-range: contain 0% contain 100%;
+    }
+  }
+}

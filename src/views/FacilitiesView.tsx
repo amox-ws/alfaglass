@@ -30,12 +30,12 @@ export function FacilitiesView({ lang }: { lang: Lang }) {
 
       <section data-theme="frost" className="bg-surface pb-section">
         <div className="shell">
-          <div className="grid gap-12 md:grid-cols-12">
-            <div className="md:col-span-5">
+          <div className="grid gap-12 lg:grid-cols-12">
+            <div className="lg:col-span-5">
               <Eyebrow index="01">{df.storage}</Eyebrow>
               <MaskedLines as="h2" lines={df.storageTitle} className="t-h1 mt-8" />
             </div>
-            <Reveal className="md:col-span-5 md:col-start-8 md:pt-16">
+            <Reveal className="lg:col-span-5 lg:col-start-8 lg:pt-16">
               <Prose html={facilities.html} />
             </Reveal>
           </div>

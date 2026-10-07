@@ -1,0 +1,6 @@
+/*
+ * The CNC service page and the estimator (lane Catalogue + Product).
+ * Created empty by the System. This file is imported by globals.css into the components layer, after every System rule: a rule here wins
+ * a tie with a System one, and Tailwind utilities still win over it. Use the tokens (surface, fg, line, accent) and the System
+ * classes (t-*, glass, rack-lines, glint, lift ...); animate transform and opacity only.
+ */
