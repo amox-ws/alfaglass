@@ -123,7 +123,7 @@ Easings (tokens): `--ease-out: cubic-bezier(0.22, 1, 0.36, 1)` (expo-out, the de
 
 | Name | What | Where it is in the code |
 |---|---|---|
-| `rise` | translateY 24px → 0 and opacity, 1100ms expo-out, stagger 80ms | `.hero-rise`, `.hero-fade` (globals.css): everything above the fold, CSS on first paint |
+| `rise` | translateY 24px → 0 (no fade: Chrome reports the largest paint of a fading text only when the fade has ended, +1.3 s on the throttled phone; a plain rise is reported at the first paint), 1100ms expo-out, stagger 80ms | `.hero-rise`, `.hero-fade` (globals.css): everything above the fold, CSS on first paint |
 | `mask` | each heading line from 105% to 0 inside its mask, 900ms, stagger 80ms | `MaskedLines` |
 | `fade-rise` | translateY 16px → 0 and opacity, 700ms | `Reveal` (`[data-rv]`) |
 | `glint` | a 40%-wide band of light crosses an element once, skewed, 1200ms `--ease-glint` | `.glint` (hover and focus, pointer devices), `.glint-enter` (as a pane scrolls in), `.glint-edge` (a specimen plate's top edge) |
