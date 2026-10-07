@@ -152,6 +152,17 @@
   width: 3.5rem;
   height: 3.5rem;
 }
+/*
+ * The phone number is as large as the scale makes it (`t-display`) and never larger than its column holds: ten digits and a space are 4.7 em
+ * wide, so the size is capped at a fifth of the column (a container query unit). At 1440 the scale decides; between 1024 and about 1400, and on
+ * the narrowest phones, the column does, so the number never runs into the call button or out of the page.
+ */
+.contact-row[data-row="phone"] .contact-row-value {
+  container-type: inline-size;
+}
+.contact-phone {
+  font-size: min(var(--fs-display), 20cqw);
+}
 /* The rack lines of the title fade out below it, so they never run through the lines of the page */
 .contact-rack {
   -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 38rem, transparent 56rem);
@@ -272,10 +283,15 @@
   -webkit-mask-image: radial-gradient(ellipse var(--rx) var(--ry) at 50% 50%, #000 30%, transparent 100%);
   mask-image: radial-gradient(ellipse var(--rx) var(--ry) at 50% 50%, #000 30%, transparent 100%);
 }
+/* From lg the digits are in the right column and the text in the left: the cracks reach out to the right, up and down, and fade out towards the text (a second mask, joined to the first) */
 @media (min-width: 64rem) {
   .nf-crack {
     --rx: 780px;
     --ry: 600px;
+    -webkit-mask-image: radial-gradient(ellipse var(--rx) var(--ry) at 50% 50%, #000 30%, transparent 100%), linear-gradient(to right, transparent 34%, #000 50%);
+    mask-image: radial-gradient(ellipse var(--rx) var(--ry) at 50% 50%, #000 30%, transparent 100%), linear-gradient(to right, transparent 34%, #000 50%);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
   }
 }
 /* The surface fading out over the top of the page, above the cracks and under the menu: nothing of the page lies there but the cracks */

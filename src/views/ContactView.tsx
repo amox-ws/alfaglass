@@ -67,7 +67,7 @@ export function ContactView({ lang }: { lang: Lang }) {
                     >
                       <span className="contact-row-label t-label text-fg-muted">{r.label}</span>
                       <span className="contact-row-value">
-                        <span className={`${r.size} tabular block transition-colors group-hover:text-accent ${r.id === "address" ? "" : "whitespace-nowrap"}`}>{r.value}</span>
+                        <span className={`${r.size} tabular block transition-colors group-hover:text-accent ${r.id === "address" ? "" : "whitespace-nowrap"} ${r.id === "phone" ? "contact-phone" : ""}`}>{r.value}</span>
                         {r.note && <span className="t-small mt-2 block text-fg-muted">{r.note}</span>}
                         {external && <span className="t-label mt-3 block text-accent">{d.common.directions}</span>}
                       </span>
