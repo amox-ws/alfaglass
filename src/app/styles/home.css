@@ -1,6 +1,7 @@
 /*
- * Home (lane Home): the scroll scenes of the home page. Moved here from globals.css by the System so that the lane owns them and can
- * change them: this file is in the components layer, after every System rule, so a rule here wins a tie with a System one.
+ * Home (lane Home): the hero's frame, the scroll scenes of the page (the warehouse that opens, the machine's gantry, the years that
+ * travel sideways) and the few rules its sections need beyond the kit. This file is in the components layer, after every System rule,
+ * so a rule here wins a tie with a System one.
  * The hero entrance animations (`hero-rise`, `hero-fade`) are shared and stay in globals.css.
  *
  * The home page's scroll effects run on CSS scroll timelines and move only transform and opacity, so the browser animates them
@@ -15,13 +16,46 @@
   --hero-bg: radial-gradient(60% 50% at 50% 44%, oklch(0.9 0.045 250 / 0.55), oklch(0.95 0.02 252 / 0.25) 45%, transparent 75%), var(--surface);
   background: var(--hero-bg);
 }
-/* The cue under the hero: a short line travelling down */
-@keyframes scrollcue {
-  from {
-    transform: translateY(-100%);
+/* The faint rack lines are for darker, busier surfaces; on the hero's near-white they would not be seen at all, so they take the plain line colour */
+.hero .rack-lines span {
+  border-left-color: var(--line);
+}
+
+/* The crate label (from xl): four cells stencilled in a hairline frame, what is painted on the side of a crate that leaves the warehouse */
+.hero-crate {
+  align-items: stretch;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  color: var(--fg);
+}
+.hero-crate-cell {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-left: 1px solid var(--line-strong);
+  white-space: nowrap;
+}
+.hero-crate-cell:first-child {
+  border-left: 0;
+}
+/*
+ * The second pillar's line sits under the buttons. A short phone has no room for it before it would crowd the headline (the products and the
+ * phone stay); from lg a short screen moves it to the right-hand column, under the crate label, for the same reason.
+ */
+.hero-cnc-side {
+  display: none;
+}
+@media (max-width: 47.99rem) and (max-height: 43.75rem) {
+  .hero-cnc-main {
+    display: none;
   }
-  to {
-    transform: translateY(200%);
+}
+@media (min-width: 64rem) and (max-height: 51.99rem) {
+  .hero-cnc-main {
+    display: none;
+  }
+  .hero-cnc-side {
+    display: inline-flex;
   }
 }
 
@@ -150,99 +184,211 @@
   }
 }
 
-/* Manifesto: words light up one after another */
-@keyframes word-light {
-  from {
-    opacity: 0.14;
-  }
-}
+/* ------------------------------------------------------------------ the warehouse (night, pinned) */
 
-/* Facilities: a narrow pane opens onto the warehouse, then a clear pane rises in front */
-.fac-stage {
+/*
+ * A narrow pane of the warehouse opens as you scroll (four night shutters slide away, the photo settles from 1.25), then the numeral rises
+ * and a clear pane of glass climbs over the right third with the text. The base rules are the finished scene: one screen, everything
+ * visible (what browsers without scroll timelines, reduced motion and print see). The motion is in the @supports block at the end.
+ */
+/* `clip`, not `hidden`: a clipped box is no scroll container, so focusing the pane's link before the pane has risen cannot scroll the scene out of place */
+.whs-edge {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 4;
+  height: 1px;
+  background: var(--edge-gradient);
+  opacity: 0.8;
+}
+.whs-stage {
   position: relative;
   height: 100svh;
-  overflow: hidden;
+  overflow: clip;
 }
-.fac-zoom,
-.fac-shade {
+/* The photo is never wider than its file: on a wider screen it is centred on the night surface */
+.whs-zoom {
   position: absolute;
   inset: 0;
+  margin-inline: auto;
 }
-.fac-shutter {
+/* On a screen wider than the file the photo ends in the night: its two edges melt into it instead of standing as lines */
+@media (min-width: 2001px) {
+  .whs-zoom {
+    mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  }
+}
+.whs-shade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    var(--night) 0%,
+    color-mix(in oklab, var(--night) 92%, transparent) 30%,
+    color-mix(in oklab, var(--night) 45%, transparent) 60%,
+    transparent 84%
+  );
+}
+.whs-shutter {
   display: none;
   position: absolute;
+  z-index: 1;
   background: var(--surface);
+  border: 0 solid color-mix(in oklab, var(--edge) 60%, transparent);
 }
-.fac-shutter[data-side="top"] {
+.whs-shutter[data-side="top"] {
   inset: 0 0 auto 0;
   height: 14%;
+  border-bottom-width: 1px;
   --to: 0 -100%;
 }
-.fac-shutter[data-side="bottom"] {
+.whs-shutter[data-side="bottom"] {
   inset: auto 0 0 0;
   height: 14%;
+  border-top-width: 1px;
   --to: 0 100%;
 }
-.fac-shutter[data-side="left"] {
+.whs-shutter[data-side="left"] {
   inset: 0 auto 0 0;
   width: 38%;
+  border-right-width: 1px;
   --to: -100% 0;
 }
-.fac-shutter[data-side="right"] {
+.whs-shutter[data-side="right"] {
   inset: 0 0 0 auto;
   width: 38%;
+  border-left-width: 1px;
   --to: 100% 0;
 }
-/* The pane moves: no backdrop blur on it, its glass reads through rim, bevel and glare */
-.fac-pane {
+.whs-head {
+  position: absolute;
+  inset-inline: 0;
+  top: calc(var(--header-h) + 0.5rem);
+  z-index: 3;
+  display: flex;
+  justify-content: space-between;
+  opacity: 0;
+  pointer-events: none;
+}
+@media (min-width: 48rem) {
+  .whs-head {
+    top: calc(var(--header-h) + 2rem);
+  }
+}
+.whs-copy {
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-content: end;
+  row-gap: 1.5rem;
+  padding-block: calc(var(--header-h) + 3.5rem) max(1rem, 2.5vw);
+}
+.whs-num {
+  display: block;
+}
+.whs-unit {
+  display: block;
+  margin-top: 0.5rem;
+}
+.whs-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.5rem;
+  margin-top: 1.5rem;
+}
+@media (min-width: 48rem) {
+  .whs-facts {
+    gap: 0.5rem 1.75rem;
+  }
+  .whs-facts li + li {
+    border-left: 1px solid var(--line-strong);
+    padding-left: 1.75rem;
+  }
+}
+/* The pane: ultra-clear glass read through its rim, bevel and a travelling glare. It moves, so no backdrop blur; its label (the text) is a solid night panel */
+.whs-pane {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
   overflow: hidden;
+  border-radius: 1.25rem;
   -webkit-backdrop-filter: none;
   backdrop-filter: none;
+  --glass-tint: oklch(1 0 0 / 0.04);
+  --glass-rim-lo: oklch(0.88 0.015 255 / 0.7);
+  --glass-shadow: 0 40px 90px -40px oklch(0.05 0.04 280 / 0.7);
 }
-.fac-glare {
+.whs-glare {
   position: absolute;
   inset: 0 auto 0 0;
   width: 200%;
+  pointer-events: none;
   background:
-    linear-gradient(112deg, transparent 0 33%, oklch(1 0 0 / 0.26) 39%, oklch(1 0 0 / 0.06) 46%, transparent 51%, transparent 62%, oklch(1 0 0 / 0.14) 66%, transparent 70%),
-    linear-gradient(180deg, oklch(1 0 0 / 0.08), oklch(1 0 0 / 0.02));
+    linear-gradient(112deg, transparent 0 33%, oklch(1 0 0 / 0.2) 39%, oklch(1 0 0 / 0.05) 46%, transparent 51%, transparent 62%, oklch(1 0 0 / 0.11) 66%, transparent 70%),
+    linear-gradient(180deg, oklch(1 0 0 / 0.07), oklch(1 0 0 / 0.02));
   translate: -17.5% 0;
 }
-.fac-head {
-  opacity: 0;
+.whs-label {
+  position: relative;
+  padding: 1.5rem;
+  background: color-mix(in oklab, var(--night) 88%, transparent);
+  border-top: 1px solid color-mix(in oklab, var(--edge) 45%, transparent);
 }
-@keyframes fac-open {
+@media (min-width: 64rem) {
+  .whs-copy {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 2rem;
+    align-content: stretch;
+    padding-block: calc(var(--header-h) + 1rem) max(1.25rem, 2.5vw);
+  }
+  .whs-fig {
+    grid-column: 1 / span 8;
+    grid-row: 1;
+    align-self: end;
+  }
+  .whs-pane {
+    grid-column: 9 / span 4;
+    grid-row: 1;
+  }
+  .whs-label {
+    padding: 2rem;
+  }
+}
+@keyframes whs-open {
   to {
     translate: var(--to);
   }
 }
-@keyframes fac-zoom {
+@keyframes whs-zoom {
   from {
     scale: 1.25;
   }
 }
-@keyframes fac-pane {
+@keyframes whs-fade {
   from {
-    translate: 0 104%;
+    opacity: 0;
   }
 }
-@keyframes fac-glare {
+@keyframes whs-rise {
+  from {
+    opacity: 0;
+    translate: 0 2.5rem;
+  }
+}
+/* It rises from below the stage, whatever its own height */
+@keyframes whs-pane {
+  from {
+    translate: 0 100svh;
+  }
+}
+@keyframes whs-glare {
   from {
     translate: 17.5% 0;
   }
 }
-@keyframes fac-fade-in {
-  from {
-    opacity: 0;
-  }
-}
-@keyframes fac-copy {
-  from {
-    opacity: 0;
-    translate: 0 30px;
-  }
-}
-@keyframes fac-head {
+@keyframes whs-head {
   from {
     opacity: 1;
   }
@@ -251,27 +397,198 @@
   }
 }
 
-/* History: the years travel sideways; at rest, a swipeable strip */
+/* ------------------------------------------------------------------ plastics: a sticky title beside the list of materials */
+
+.plastics-photo {
+  position: relative;
+  aspect-ratio: 3 / 2;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--surface-2);
+}
+/* Sticky only where the column fits the screen: a sticky block taller than the viewport would hide its end */
+@media (min-width: 64rem) and (min-height: 46rem) {
+  .plastics-sticky {
+    position: sticky;
+    top: calc(var(--header-h) + 2rem);
+    align-self: start;
+  }
+}
+.mat-row {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 1rem;
+  padding-block: 0.75rem;
+  min-height: 5.5rem;
+}
+.mat-index {
+  display: none;
+}
+.mat-thumb {
+  width: 4.5rem;
+  aspect-ratio: 1;
+}
+@media (min-width: 48rem) {
+  .mat-row {
+    grid-template-columns: 1.75rem 5rem minmax(0, 1fr) auto;
+    column-gap: 1.5rem;
+    min-height: 5.75rem;
+  }
+  .mat-index {
+    display: block;
+  }
+  .mat-thumb {
+    width: 5rem;
+  }
+}
+.mat-row:hover .edge-row-arrow,
+.mat-row:focus-visible .edge-row-arrow {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+/* ------------------------------------------------------------------ the machine (deep): the drawing and what sits under it */
+
+/*
+ * The gantry crosses the bed and the cut path appears behind it, once, as the drawing rises into view. The base rule of the drawing is the
+ * finished job (the gantry at the end of the bed, the whole path), which is what a browser without scroll timelines, reduced motion and a
+ * screenshot see. The animation holds the first frame until 15% of its range and has no backwards fill: before the range the finished drawing
+ * is shown, and the range starts at the moment the drawing's top edge enters the screen, when none of it is visible yet, so nothing ever jumps.
+ */
+@keyframes mach-sweep {
+  0%,
+  15% {
+    translate: 0 0;
+  }
+}
+@keyframes mach-wipe-clip {
+  0%,
+  15% {
+    translate: var(--wipe-from, -100% 0);
+  }
+}
+@keyframes mach-wipe-content {
+  0%,
+  15% {
+    translate: var(--wipe-inv, 100% 0);
+  }
+}
+.mach-facts li {
+  padding-block: 0.875rem;
+  border-top: 1px solid var(--line);
+}
+.mach-facts li:last-child {
+  border-bottom: 1px solid var(--line);
+}
+
+/* ------------------------------------------------------------------ related: the tool wall (rows on a phone, plates from md) */
+
+.wall {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border-top: 1px solid var(--line);
+}
+.wall > li {
+  border-bottom: 1px solid var(--line);
+}
+.wall-card {
+  display: grid;
+  grid-template-columns: 4.5rem minmax(0, 1fr) auto;
+  grid-template-areas: "plate text arrow";
+  align-items: center;
+  column-gap: 1rem;
+  padding-block: 1rem;
+}
+.wall-plate {
+  grid-area: plate;
+  width: 4.5rem;
+  aspect-ratio: 1;
+}
+.wall-text {
+  grid-area: text;
+  min-width: 0;
+}
+.wall-card .specimen-arrow {
+  grid-area: arrow;
+}
+.wall-summary {
+  display: none;
+}
+@media (min-width: 48rem) {
+  .wall {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 3rem 2rem;
+    border-top: 0;
+  }
+  .wall > li {
+    border-bottom: 0;
+  }
+  .wall-card {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "plate plate"
+      "text arrow";
+    align-items: start;
+    row-gap: 1.25rem;
+    padding-block: 0;
+  }
+  .wall-plate {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+  }
+  .wall-summary {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-wrap: pretty;
+  }
+}
+@media (min-width: 64rem) {
+  .wall {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+  .wall-plate {
+    aspect-ratio: 4 / 5;
+  }
+}
+
+/* ------------------------------------------------------------------ history (night): the years travel sideways; at rest, a swipeable strip */
+
 .hist {
   --hist-gap: clamp(1.5rem, 3vw, 3rem);
-  --hist-fig: min(78vw, 30rem);
-  --hist-card: min(82vw, 34rem);
-  --hist-h: min(52svh, calc(100svh - var(--header-h) - 12rem));
+  --hist-fig: min(78vw, 26rem);
+  --hist-card: min(82vw, 30rem);
+  --hist-h: min(60svh, calc(100svh - var(--header-h) - 10rem));
   /* How many px the row travels for each px of scrolling */
-  --hist-speed: 1;
+  --hist-speed: 1.5;
   /* How far the row travels: everything in it, minus one screen */
   --hist-distance: max(0px, calc(2 * var(--gutter) + var(--hist-fig) + var(--hist-n) * (var(--hist-card) + var(--hist-gap)) - 100vw));
 }
-/* Below lg the cards are narrower and the row moves faster than the scroll, so the pinned stretch of page stays short (the tablet home page is about 14 000 px, and pages over 16 000 px cannot be shot whole) */
+/* Below lg the cards are narrower and the row moves faster than the scroll, so the pinned stretch of page stays short (pages over 16 000 px cannot be shot whole) */
 @media (max-width: 63.99rem) {
   .hist {
     --hist-fig: min(78vw, 24rem);
     --hist-card: min(82vw, 20rem);
-    --hist-speed: 1.5;
+    --hist-speed: 1.6;
   }
 }
 .hist-stage {
   padding-block: var(--spacing-section);
+}
+.hist-head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
+}
+@media (min-width: 48rem) {
+  .hist-head {
+    margin-bottom: 3.5rem;
+  }
 }
 .hist-row {
   display: flex;
@@ -286,12 +603,30 @@
   scroll-snap-align: start;
 }
 .hist-figure {
+  position: relative;
+  flex: none;
+  overflow: hidden;
+  border-radius: 2px;
   width: var(--hist-fig);
   height: var(--hist-h);
 }
 .hist-card {
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  justify-content: space-between;
   width: var(--hist-card);
   height: var(--hist-h);
+  padding-left: clamp(1.25rem, 2.5vw, 2.5rem);
+  border-left: 1px solid var(--line);
+}
+/* The years are signature type outside the scale on purpose (DESIGN.md exceptions): thin, tall and sized by the viewport */
+.hist-year {
+  font-family: var(--font-display);
+  font-weight: 200;
+  font-size: clamp(5rem, 12vw, 12rem);
+  line-height: 0.8;
+  font-variant-numeric: tabular-nums lining-nums;
 }
 .hist-progress {
   display: none;
@@ -301,7 +636,7 @@
   display: flex;
 }
 .hist-hint-arrow {
-  animation: hist-nudge 2s var(--ease-in-out) infinite;
+  animation: hist-nudge 2s var(--ease-in-out) 3;
 }
 @keyframes hist-nudge {
   50% {
@@ -309,6 +644,8 @@
   }
 }
 .hist-bar {
+  height: 2px;
+  background: var(--edge-gradient);
   transform-origin: left;
 }
 /* The caption travels with the row: tint instead of blur */
@@ -325,6 +662,36 @@
   from {
     scale: 0 1;
   }
+}
+
+/* ------------------------------------------------------------------ the closing chapter's news strip */
+
+.news-strip {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem 1.5rem;
+  min-height: 4.5rem;
+  padding-block: 1.25rem;
+  border-bottom: 1px solid var(--line);
+}
+.news-strip-date {
+  grid-column: 1 / -1;
+}
+@media (min-width: 48rem) {
+  .news-strip {
+    grid-template-columns: 8.5rem minmax(0, 1fr) auto;
+    gap: 1.5rem;
+  }
+  .news-strip-date {
+    grid-column: auto;
+  }
+}
+.news-strip:hover .edge-row-arrow,
+.news-strip:focus-visible .edge-row-arrow {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-fg);
 }
 
 /*
@@ -351,65 +718,77 @@
       animation-range: exit 0% exit 90%;
     }
 
-    .manifesto {
-      view-timeline: --manifesto block;
-      view-timeline-inset: 0;
-    }
-    .manifesto-word {
-      animation: word-light linear both;
-      animation-timeline: --manifesto;
-      animation-range: cover var(--from) cover var(--to);
-    }
-
-    .fac-track {
-      height: 240svh;
-      view-timeline: --fac block;
+    /* The warehouse: 200svh of page for 100svh of pinned scene (150svh below lg) */
+    .whs-track {
+      height: 200svh;
+      view-timeline: --whs block;
       view-timeline-inset: 0;
     }
     @media (max-width: 63.99rem) {
-      .fac-track {
-        height: 170svh;
+      .whs-track {
+        height: 150svh;
       }
     }
-    .fac-stage {
+    .whs-stage {
       position: sticky;
       top: 0;
     }
-    .fac-shutter {
+    .whs-shutter {
       display: block;
-      animation: fac-open linear both;
-      animation-timeline: --fac;
+      animation: whs-open linear both;
+      animation-timeline: --whs;
+      animation-range: contain 0% contain 45%;
+    }
+    .whs-zoom {
+      animation: whs-zoom linear both;
+      animation-timeline: --whs;
       animation-range: contain 0% contain 50%;
     }
-    .fac-zoom {
-      animation: fac-zoom linear both;
-      animation-timeline: --fac;
-      animation-range: contain 0% contain 55%;
+    .whs-shade {
+      animation: whs-fade linear both;
+      animation-timeline: --whs;
+      animation-range: contain 28% contain 52%;
     }
-    .fac-pane {
-      animation: fac-pane linear both;
-      animation-timeline: --fac;
-      animation-range: contain 36% contain 64%;
+    .whs-fig {
+      animation: whs-rise linear both;
+      animation-timeline: --whs;
+      animation-range: contain 38% contain 58%;
     }
-    .fac-glare {
-      animation: fac-glare linear both;
-      animation-timeline: --fac;
-      animation-range: contain 36% contain 100%;
+    .whs-pane {
+      animation: whs-pane linear both;
+      animation-timeline: --whs;
+      animation-range: contain 54% contain 84%;
     }
-    .fac-shade {
-      animation: fac-fade-in linear both;
-      animation-timeline: --fac;
-      animation-range: contain 44% contain 64%;
+    .whs-glare {
+      animation: whs-glare linear both;
+      animation-timeline: --whs;
+      animation-range: contain 54% contain 100%;
     }
-    .fac-copy {
-      animation: fac-copy linear both;
-      animation-timeline: --fac;
-      animation-range: contain 50% contain 66%;
-    }
-    .fac-head {
-      animation: fac-head linear both;
-      animation-timeline: --fac;
+    .whs-head {
+      animation: whs-head linear both;
+      animation-timeline: --whs;
       animation-range: contain 0% contain 22%;
+    }
+
+    /* The machine: the gantry crosses the bed once and the cut path appears behind it (a window opens over a still drawing) */
+    .mach-drawing {
+      view-timeline: --mach block;
+      view-timeline-inset: 0;
+    }
+    .mach-drawing .bp-gantry {
+      animation: mach-sweep linear forwards;
+      animation-timeline: --mach;
+      animation-range: entry 0% cover 55%;
+    }
+    .mach-drawing .bp-path {
+      animation: mach-wipe-clip linear forwards;
+      animation-timeline: --mach;
+      animation-range: entry 0% cover 55%;
+    }
+    .mach-drawing .bp-path .bp-wipe-in {
+      animation: mach-wipe-content linear forwards;
+      animation-timeline: --mach;
+      animation-range: entry 0% cover 55%;
     }
 
     .hist-track {
@@ -424,7 +803,7 @@
       height: 100svh;
       flex-direction: column;
       justify-content: center;
-      overflow: hidden;
+      overflow: clip;
       padding-block: var(--header-h) 0;
     }
     .hist-row {

@@ -1,74 +1,67 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLink, Reveal, SectionHeader } from "@/components/ui";
+import { EdgeGauge } from "@/components/kit/EdgeGauge";
+import { Marquee } from "@/components/kit/Marquee";
+import { ArrowLink, Eyebrow, MaskedLines, Reveal } from "@/components/ui";
 import { t, type Lang } from "@/lib/i18n";
 
-/** Plastic sheets: a section header (P1), the endless ticker of materials, then the photo and the list of materials (P3, mirrored). */
-export function Plastics({
-  lang,
-  image,
-  items,
-  allHref,
-}: {
-  lang: Lang;
-  image: string;
-  items: { title: string; href: string }[];
-  allHref: string;
-}) {
+export type Material = { title: string; href: string; image: string | null; values: number[] };
+
+/**
+ * Plastic sheets (P5, sticky split): a loop of materials across the top, then the title, text and photograph on the left (they stay
+ * in view from lg while you read the list) and the eleven materials as rows on the right, each with its specimen thumbnail and the
+ * gauge of the thicknesses it is sold in.
+ */
+export function Plastics({ lang, image, items, allHref }: { lang: Lang; image: string; items: Material[]; allHref: string }) {
   const d = t(lang);
   const h = d.home;
   return (
-    <section data-theme="mist" aria-labelledby="plastics-title" className="relative overflow-hidden bg-surface section-y">
-      <div className="shell">
-        <SectionHeader
-          index="04"
-          eyebrow={h.plasticsEyebrow}
-          id="plastics-title"
-          title={h.plasticsTitle.join(" ")}
-          intro={h.plasticsText}
-          action={<ArrowLink href={allHref}>{h.allPlastics}</ArrowLink>}
-        />
-      </div>
+    <section data-theme="mist" aria-labelledby="plastics-title" className="relative bg-surface">
+      <Marquee items={h.plasticsMarquee} />
 
-      {/* Material ticker */}
-      <div aria-hidden className="mt-16 flex overflow-hidden whitespace-nowrap border-y border-line py-6 md:mt-24">
-        {[0, 1].map((k) => (
-          <div key={k} className="flex shrink-0 animate-[marquee_38s_linear_infinite] items-center">
-            {h.plasticsMarquee.map((m) => (
-              <span key={m} className="font-display flex items-center text-[clamp(3rem,7vw,7rem)] font-extrabold uppercase leading-none">
-                <span className="px-6 md:px-10">{m}</span>
-                <span className="text-accent">✦</span>
-              </span>
-            ))}
+      <div className="shell mt-16 pb-section md:mt-24">
+        <div className="grid gap-x-8 gap-y-16 lg:grid-cols-12">
+          <div className="plastics-sticky lg:col-span-5">
+            <Eyebrow index="03">{h.plasticsEyebrow}</Eyebrow>
+            <MaskedLines as="h2" id="plastics-title" lines={[h.plasticsTitle.join(" ")]} className="t-h1 mt-5" />
+            <Reveal>
+              <p className="t-body mt-6 max-w-[44ch] text-fg-muted">{h.plasticsText}</p>
+              <ArrowLink href={allHref} className="mt-10">
+                {h.allPlastics}
+              </ArrowLink>
+            </Reveal>
+            <Reveal className="plastics-photo mt-10">
+              <Image src={image} alt={h.plasticsAlt} fill sizes="(min-width: 1024px) 40vw, 100vw" className="object-cover" />
+            </Reveal>
           </div>
-        ))}
-      </div>
 
-      <div className="shell mt-16 grid gap-8 md:mt-24 lg:grid-cols-12 lg:items-center">
-        <Reveal className="relative aspect-[4/3] overflow-hidden rounded-sm md:aspect-[21/9] lg:col-span-7 lg:col-start-6 lg:row-start-1 lg:aspect-[4/3]">
-          <Image src={image} alt={h.plasticsAlt} fill sizes="(min-width: 1024px) 54vw, 100vw" className="object-cover" />
-        </Reveal>
-
-        <div className="lg:col-span-4 lg:col-start-1 lg:row-start-1">
-          <p className="t-label flex justify-between pb-4 text-fg-muted">
-            <span>{d.common.materials}</span>
-            <span className="tabular">{items.length}</span>
-          </p>
-          <ul className="border-t border-line md:grid md:grid-cols-2 md:gap-x-8 lg:block">
-            {items.map((it, i) => (
-              <Reveal as="li" key={it.href} delay={i * 0.03} y={14} className="border-b border-line">
-                <Link href={it.href} className="group flex items-baseline justify-between gap-6 py-4">
-                  <span className="flex items-baseline gap-5">
-                    <span className="t-label tabular text-fg-muted">{String(i + 1).padStart(2, "0")}</span>
-                    <span className="t-lead font-medium transition-colors group-hover:text-accent">{it.title}</span>
-                  </span>
-                  <span aria-hidden className="text-fg-muted transition-transform duration-500 group-hover:translate-x-1 group-hover:text-accent">
-                    →
-                  </span>
-                </Link>
-              </Reveal>
-            ))}
-          </ul>
+          <div className="lg:col-span-6 lg:col-start-7">
+            <p className="t-label flex justify-between pb-4 text-fg-muted">
+              <span>{d.common.materials}</span>
+              <span className="tabular">{items.length}</span>
+            </p>
+            <ul className="border-t border-line">
+              {items.map((it, i) => (
+                <Reveal as="li" key={it.href} delay={Math.min(i, 8) * 0.03} y={12} className="border-b border-line">
+                  <Link href={it.href} className="mat-row group lift glint">
+                    <span aria-hidden className="mat-index t-label tabular text-fg-muted">
+                      {String(i + 1).padStart(2, "0")}
+                    </span>
+                    <span aria-hidden className="mat-thumb specimen-plate">
+                      {it.image && <Image src={it.image} alt="" fill sizes="88px" className="object-contain" />}
+                    </span>
+                    <span className="min-w-0">
+                      <h3 className="t-h3 transition-colors group-hover:text-accent">{it.title}</h3>
+                      <EdgeGauge values={it.values} size="sm" lang={lang} className="mt-2" />
+                    </span>
+                    <span aria-hidden className="edge-row-arrow">
+                      →
+                    </span>
+                  </Link>
+                </Reveal>
+              ))}
+            </ul>
+          </div>
         </div>
       </div>
     </section>

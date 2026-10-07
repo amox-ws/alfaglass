@@ -183,6 +183,14 @@ const el = {
     ctaTitle: ["Καλέστε μας", "και θα έρθουμε", "κοντά σας."],
     ctaText: "Είμαστε δίπλα στον επαγγελματία για να καλύψουμε κάθε του ανάγκη.",
     stampLabel: "ALFA GLASS, από το 1999, 13.000 τ.μ., Ασπρόπυργος",
+    // The second pillar on the hero (set in capitals by the label style, units keep their case)
+    cncLine: "Νέο · CNC κοπή φύλλων έως 2,1 × 6,05 m",
+    // The warehouse chapter: the numeral, its words and three facts (founding, the 2021 extension, the trucks)
+    warehouseNumber: "13.000",
+    warehouseTitle: "τ.μ. ιδιόκτητων χώρων",
+    warehouseFacts: ["1999 · Ίδρυση", "2021 · +4.000 τ.μ.", "Ιδιόκτητα φορτηγά"],
+    // Appears beside the machine only once its film exists
+    watchCut: "Δείτε τη μηχανή να κόβει",
   },
   company: {
     lead: "Από το 1999, η ALFA GLASS Α.Ε. εισάγει και εμπορεύεται υαλοπίνακες και πλαστικά φύλλα, με πολύ μεγάλη γκάμα ειδών και διαστάσεων καθώς και τα υλικά που τα συνοδεύουν.",
@@ -499,6 +507,11 @@ const en: Dict = {
     ctaTitle: ["Call us", "and we will", "come to you."],
     ctaText: "We stand by professionals to meet their every need.",
     stampLabel: "ALFA GLASS, since 1999, 13,000 m², Aspropyrgos",
+    cncLine: "New · CNC cutting of sheets up to 2.1 × 6.05 m",
+    warehouseNumber: "13,000",
+    warehouseTitle: "square metres of owned premises",
+    warehouseFacts: ["1999 · Founded", "2021 · +4,000 m²", "Own trucks"],
+    watchCut: "Watch the machine cut",
   },
   company: {
     lead: "Since 1999, ALFA GLASS S.A. has imported and traded architectural glass and plastic sheets, keeping a very wide range of products and sizes in stock, together with the materials that accompany them.",

@@ -14,7 +14,7 @@ import { t, type Lang } from "@/lib/i18n";
 export function Brands({ lang, brands, href }: { lang: Lang; brands: Brand[]; href: string }) {
   const d = t(lang);
   return (
-    <section data-theme="mist" aria-labelledby="brands-title" className="bg-surface py-[calc(var(--spacing-section)/2)]">
+    <section data-theme="frost" aria-labelledby="brands-title" className="bg-surface py-[calc(var(--spacing-section)/2)]">
       {/*
         One ink for every logo. Each is laid on white first (a JPEG has no transparency, a PNG does), then its darkness
         becomes the opacity of a single colour (the muted type colour): alpha = 2.4 × (1 − luminance) − 0.12. A heavy mark
