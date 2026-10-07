@@ -146,7 +146,7 @@ Only `transform` and `opacity` animate. Scroll-linked motion uses CSS scroll tim
 
 | Name | What | Duration / timing | Trigger | Where |
 |---|---|---|---|---|
-| `rise` (exists `hero-rise`) | translateY 24px → 0, opacity 0 → 1 | 1100ms expo-out; stagger 80ms | CSS on first paint | everything above the fold |
+| `rise` (exists `hero-rise`) | translateY 24px → 0 (final build: no opacity fade, because a fading text is reported as the largest paint only when its fade has ended, +1.3 s of LCP on the throttled phone; see DESIGN.md, Motion) | 1100ms expo-out; stagger 80ms | CSS on first paint | everything above the fold |
 | `mask` (exists `MaskedLines`) | each line translateY 105% → 0 inside its mask | 900ms expo-out; stagger 80ms per line | in view (`data-rv`) or first paint (`mask-eager`) | headings |
 | `fade-rise` (exists `Reveal`) | translateY 16px → 0, opacity | 700ms expo-out | in view | blocks below the fold |
 | `glint` (new) | a 40%-wide white-to-transparent band (`::after`, `mix-blend-mode` none, opacity 0.5) translateX(-120% → 220%) across an element, skewX(-18deg) | 1200ms `--ease-glint`, once | hover/focus on pointer devices; once when a glass pane enters view | glass panes, specimen plates, index rows, CTA pane |
