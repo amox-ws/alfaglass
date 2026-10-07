@@ -33,14 +33,31 @@
 /*
  * The crumbs lie over the façade, and on a phone or a tablet the crop puts the bright wall of the building behind them: the System's
  * scrim fades out at a quarter of the hero's height, which is where the crumbs are. This hero gets a night band under the header and
- * the crumbs that is measured in rem, not in per cent of the hero, so it is the same on every width below xl (from xl the crop puts the
- * dark sky behind the crumbs and the System's scrim is enough). It is scoped to this page (its facts plate is the next sibling); the
- * same fix for every cinematic hero is a global item (kit.css, `.hero-cine-scrim`).
+ * the crumbs that is measured in rem, not in per cent of the hero, so it is the same on every width: strong where the crop puts the
+ * bright wall behind the crumbs (below xl), shorter and lighter from xl, where the sky is behind them. It is scoped to this page (its
+ * facts plate is the next sibling); the same fix for every cinematic hero is a global item (kit.css, `.hero-cine-scrim`).
  */
-@media (max-width: 79.99rem) {
+main:has(> .co-facts) > .hero-cine[data-media="photo"] .hero-cine-scrim {
+  background:
+    linear-gradient(
+      to bottom,
+      color-mix(in oklab, var(--surface) 92%, transparent) 0,
+      color-mix(in oklab, var(--surface) 92%, transparent) 6.5rem,
+      color-mix(in oklab, var(--surface) 62%, transparent) 10rem,
+      transparent 18rem
+    ),
+    linear-gradient(to top, var(--surface) 0%, color-mix(in oklab, var(--surface) 60%, transparent) 45%, transparent 75%);
+}
+@media (min-width: 80rem) {
   main:has(> .co-facts) > .hero-cine[data-media="photo"] .hero-cine-scrim {
     background:
-      linear-gradient(to bottom, color-mix(in oklab, var(--surface) 92%, transparent) 0, color-mix(in oklab, var(--surface) 92%, transparent) 7.5rem, transparent 17rem),
+      linear-gradient(
+        to bottom,
+        color-mix(in oklab, var(--surface) 88%, transparent) 0,
+        color-mix(in oklab, var(--surface) 88%, transparent) 5rem,
+        color-mix(in oklab, var(--surface) 58%, transparent) 8.5rem,
+        transparent 15rem
+      ),
       linear-gradient(to top, var(--surface) 0%, color-mix(in oklab, var(--surface) 60%, transparent) 45%, transparent 75%);
   }
 }
@@ -143,6 +160,15 @@
   .co-row {
     grid-template-columns: max-content minmax(0, 1fr);
     align-items: baseline;
+  }
+}
+/* Between lg and xl the list is only 6 of 12 columns wide (about 450px): a tighter gutter keeps the text column readable */
+@media (min-width: 64rem) and (max-width: 79.99rem) {
+  .co-timeline {
+    --co-gap: 2rem;
+  }
+  .co-row {
+    column-gap: 1.5rem;
   }
 }
 

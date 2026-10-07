@@ -23,7 +23,7 @@ export function FacilitiesView({ lang }: { lang: Lang }) {
   const d = t(lang);
   const df = d.facilities;
   // The legacy text is two sentences: where the company is, and how goods are stored and leave. The second is the logistics text below.
-  const [location] = paragraphs(facilities.html);
+  const [location = ""] = paragraphs(facilities.html);
   const insideSize = mediaSize(slots.warehouse.still?.src);
 
   return (

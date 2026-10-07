@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Fragment } from "react";
 import { HistoryTimeline } from "@/components/company/HistoryTimeline";
 import { Ledger } from "@/components/company/Ledger";
 import { PanoStrip } from "@/components/company/PanoStrip";
@@ -40,7 +41,12 @@ export function CompanyView({ lang }: { lang: Lang }) {
         crumbs={[{ label: d.nav.theCompany }]}
         title={d.nav.theCompany}
         lead={dc.lead}
-        facts={dc.facts.join(" · ")}
+        facts={dc.facts.map((fact, i) => (
+          <Fragment key={fact}>
+            {i > 0 && " · "}
+            <span className="whitespace-nowrap">{fact}</span>
+          </Fragment>
+        ))}
         media={slots.building}
         alt={dc.buildingAlt}
       />
