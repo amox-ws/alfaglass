@@ -1,5 +1,5 @@
 {
-  "_comment": "One representative URL per template per language, grouped like docs/redesign/PLAN.md 'Page groups'. Greek URLs are unprefixed, English live under /en. expectStatus defaults to 200. Add data-qa-allow-overlap to an element to silence an intentional text overlap. The kit page (/kit, QA only, built with KIT=1) and the work detail pages (fixture builds only) are run with --pages, not listed here.",
+  "_comment": "One representative URL per template per language, grouped like docs/redesign/PLAN.md 'Page groups'. Greek URLs are unprefixed, English live under /en. expectStatus defaults to 200. Add data-qa-allow-overlap to an element to silence an intentional text overlap. The estimator entries carry the query a product page links with (?material=&t=), which mounts the form at once. The kit page (/kit, QA only, built with KIT=1) and the work detail pages (fixture builds only) are run with --pages, not listed here.",
   "groups": {
     "home": [
       { "id": "home-el", "url": "/", "lang": "el", "template": "home" },
@@ -16,16 +16,20 @@
       { "id": "category-el", "url": "/yalopinakes/epistromenoi-yalopinakes-eidikon-efarmogon", "lang": "el", "template": "category (long title, 5 products)" },
       { "id": "plastics-el", "url": "/plastika-fylla", "lang": "el", "template": "group (plastics, flat product grid)" },
       { "id": "related-el", "url": "/synafi-proionta", "lang": "el", "template": "group (related products)" },
+      { "id": "category-related-el", "url": "/synafi-proionta/syskeyes-elegchou-yalopinakon", "lang": "el", "template": "category (related group: no thickness gauges)" },
       { "id": "glass-en", "url": "/en/glass", "lang": "en", "template": "group (glass, categories index)" },
       { "id": "category-en", "url": "/en/glass/coated-glasses-for-special-applications", "lang": "en", "template": "category (long title, 5 products)" },
       { "id": "plastics-en", "url": "/en/plastic-sheets", "lang": "en", "template": "group (plastics, flat product grid)" },
-      { "id": "related-en", "url": "/en/related-products", "lang": "en", "template": "group (related products)" }
+      { "id": "related-en", "url": "/en/related-products", "lang": "en", "template": "group (related products)" },
+      { "id": "category-related-en", "url": "/en/related-products/glass-and-window-test-equipment", "lang": "en", "template": "category (related group: no thickness gauges)" }
     ],
     "product": [
       { "id": "product-el", "url": "/yalopinakes/diakosmitikoi-yalopinakes/vammenoi-yalopinakes", "lang": "el", "template": "product (14 gallery images, specs table)" },
-      { "id": "product-plastic-el", "url": "/plastika-fylla/polykarvonika-kypselota-fylla", "lang": "el", "template": "product (flat group URL, specs table)" },
+      { "id": "product-plastic-el", "url": "/plastika-fylla/polykarvonika-kypselota-fylla", "lang": "el", "template": "product (flat group URL, specs table, CNC link row)" },
+      { "id": "product-related-el", "url": "/synafi-proionta/syskeyes-elegchou-yalopinakon/anichneytes-epistroseon-yalopinakon", "lang": "el", "template": "product (related group: data sheet without a gauge)" },
       { "id": "product-en", "url": "/en/glass/decorative-glasses/coloured-painted-glasses", "lang": "en", "template": "product (14 gallery images, specs table)" },
-      { "id": "product-plastic-en", "url": "/en/plastic-sheets/polycarbonate-multiwall-sheets", "lang": "en", "template": "product (flat group URL, specs table)" }
+      { "id": "product-plastic-en", "url": "/en/plastic-sheets/polycarbonate-multiwall-sheets", "lang": "en", "template": "product (flat group URL, specs table, CNC link row)" },
+      { "id": "product-related-en", "url": "/en/related-products/glass-and-window-test-equipment/low-e-coating-detectors", "lang": "en", "template": "product (related group: data sheet without a gauge)" }
     ],
     "news": [
       { "id": "news-el", "url": "/nea", "lang": "el", "template": "news list" },
@@ -47,7 +51,9 @@
     ],
     "service": [
       { "id": "service-el", "url": "/cnc-kopi-katergasia", "lang": "el", "template": "CNC service" },
-      { "id": "service-en", "url": "/en/cnc-cutting", "lang": "en", "template": "CNC service" }
+      { "id": "service-estimator-el", "url": "/cnc-kopi-katergasia?material=acrylic&t=5", "lang": "el", "template": "CNC service, estimator mounted with a stocked material and thickness preselected (the link from a product page)" },
+      { "id": "service-en", "url": "/en/cnc-cutting", "lang": "en", "template": "CNC service" },
+      { "id": "service-estimator-en", "url": "/en/cnc-cutting?material=acrylic&t=5", "lang": "en", "template": "CNC service, estimator mounted with a stocked material and thickness preselected (the link from a product page)" }
     ],
     "works": [
       { "id": "works-el", "url": "/erga", "lang": "el", "template": "works list (empty state until three real works exist)" },
