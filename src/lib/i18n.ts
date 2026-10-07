@@ -193,7 +193,7 @@ const el = {
     watchCut: "Δείτε τη μηχανή να κόβει",
   },
   company: {
-    lead: "Από το 1999, η ALFA GLASS Α.Ε. εισάγει και εμπορεύεται υαλοπίνακες και πλαστικά φύλλα, με πολύ μεγάλη γκάμα ειδών και διαστάσεων καθώς και τα υλικά που τα συνοδεύουν.",
+    lead: "Από το 1999, η ALFA GLASS εισάγει και εμπορεύεται υαλοπίνακες και πλαστικά φύλλα, σε πολύ μεγάλη γκάμα ειδών.",
     metaDescription:
       "Η ALFA GLASS Α.Ε. συστάθηκε το 1999 και εδρεύει στον Ασπρόπυργο, σε ιδιόκτητο κτίριο 13.000 τ.μ. Όραμα, ιστορία, δραστηριότητα και οικονομικές καταστάσεις.",
     founded: "Ίδρυση",
@@ -210,6 +210,20 @@ const el = {
     warehouseAlt: "Αποθήκη υαλοπινάκων",
     trucksAlt: "Φορτηγά διανομής ALFA GLASS",
     transparency: "Διαφάνεια",
+    // The redesign's own words (the keys above are read by System files too: they stay)
+    facts: ["Από το 1999", "Ασπρόπυργος", "Έξοδος 4 Αττικής Οδού"],
+    since: "Από το 1999",
+    areaValue: "13.000",
+    areaUnit: "τ.μ.",
+    glass: "Υαλοπίνακες",
+    glassUnit: "οικογένειες",
+    catalogue: "Κατάλογος",
+    catalogueUnit: "προϊόντα",
+    statement:
+      "Ο συνδυασμός της μεγάλης γκάμας υλικών και διαστάσεων, ενός έμπειρου και πολυπληθούς προσωπικού και η σφραγίδα εγγύησης της ποιότητας, συντελεί στη γρήγορη ικανοποίηση οποιασδήποτε ανάγκης με ποιοτικά εγγυημένο αποτέλεσμα.",
+    engravingAlt: "Χαλκογραφία εργαστηρίου επεξεργασίας γυαλιού",
+    engravingCaption: "Μια παράδοση στο γυαλί πριν από το 1999",
+    cncLink: "CNC κοπή φύλλων έως 2,1 × 6,05 m",
   },
   facilities: {
     lead: "Ιδιόκτητο ακίνητο 13.000 τετραγωνικών μέτρων στον Ασπρόπυργο, ακριβώς στην έξοδο 4 της Αττικής Οδού.",
@@ -224,6 +238,14 @@ const el = {
     aerialAlt: "Αεροφωτογραφία της περιοχής των εγκαταστάσεων",
     findUs: "Πώς θα μας βρείτε",
     mapsLink: "Οδηγίες στο Google Maps",
+    // The redesign's own words
+    extensionValue: "+4.000",
+    delivery: "Παράδοση",
+    exit: "Έξοδος 4",
+    exitUnit: "Αττική Οδός",
+    logisticsTitle: "Από την αποθήκη στον πελάτη",
+    logisticsText:
+      "Τα εμπορεύματα αποθηκεύονται σε κατάλληλα διαμορφωμένους και εξοπλισμένους χώρους, από τους οποίους μεταφορτώνονται στα ειδικά φορτηγά για να παραδοθούν στους πελάτες.",
   },
   news: {
     lead: "Νέα προϊόντα σε απόθεμα, συνεργασίες και ανακοινώσεις.",
@@ -531,6 +553,20 @@ const en: Dict = {
     warehouseAlt: "Glass warehouse",
     trucksAlt: "ALFA GLASS delivery trucks",
     transparency: "Transparency",
+    // English values are literal and provisional: phase 4 reviews them
+    facts: ["Since 1999", "Aspropyrgos", "Exit 4, Attiki Odos"],
+    since: "Since 1999",
+    areaValue: "13,000",
+    areaUnit: "m²",
+    glass: "Glass",
+    glassUnit: "families",
+    catalogue: "Catalogue",
+    catalogueUnit: "products",
+    statement:
+      "The combination of a wide range of materials and sizes, an experienced and numerous team and a guarantee of quality on every product we sell results in fast fulfilment of any need, with quality assured.",
+    engravingAlt: "Engraving of a glass workshop",
+    engravingCaption: "A tradition in glass that predates 1999",
+    cncLink: "CNC cutting of sheets up to 2.1 × 6.05 m",
   },
   facilities: {
     lead: "A 13,000 m² owned property in Aspropyrgos, right at exit 4 of Attiki Odos.",
@@ -545,6 +581,13 @@ const en: Dict = {
     aerialAlt: "Aerial view of the area around the facilities",
     findUs: "How to find us",
     mapsLink: "Directions on Google Maps",
+    extensionValue: "+4,000",
+    delivery: "Delivery",
+    exit: "Exit 4",
+    exitUnit: "Attiki Odos",
+    logisticsTitle: "From our warehouse to your door",
+    logisticsText:
+      "All goods are stored in purpose-built, fully equipped warehouses, from which they are loaded onto the company's special trucks for delivery to customers.",
   },
   news: {
     lead: "New products in stock, partnerships and announcements.",

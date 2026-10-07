@@ -1,134 +1,173 @@
-import Image from "next/image";
-import { MetaList, PageHero, Prose } from "@/components/page";
-import { Eyebrow, MaskedLines, Reveal } from "@/components/ui";
+import Link from "next/link";
+import { Fragment } from "react";
+import { HistoryTimeline } from "@/components/company/HistoryTimeline";
+import { Ledger } from "@/components/company/Ledger";
+import { PanoStrip } from "@/components/company/PanoStrip";
+import { withoutRepeated } from "@/components/company/prose";
 import { Cta } from "@/components/Cta";
-import { cms, imagery } from "@/lib/content";
+import { MediaSlot } from "@/components/kit/MediaSlot";
+import { SpecPlate } from "@/components/kit/SpecPlate";
+import { SpecimenPlate } from "@/components/kit/SpecimenPlate";
+import { Units } from "@/components/kit/Units";
+import { PageHero, Prose } from "@/components/page";
+import { Eyebrow, MaskedLines, Reveal, SectionHeader } from "@/components/ui";
+import { cms, imagery, stripHtml } from "@/lib/content";
 import { t, type Lang } from "@/lib/i18n";
+import { slots } from "@/lib/media-slots";
+import { hrefFor } from "@/lib/routes";
 
+/**
+ * Company (DIRECTION §4.2): credibility. A cinematic hero on the façade; the facts on a plate that hangs from it; the story; the
+ * vision as the page's one statement (deep); the history down an edge line that ends at the machine (2025); the operation; the
+ * financial statements as a ledger.
+ */
 export function CompanyView({ lang }: { lang: Lang }) {
-  const { company, vision, history, activity, financials } = cms(lang).site;
+  const c = cms(lang);
+  const { company, activity } = c.site;
   const d = t(lang);
   const dc = d.company;
+  const glass = c.groupByKey("yalopinakes");
+
+  // The legacy texts repeat each other: the activity text starts with the company text's last sentence. The page shows it once.
+  const activityParas = withoutRepeated(activity.html, company.html);
+  const goal = activityParas.length > 1 ? stripHtml(activityParas[activityParas.length - 1]) : null;
+  const activityHtml = (goal ? activityParas.slice(0, -1) : activityParas).join("\n");
+
   return (
     <>
       <PageHero
+        variant="cinematic"
         lang={lang}
         crumbs={[{ label: d.nav.theCompany }]}
         title={d.nav.theCompany}
         lead={dc.lead}
-        image={imagery.buildingStorm}
-        imageAlt={dc.buildingAlt}
-        meta={
-          <MetaList
-            items={[
-              { label: dc.founded, value: "1999" },
-              { label: dc.area, value: lang === "el" ? "13.000 τ.μ." : "13,000 m²" },
-              { label: dc.seat, value: dc.seatValue },
-              { label: dc.access, value: dc.accessValue },
-            ]}
-          />
-        }
+        facts={dc.facts.map((fact, i) => (
+          <Fragment key={fact}>
+            {i > 0 && " · "}
+            <span className="whitespace-nowrap">{fact}</span>
+          </Fragment>
+        ))}
+        media={slots.building}
+        alt={dc.buildingAlt}
       />
 
-      {/* Story */}
+      {/* Facts: an etched plate that hangs from the façade (the numbers are the content's: 1999, 13.000 τ.μ., the glass families and the products of the catalogue) */}
+      <section data-theme="mist" className="co-facts bg-surface">
+        <div className="shell">
+          <SpecPlate
+            className="glint-enter"
+            items={[
+              { label: dc.founded, value: "1999" },
+              { label: dc.area, value: dc.areaValue, unit: dc.areaUnit },
+              { label: dc.glass, value: String(glass.categories.length), unit: dc.glassUnit },
+              { label: dc.catalogue, value: String(c.productCount), unit: dc.catalogueUnit },
+            ]}
+          />
+        </div>
+      </section>
+
+      {/* Story (P2) */}
       <section data-theme="frost" className="bg-surface section-y">
-        <div className="shell grid gap-12 md:grid-cols-12 md:items-start">
-          <div className="md:col-span-5">
-            <Eyebrow index="01">{dc.who}</Eyebrow>
-            <Reveal className="mt-8">
-              <Prose html={company.html} />
-            </Reveal>
+        <div className="shell grid gap-6 lg:grid-cols-12 lg:gap-8">
+          <div className="lg:col-span-4">
+            <Eyebrow index="01">{dc.since}</Eyebrow>
+            <MaskedLines as="h2" lines={[dc.who]} className="t-h2 mt-5" />
           </div>
-          <Reveal delay={0.1} className="relative aspect-[4/3] overflow-hidden rounded-sm md:col-span-6 md:col-start-7">
-            <Image src={imagery.building} alt={dc.buildingAlt} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
+          <Reveal className="lg:col-span-7 lg:col-start-6">
+            <Prose html={company.html} size="lead" className="[&>p:first-child]:text-fg" />
           </Reveal>
         </div>
       </section>
 
-      {/* Vision */}
-      <section id="vision" data-theme="deep" className="scroll-mt-20 bg-surface section-y">
+      {/* Vision: the page's one statement, static */}
+      <section id="vision" data-theme="deep" className="co-vision bg-surface section-y">
         <div className="shell">
           <Eyebrow index="02">{d.nav.vision}</Eyebrow>
-          <MaskedLines as="h2" lines={dc.visionTitle} className="t-display mt-10" />
-          <div className="mt-14 grid gap-10 md:grid-cols-12">
-            <Reveal className="md:col-span-5 md:col-start-6">
-              <Prose html={vision.html} />
+          <MaskedLines as="h2" lines={[dc.visionTitle.join(" ")]} className="t-display mt-5 max-w-[26ch]" />
+          <div className="mt-10 grid gap-8 md:mt-16 lg:grid-cols-12">
+            <Reveal className="lg:col-span-6 lg:col-start-6">
+              <p className="t-lead max-w-[52ch] text-fg-muted">{dc.statement}</p>
             </Reveal>
           </div>
         </div>
       </section>
 
-      {/* History */}
-      <section id="istoria" data-theme="mist" className="scroll-mt-20 bg-surface section-y">
+      {/* History (P5): the engraving stays while the years scroll by on the edge line */}
+      <section id="istoria" data-theme="frost" className="bg-surface section-y">
+        <div className="shell grid gap-16 lg:grid-cols-12 lg:gap-8">
+          <div className="lg:sticky lg:top-[calc(var(--header-h)+2rem)] lg:col-span-5 lg:self-start">
+            <Eyebrow index="03">{d.nav.history}</Eyebrow>
+            <MaskedLines as="h2" lines={[dc.historyTitle.join(" ")]} className="t-h1 mt-5" />
+            <Reveal className="mt-10 md:mt-16">
+              <SpecimenPlate
+                src={imagery.engraving}
+                alt={dc.engravingAlt}
+                ratio="1299 / 789"
+                index={1}
+                caption={dc.engravingCaption}
+                lang={lang}
+                sizes="(min-width: 1024px) 40vw, 100vw"
+              />
+            </Reveal>
+          </div>
+          <div className="lg:col-span-6 lg:col-start-7">
+            <HistoryTimeline lang={lang} />
+          </div>
+        </div>
+      </section>
+
+      {/* Operation (P1 then P3), then the trucks as a panorama */}
+      <section data-theme="frost" className="bg-surface pb-section">
         <div className="shell">
-          <div className="grid gap-8 md:grid-cols-12 md:items-end">
-            <div className="md:col-span-7">
-              <Eyebrow index="03">{d.nav.history}</Eyebrow>
-              <MaskedLines as="h2" lines={dc.historyTitle} className="t-h1 mt-8" />
+          <SectionHeader index="04" eyebrow={d.nav.activity} title={dc.activityTitle.join(" ")} size="h1" intro={goal} />
+          <div className="mt-16 grid gap-8 md:mt-24 lg:grid-cols-12 lg:items-center">
+            <Reveal className="lg:col-span-7">
+              <MediaSlot
+                slot={{ still: { src: imagery.warehouseDay, alt: dc.warehouseAlt } }}
+                ratio="4 / 3"
+                sizes="(min-width: 1728px) 900px, (min-width: 1024px) 58vw, 100vw"
+                alt={dc.warehouseAlt}
+                className="rounded-xs"
+              />
+            </Reveal>
+            <Reveal delay={0.1} className="lg:col-span-4 lg:col-start-9">
+              <Prose html={activityHtml} />
+              <p className="t-body mt-6 text-fg-muted">{d.facilities.logisticsText}</p>
+            </Reveal>
+          </div>
+        </div>
+        <div className="mt-16 md:mt-24">
+          <PanoStrip src={imagery.trucksDay} alt={dc.trucksAlt} caption={dc.trucksAlt} lang={lang} />
+        </div>
+        <div className="shell mt-10 md:mt-16">
+          <div className="co-ledger">
+            <div>
+              <Link href={hrefFor(lang, { kind: "service" })} className="co-line">
+                <span className="co-line-key t-label text-fg-muted">{d.machine.cardLabel}</span>
+                <span className="co-line-title t-h3">
+                  <Units>{dc.cncLink}</Units>
+                </span>
+                <span aria-hidden className="co-line-arrow">
+                  <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                    <path d="M1 8h13M9 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" />
+                  </svg>
+                </span>
+              </Link>
             </div>
           </div>
-          <ol className="mt-16 border-t border-line md:mt-24">
-            {history.timeline.map((item) => (
-              <Reveal as="li" key={item.year} className="grid gap-4 border-b border-line py-8 md:grid-cols-12 md:items-baseline md:py-10">
-                <span className="font-display text-[clamp(3.5rem,7vw,7rem)] font-[200] leading-[0.8] tabular md:col-span-4">{item.year}</span>
-                <p className="t-lead text-fg-muted md:col-span-6 md:col-start-6">{item.text}</p>
-              </Reveal>
-            ))}
-          </ol>
         </div>
       </section>
 
-      {/* Activity */}
-      <section id="operation" data-theme="frost" className="scroll-mt-20 bg-surface section-y">
-        <div className="shell grid gap-12 md:grid-cols-12">
-          <div className="md:col-span-5">
-            <Eyebrow index="04">{d.nav.activity}</Eyebrow>
-            <MaskedLines as="h2" lines={dc.activityTitle} className="t-h1 mt-8" />
-            <Reveal className="mt-10">
-              <Prose html={activity.html} />
-            </Reveal>
-          </div>
-          <div className="grid gap-4 md:col-span-6 md:col-start-7">
-            <Reveal className="relative aspect-[4/3] overflow-hidden rounded-sm">
-              <Image src={imagery.warehouse} alt={dc.warehouseAlt} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
-            </Reveal>
-            <Reveal delay={0.1} className="relative aspect-[16/7] overflow-hidden rounded-sm">
-              <Image src={imagery.trucks} alt={dc.trucksAlt} fill sizes="(min-width: 768px) 50vw, 100vw" className="object-cover" />
-            </Reveal>
+      {/* Financial statements: the anchor of the Εταιρεία menu */}
+      <section id="oikonomika" data-theme="mist" className="bg-surface section-y">
+        <div className="shell">
+          <SectionHeader index="05" eyebrow={dc.transparency} title={d.nav.financials} size="h1" />
+          <div className="mt-16 md:mt-24">
+            <Ledger lang={lang} />
           </div>
         </div>
       </section>
 
-      {/* Financial statements */}
-      <section id="oikonomika" data-theme="mist" className="scroll-mt-20 bg-surface section-y">
-        <div className="shell grid gap-12 md:grid-cols-12">
-          <div className="md:col-span-4">
-            <Eyebrow index="05">{dc.transparency}</Eyebrow>
-            <h2 className="t-h2 mt-8">{d.nav.financials}</h2>
-          </div>
-          <ul className="border-t border-line md:col-span-7 md:col-start-6">
-            {[...financials].reverse().map((f) => (
-              <li key={f.year} className="border-b border-line">
-                <a href={f.pdf ?? "#"} target="_blank" rel="noreferrer" className="group flex items-center justify-between gap-6 py-6">
-                  <span className="flex items-baseline gap-6">
-                    <span className="font-display text-4xl font-bold tabular">{f.year}</span>
-                    <span className="text-fg-muted transition-colors group-hover:text-fg">{f.title}</span>
-                  </span>
-                  <span className="t-label flex items-center gap-3 text-accent">
-                    {d.common.pdf}
-                    <span
-                      aria-hidden
-                      className="flex size-10 items-center justify-center rounded-full border border-line transition-colors group-hover:border-accent group-hover:bg-accent group-hover:text-accent-fg"
-                    >
-                      ↓
-                    </span>
-                  </span>
-                </a>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
       <Cta lang={lang} />
     </>
   );
