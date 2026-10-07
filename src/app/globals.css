@@ -581,6 +581,32 @@ img {
     opacity: 0;
   }
 }
+/* The cue under the hero: a short line travelling down */
+@keyframes scrollcue {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(200%);
+  }
+}
+
+/* Where the headline sits, the real one and its refracted copies in the panes: centred, a little above the middle */
+.hero-title-stage {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: var(--gutter);
+  padding-bottom: 6vh;
+}
+/* On the narrowest phones the lead and the buttons take half of the screen: the headline moves up to clear them */
+@container hero (max-width: 21rem) {
+  .hero-title-stage {
+    padding-bottom: 40cqh;
+  }
+}
 
 .hero-panes {
   --pw: 13cqw;
@@ -782,6 +808,12 @@ img {
   /* How far the row travels: everything in it, minus one screen */
   --hist-distance: max(0px, calc(2 * var(--gutter) + var(--hist-fig) + var(--hist-n) * (var(--hist-card) + var(--hist-gap)) - 100vw));
 }
+/* Below lg the cards are narrower: the row travels less, the pinned stretch of page is shorter */
+@media (max-width: 63.99rem) {
+  .hist {
+    --hist-card: min(82vw, 28rem);
+  }
+}
 .hist-stage {
   padding-block: var(--spacing-section);
 }
@@ -807,6 +839,18 @@ img {
 }
 .hist-progress {
   display: none;
+}
+/* The swipe hint belongs to the strip: the scroll-driven version below hides it */
+.hist-hint {
+  display: flex;
+}
+.hist-hint-arrow {
+  animation: hist-nudge 2s var(--ease-in-out) infinite;
+}
+@keyframes hist-nudge {
+  50% {
+    translate: 6px 0;
+  }
 }
 .hist-bar {
   transform-origin: left;
@@ -915,6 +959,9 @@ img {
       animation: hist-slide linear both;
       animation-timeline: --hist;
       animation-range: contain 0% contain 100%;
+    }
+    .hist-hint {
+      display: none;
     }
     @media (min-width: 48rem) {
       .hist-progress {

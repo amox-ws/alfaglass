@@ -12,10 +12,11 @@ let glassSupport: boolean | null = null;
 
 /**
  * Real-time glass only where it stays smooth: a large screen with a mouse, at least four cores and 4 GB,
- * WebGL 2, no reduced motion and no data saver. Everything else gets the CSS panes.
- * Cached: it never changes during a session.
+ * no reduced motion and no data saver (WebGL 2 is checked later, when the browser is idle: opening a GL context
+ * is a round trip to the GPU process and must not sit in the middle of hydration).
+ * Everything else gets the CSS panes. Cached: it never changes during a session.
  */
-function canRunGlass() {
+function mayRunGlass() {
   if (glassSupport === null) {
     try {
       const nav = navigator as Navigator & { deviceMemory?: number; connection?: { saveData?: boolean } };
@@ -24,13 +25,20 @@ function canRunGlass() {
         !matchMedia("(prefers-reduced-motion: reduce)").matches &&
         (nav.hardwareConcurrency ?? 4) >= 4 &&
         (nav.deviceMemory ?? 8) >= 4 &&
-        !nav.connection?.saveData &&
-        !!document.createElement("canvas").getContext("webgl2");
+        !nav.connection?.saveData;
     } catch {
       glassSupport = false;
     }
   }
   return glassSupport;
+}
+
+function hasWebGL2() {
+  try {
+    return !!document.createElement("canvas").getContext("webgl2");
+  } catch {
+    return false;
+  }
 }
 
 const noopSubscribe = () => () => {};
@@ -40,11 +48,11 @@ export function Hero({ lang, productsHref }: { lang: Lang; productsHref: string 
   const h = d.home;
   const section = useRef<HTMLElement>(null);
   // null on the server and while hydrating, then the device's answer
-  const glass = useSyncExternalStore(noopSubscribe, canRunGlass, () => null);
+  const glass = useSyncExternalStore(noopSubscribe, mayRunGlass, () => null);
   const [load3d, setLoad3d] = useState(false);
   const [ready, setReady] = useState(false);
   const [inView, setInView] = useState(true);
-  // Set if the 3D scene cannot hold its frame rate here: it then gives way to the CSS panes for good.
+  // Set if the 3D scene cannot hold its frame rate here, or WebGL 2 turns out to be missing: the CSS panes take over for good.
   const [slow, setSlow] = useState(false);
 
   useEffect(() => {
@@ -58,10 +66,9 @@ export function Hero({ lang, productsHref }: { lang: Lang; productsHref: string 
     if (!glass) return;
     const hasIdle = "requestIdleCallback" in window;
     let handle = 0;
+    const start = () => (hasWebGL2() ? setLoad3d(true) : setSlow(true));
     const schedule = () => {
-      handle = hasIdle
-        ? window.requestIdleCallback(() => setLoad3d(true), { timeout: 2500 })
-        : window.setTimeout(() => setLoad3d(true), 800);
+      handle = hasIdle ? window.requestIdleCallback(start, { timeout: 2500 }) : window.setTimeout(start, 800);
     };
     if (document.readyState === "complete") schedule();
     else window.addEventListener("load", schedule, { once: true });
@@ -80,7 +87,7 @@ export function Hero({ lang, productsHref }: { lang: Lang; productsHref: string 
       ref={section}
       data-theme="frost"
       data-glass={mode}
-      className="hero relative h-[100svh] min-h-[38rem] overflow-hidden"
+      className="hero relative h-[100svh] min-h-[41rem] overflow-hidden md:min-h-[38rem]"
       aria-label={d.a11y.intro}
     >
       {/* 3D stage (desktop) */}
@@ -92,7 +99,7 @@ export function Hero({ lang, productsHref }: { lang: Lang; productsHref: string 
       )}
 
       {/* Headline: in the HTML from the first paint; the 3D type replaces it once the scene is ready */}
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center px-[var(--gutter)] pb-[6vh]">
+      <div className="hero-title-stage pointer-events-none">
         <h1
           className={`hero-rise t-mega text-balance text-center transition-opacity duration-[1200ms] ${show3d ? "opacity-0" : ""}`}
           style={{ transitionTimingFunction: "var(--ease-out)" }}
@@ -159,7 +166,6 @@ export function Hero({ lang, productsHref }: { lang: Lang; productsHref: string 
           </div>
         </div>
       </div>
-      <style>{`@keyframes scrollcue{0%{transform:translateY(-100%)}100%{transform:translateY(200%)}}`}</style>
     </section>
   );
 }
@@ -188,7 +194,7 @@ function HeroPanes({ title }: { title: string[] }) {
           style={{ "--x": p.x, "--rot": `${p.rot}rad`, "--h": p.h, "--i": i } as CSSProperties}
         >
           <div className="hero-pane-view">
-            <div className="absolute inset-0 flex items-center justify-center px-[var(--gutter)] pb-[6vh]">
+            <div className="hero-title-stage">
               <p className="t-mega text-balance text-center">
                 {title[0]} <br className="hidden sm:block" />
                 {title[1]}

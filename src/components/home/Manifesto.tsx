@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
-import { Eyebrow, Reveal, Stamp } from "@/components/ui";
 import Link from "next/link";
+import { Eyebrow, Reveal, Stamp } from "@/components/ui";
 import { t, type Lang } from "@/lib/i18n";
 
 /** Words light up one after another as the statement scrolls through the view (CSS scroll timeline, see globals.css). */
@@ -14,7 +14,7 @@ export function Manifesto({ lang, companyHref }: { lang: Lang; companyHref: stri
   return (
     <section data-theme="frost" className="relative bg-surface section-y" aria-labelledby="manifesto-title">
       <div className="shell">
-        <div className="mb-14 flex items-center justify-between gap-6 md:mb-20">
+        <div className="flex items-center justify-between gap-6">
           <Eyebrow index="01">{h.aboutEyebrow}</Eyebrow>
           <Stamp lang={lang} />
         </div>
@@ -22,7 +22,7 @@ export function Manifesto({ lang, companyHref }: { lang: Lang; companyHref: stri
         <h2 id="manifesto-title" className="sr-only">
           {h.aboutEyebrow}
         </h2>
-        <p className="manifesto font-display max-w-[22ch] text-[clamp(2.4rem,6.2vw,6.6rem)] font-semibold uppercase leading-[0.95] md:max-w-[24ch]">
+        <p className="manifesto font-display mt-16 max-w-[22ch] text-[clamp(2.4rem,6.2vw,6.6rem)] font-semibold uppercase leading-[0.95] md:mt-24 md:max-w-[24ch]">
           {words.map((w, i) => (
             <span
               key={i}
@@ -34,14 +34,11 @@ export function Manifesto({ lang, companyHref }: { lang: Lang; companyHref: stri
           ))}
         </p>
 
-        <div className="mt-16 grid gap-10 md:mt-24 md:grid-cols-12">
-          <Reveal className="md:col-span-5 md:col-start-6">
-            <p className="text-fg-muted">
-              {h.founders}
-            </p>
-          </Reveal>
-          <Reveal delay={0.1} className="flex items-end md:col-span-2 md:col-start-11 md:justify-end">
-            <Link href={companyHref} className="text-link t-label text-fg">
+        {/* P2: running text from column 6; the link sits under it */}
+        <div className="mt-16 grid md:mt-24 lg:grid-cols-12 lg:gap-8">
+          <Reveal className="lg:col-span-5 lg:col-start-6">
+            <p className="max-w-[68ch] text-fg-muted">{h.founders}</p>
+            <Link href={companyHref} className="text-link mt-10 font-semibold text-fg">
               {h.companyLink}
             </Link>
           </Reveal>

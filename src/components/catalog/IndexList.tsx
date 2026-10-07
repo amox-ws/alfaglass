@@ -9,8 +9,12 @@ import { t, type Lang } from "@/lib/i18n";
 
 export type IndexRow = { href: string; title: string; summary: string; image: string | null; count?: number };
 
-/** Typographic index with a cursor-following image preview on pointer devices. */
-export function IndexList({ lang, rows }: { lang: Lang; rows: IndexRow[] }) {
+/**
+ * Typographic index with a cursor-following image preview on pointer devices.
+ * With `thumbnails`, a touch device (CSS `hover: none`, phones) gets a small picture and the count in every row instead:
+ * the preview needs a pointer, and the markup stays the same everywhere, so a mouse never downloads the thumbnails.
+ */
+export function IndexList({ lang, rows, thumbnails = false }: { lang: Lang; rows: IndexRow[]; thumbnails?: boolean }) {
   const d = t(lang);
   const [active, setActive] = useState<number | null>(null);
   // Preview images mount (and load) once the list nears the viewport on hover-capable devices,
@@ -51,37 +55,56 @@ export function IndexList({ lang, rows }: { lang: Lang; rows: IndexRow[] }) {
       onPointerMove={track}
       onPointerLeave={() => setActive(null)}
     >
-      {rows.map((row, i) => (
-        <Reveal as="li" key={row.href} delay={Math.min(i, 8) * 0.03} y={16} className={`border-b ${line}`}>
-          <Link
-            href={row.href}
-            onPointerEnter={(e) => {
-              track(e);
-              setActive(i);
-            }}
-            onFocus={() => setActive(i)}
-            className="group grid grid-cols-[2.5rem_1fr_auto] items-center gap-4 py-5 md:grid-cols-[4rem_minmax(0,1.2fr)_minmax(0,1fr)_6rem_3rem] md:gap-8 md:py-7"
-          >
-            <span className={`t-label tabular ${muted}`}>{String(i + 1).padStart(2, "0")}</span>
-            <span
-              className={`t-h3 transition-[transform,color] duration-500 group-hover:translate-x-2 ${hover}`}
-              style={{ transitionTimingFunction: "var(--ease-out)" }}
+      {rows.map((row, i) => {
+        const number = String(i + 1).padStart(2, "0");
+        const count = row.count !== undefined ? d.count(row.count) : "";
+        return (
+          <Reveal as="li" key={row.href} delay={Math.min(i, 8) * 0.03} y={16} className={`border-b ${line}`}>
+            <Link
+              href={row.href}
+              onPointerEnter={(e) => {
+                track(e);
+                setActive(i);
+              }}
+              onFocus={() => setActive(i)}
+              className={`group grid items-center gap-4 md:grid-cols-[4rem_minmax(0,1.2fr)_minmax(0,1fr)_6rem_3rem] md:gap-8 md:py-7 ${
+                thumbnails ? "grid-cols-[minmax(0,1fr)_auto] py-4" : "grid-cols-[2.5rem_1fr_auto] py-5"
+              }`}
             >
-              {row.title}
-            </span>
-            <span className={`t-small hidden md:line-clamp-2 ${muted}`}>{row.summary}</span>
-            <span className={`t-label hidden text-right md:block tabular ${muted}`}>
-              {row.count !== undefined ? d.count(row.count) : ""}
-            </span>
-            <span
-              aria-hidden
-              className={`flex size-10 items-center justify-center justify-self-end rounded-full border transition-colors duration-300 ${ring}`}
-            >
-              →
-            </span>
-          </Link>
-        </Reveal>
-      ))}
+              <span className={`t-label tabular ${muted} ${thumbnails ? "hidden md:block" : ""}`}>{number}</span>
+              <span className="flex min-w-0 items-center gap-4">
+                {thumbnails && row.image && (
+                  <span
+                    aria-hidden
+                    className="relative hidden size-18 shrink-0 overflow-hidden rounded-sm bg-surface-2 [@media(hover:none)_and_(max-width:47.99rem)]:block"
+                  >
+                    <Image src={row.image} alt="" fill sizes="72px" className="object-cover" />
+                  </span>
+                )}
+                <span className="min-w-0">
+                  {thumbnails && (
+                    <span className={`t-label tabular mb-1 block md:hidden ${muted}`}>{count ? `${number} · ${count}` : number}</span>
+                  )}
+                  <span
+                    className={`t-h3 block transition-[transform,color] duration-500 group-hover:translate-x-2 ${hover}`}
+                    style={{ transitionTimingFunction: "var(--ease-out)" }}
+                  >
+                    {row.title}
+                  </span>
+                </span>
+              </span>
+              <span className={`t-small hidden md:line-clamp-2 ${muted}`}>{row.summary}</span>
+              <span className={`t-label hidden text-right md:block tabular ${muted}`}>{count}</span>
+              <span
+                aria-hidden
+                className={`flex size-10 items-center justify-center justify-self-end rounded-full border transition-colors duration-300 ${ring}`}
+              >
+                →
+              </span>
+            </Link>
+          </Reveal>
+        );
+      })}
 
       <motion.div
         aria-hidden

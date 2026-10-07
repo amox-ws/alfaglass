@@ -16,7 +16,7 @@ export function Facilities({
 }: {
   lang: Lang;
   warehouse: string;
-  trucks: string;
+  trucks: { src: string; w: number; h: number };
   facilitiesHref: string;
 }) {
   const h = t(lang).home;
@@ -45,7 +45,7 @@ export function Facilities({
             <div className="fac-glare" />
           </div>
 
-          <div className="fac-head shell pointer-events-none absolute inset-x-0 top-[calc(var(--header-h)+2rem)] flex justify-between">
+          <div className="fac-head shell pointer-events-none absolute inset-x-0 top-[calc(var(--header-h)+0.5rem)] flex justify-between md:top-[calc(var(--header-h)+2rem)]">
             <Eyebrow index="03">{h.facilitiesEyebrow}</Eyebrow>
             <span className="t-label text-fg-muted">{h.facilitiesPlace}</span>
           </div>
@@ -56,7 +56,7 @@ export function Facilities({
           >
             <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
               <h2 id="facilities-title" className="t-display [text-shadow:0_2px_24px_oklch(0.2_0.06_280/0.35)] lg:col-span-7">
-                {h.facilitiesTitle[0]}
+                {h.facilitiesTitle[0]}{" "}
                 <span className="block text-fg-muted">{h.facilitiesTitle[1]}</span>
               </h2>
               <p className="t-lead text-fg lg:col-span-4 lg:col-start-9">
@@ -67,24 +67,23 @@ export function Facilities({
         </div>
       </div>
 
-      {/* Logistics */}
+      {/* Logistics (P3): the trucks photo is a panorama, so it keeps its own proportion at every width */}
       <div className="shell section-y">
-        <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
-          <Reveal className="relative aspect-[16/10] overflow-hidden rounded-sm md:aspect-[16/9] lg:col-span-7">
+        <div className="grid gap-8 lg:grid-cols-12 lg:items-center">
+          <Reveal className="lg:col-span-7">
             <Image
-              src={trucks}
+              src={trucks.src}
               alt={h.trucksAlt}
-              fill
-              sizes="(min-width: 768px) 58vw, 100vw"
-              className="object-cover"
+              width={trucks.w}
+              height={trucks.h}
+              sizes="(min-width: 1024px) 54vw, 100vw"
+              className="h-auto w-full rounded-sm"
             />
           </Reveal>
           <div className="lg:col-span-4 lg:col-start-9">
-            <MaskedLines as="h3" lines={h.logisticsTitle} className="t-h2" />
+            <MaskedLines as="h3" lines={[h.logisticsTitle.join(" ")]} className="t-h2" />
             <Reveal delay={0.1}>
-              <p className="mt-6 text-fg-muted">
-                {h.logisticsText}
-              </p>
+              <p className="mt-6 text-fg-muted">{h.logisticsText}</p>
               <ArrowLink href={facilitiesHref} className="mt-10">
                 {h.ourFacilities}
               </ArrowLink>

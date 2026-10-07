@@ -7,16 +7,17 @@ export function GlassIndex({ lang, rows, allHref }: { lang: Lang; rows: IndexRow
   return (
     <section data-theme="mist" className="relative bg-surface section-y" aria-labelledby="glass-title">
       <div className="shell">
-        <SectionHeader index="02" eyebrow={h.catalogue} id="glass-title" title={h.glassTitle} intro={h.glassIntro} />
+        <SectionHeader
+          index="02"
+          eyebrow={h.catalogue}
+          id="glass-title"
+          title={h.glassTitle}
+          intro={h.glassIntro}
+          action={<ArrowLink href={allHref}>{h.allGlass}</ArrowLink>}
+        />
 
         <div className="mt-16 md:mt-24">
-          <IndexList lang={lang} rows={rows} />
-        </div>
-
-        <div className="mt-12 flex justify-end">
-          <ArrowLink href={allHref}>
-            {h.allGlass}
-          </ArrowLink>
+          <IndexList lang={lang} rows={rows} thumbnails />
         </div>
       </div>
     </section>

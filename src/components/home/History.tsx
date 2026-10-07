@@ -39,6 +39,13 @@ export function History({ lang, items, engraving }: { lang: Lang; items: Item[];
                 <span>{items[items.length - 1]?.year}</span>
               </p>
             </div>
+            {/* Where the years are a strip to swipe (no scroll timelines, or reduced motion) the strip says so */}
+            <p aria-hidden className="hist-hint t-label shrink-0 items-center gap-3 text-fg-muted">
+              {h.swipe}
+              <svg width="28" height="10" viewBox="0 0 28 10" className="hist-hint-arrow">
+                <path d="M0 5h26M22 1l4 4-4 4" stroke="currentColor" strokeWidth="1.5" fill="none" />
+              </svg>
+            </p>
           </div>
 
           <div className="hist-row">

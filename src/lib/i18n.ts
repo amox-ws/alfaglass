@@ -145,7 +145,6 @@ const el = {
       "Τα εμπορεύματα αποθηκεύονται σε κατάλληλα διαμορφωμένους και εξοπλισμένους χώρους, από τους οποίους μεταφορτώνονται στα ειδικά φορτηγά για να παραδοθούν στους πελάτες.",
     ourFacilities: "Οι εγκαταστάσεις μας",
     plasticsEyebrow: "Από το 2014",
-    plasticsCount: (n: number) => `${n} κατηγορίες υλικών`,
     plasticsMarquee: ["Ακρυλικά XT", "Χυτά Ακρυλικά", "Πολυκαρβονικά", "PET-G", "PVC Foam", "Bond", "Πολυστερίνες", "Πάνελ πολυουρεθάνης"],
     plasticsTitle: ["Πλαστικά", "φύλλα"],
     plasticsText:
@@ -154,6 +153,7 @@ const el = {
     allPlastics: "Όλα τα πλαστικά φύλλα",
     historyEyebrow: "Ιστορία",
     historyTitle: "Ένα τέταρτο του αιώνα",
+    swipe: "Σύρετε",
     engravingAlt: "Χαλκογραφία εργαστηρίου επεξεργασίας γυαλιού",
     engravingCaption: "Μια παράδοση στο γυαλί πριν από το 1999",
     relatedEyebrow: "Από το 2018",
@@ -161,6 +161,7 @@ const el = {
     relatedText:
       "Συσκευές ελέγχου, μηχανισμοί γυάλινων θυρών, εξαρτήματα, αναλώσιμα μηχανών και εργαλεία: ό,τι χρειάζεται ο επαγγελματίας γύρω από το γυαλί.",
     allRelated: "Όλα τα συναφή προϊόντα",
+    brandsEyebrow: "Συνεργαζόμαστε με",
     newsTitle: "Τα νέα μας",
     ctaEyebrow: "Επικοινωνία",
     ctaTitle: ["Καλέστε μας", "και θα έρθουμε", "κοντά σας."],
@@ -352,7 +353,6 @@ const en: Dict = {
       "All goods are stored in purpose-built, fully equipped warehouses, from which they are loaded onto the company's special trucks for delivery to customers.",
     ourFacilities: "Our facilities",
     plasticsEyebrow: "Since 2014",
-    plasticsCount: (n: number) => `${n} material categories`,
     plasticsMarquee: ["Acrylic XT", "Cast Acrylic", "Polycarbonate", "PET-G", "PVC Foam", "Bond", "Polystyrene", "Polyurethane panels"],
     plasticsTitle: ["Plastic", "sheets"],
     plasticsText:
@@ -361,6 +361,7 @@ const en: Dict = {
     allPlastics: "All plastic sheets",
     historyEyebrow: "History",
     historyTitle: "A quarter of a century",
+    swipe: "Swipe",
     engravingAlt: "Engraving of a glass workshop",
     engravingCaption: "A tradition in glass that predates 1999",
     relatedEyebrow: "Since 2018",
@@ -368,6 +369,7 @@ const en: Dict = {
     relatedText:
       "Test equipment, glass door springs, fittings, machine consumables and tools: everything the professional needs around glass.",
     allRelated: "All related products",
+    brandsEyebrow: "We work with",
     newsTitle: "Our news",
     ctaEyebrow: "Everything in glass",
     ctaTitle: ["Call us", "and we will", "come to you."],
