@@ -72,12 +72,15 @@ export function Header({ data }: { data: HeaderData }) {
   const closeButton = useRef<HTMLButtonElement>(null);
   const navRef = useRef<HTMLElement>(null);
 
-  // The header is always visible; scrolling only turns it into the floating glass capsule.
+  // The header is always visible; scrolling only turns it into the floating glass capsule. A mark 24px tall at the very top of the page
+  // (SiteShell) tells when it has left the screen: the observer reports it once, where a scroll listener that reads `scrollY` forces a
+  // layout on every scroll event, which cost more main-thread time than anything else in a long scroll.
   useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 24);
-    onScroll();
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
+    const mark = document.getElementById("page-top");
+    if (!mark) return;
+    const watch = new IntersectionObserver(([entry]) => setScrolled(!entry.isIntersecting));
+    watch.observe(mark);
+    return () => watch.disconnect();
   }, []);
 
   // Close menus on navigation (state-during-render pattern, no effect needed).

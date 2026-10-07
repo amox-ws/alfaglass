@@ -16,18 +16,41 @@ function intersect(entries: IntersectionObserverEntry[]) {
   }
 }
 
+let pending: HTMLElement[] = [];
+let settling = false;
+
 /**
- * Hides an element that is below the fold and shows it (CSS transition, see globals.css) when it scrolls into view.
+ * Hides the elements that are below the fold and shows each (CSS transition, see globals.css) when it scrolls into view.
  * Everything is visible in the server HTML: an element that is already on screen, or above it, is left alone,
  * so first-screen content never waits for JavaScript; with reduced motion nothing is hidden at all.
+ *
+ * Every element that asks in one commit is settled in one go: first all the positions are read (one layout), then all the
+ * attributes are written. Read-then-write one element at a time made every read force a new style and layout pass, which was
+ * the biggest single piece of main-thread work of a long page at hydration.
  */
-function arm(el: HTMLElement) {
-  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
-  if (el.getBoundingClientRect().top < window.innerHeight * 0.92) return;
-  el.dataset.rv = "hidden";
+function settle() {
+  settling = false;
+  const batch = pending;
+  pending = [];
+  if (!batch.length || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  const fold = window.innerHeight * 0.92;
+  const below = batch.filter((el) => el.isConnected && el.getBoundingClientRect().top >= fold);
+  if (!below.length) return;
   observer ??= new IntersectionObserver(intersect, { rootMargin: "0px 0px -8% 0px" });
-  observer.observe(el);
+  for (const el of below) {
+    el.dataset.rv = "hidden";
+    observer.observe(el);
+  }
+}
+
+function arm(el: HTMLElement) {
+  pending.push(el);
+  if (!settling) {
+    settling = true;
+    queueMicrotask(settle);
+  }
   return () => {
+    pending = pending.filter((queued) => queued !== el);
     observer?.unobserve(el);
     delete el.dataset.rv;
   };

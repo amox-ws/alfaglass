@@ -84,6 +84,8 @@ export function SiteShell({ lang, children }: { lang: Lang; children: React.Reac
       >
         {d.a11y.skip}
       </a>
+      {/* 24px at the very top of the page: the header watches it to know when you have scrolled (see Header) */}
+      <div id="page-top" aria-hidden className="pointer-events-none absolute left-0 top-0 h-6 w-px" />
       <Header data={headerData(lang)} />
       <main id="main">{children}</main>
       <Footer lang={lang} />
