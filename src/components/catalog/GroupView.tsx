@@ -6,7 +6,7 @@ import { Marquee } from "@/components/kit/Marquee";
 import { SpecimenPlate } from "@/components/kit/SpecimenPlate";
 import { Units } from "@/components/kit/Units";
 import { PageHero, Prose } from "@/components/page";
-import { Eyebrow, MaskedLines, Reveal } from "@/components/ui";
+import { Eyebrow } from "@/components/ui";
 import { cms, stripHtml, thicknessRange, type Cms, type Group } from "@/lib/content";
 import { t, type Lang } from "@/lib/i18n";
 import { hrefFor } from "@/lib/routes";
@@ -75,14 +75,14 @@ function GlassGroup({ lang, group, items }: { lang: Lang; group: Group; items: n
               <span id="about-title">{d.common.about}</span>
             </Eyebrow>
             {group.image && (
-              <Reveal className="mt-10">
+              <div className="rise mt-10">
                 <SpecimenPlate src={group.image} alt={d.catalogue.engravingAlt} sizes="(min-width: 1024px) 30vw, 100vw" lang={lang} />
-              </Reveal>
+              </div>
             )}
           </div>
-          <Reveal className="lg:col-span-7 lg:col-start-6">
+          <div className="rise lg:col-span-7 lg:col-start-6">
             <Prose html={group.intro} />
-          </Reveal>
+          </div>
         </div>
       </section>
       <Cta lang={lang} subject={group.title} />
@@ -120,13 +120,17 @@ function PlasticsGroup({ lang, group, items }: { lang: Lang; group: Group; items
           <div className="grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-8">
             <div className="lg:col-span-7">
               <p className="t-label text-accent">{d.machine.eyebrow}</p>
-              <MaskedLines as="h2" id="cut-title" lines={[d.catalogue.cutTitle]} className="t-h2 mt-5" />
+              <h2 id="cut-title" className="mask-lines rise-mask t-h2 mt-5">
+                <span className="mask-line">
+                  <span>{d.catalogue.cutTitle}</span>
+                </span>
+              </h2>
             </div>
             <p className="t-lead text-fg-muted lg:col-span-4 lg:col-start-9">{d.machine.promise}</p>
           </div>
-          <Reveal className="mt-10 md:mt-16">
+          <div className="rise mt-10 md:mt-16">
             <MachineBlueprint lang={lang} variant="band" id="bp-cut" />
-          </Reveal>
+          </div>
           <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-8">
             <Link href={service} className="inline-flex min-h-12 items-center justify-center rounded-full bg-snow px-7 font-semibold text-brand-indigo">
               {d.nav.serviceLong}
@@ -140,16 +144,16 @@ function PlasticsGroup({ lang, group, items }: { lang: Lang; group: Group; items
 
       <section data-theme="mist" aria-labelledby="about-title" className="bg-surface section-y">
         <div className="shell grid items-center gap-10 lg:grid-cols-12 lg:gap-8">
-          <Reveal className="lg:col-span-5 lg:col-start-1">
+          <div className="rise lg:col-span-5 lg:col-start-1">
             <Eyebrow>
               <span id="about-title">{d.common.about}</span>
             </Eyebrow>
             <p className="t-lead mt-5 max-w-[34ch]">{d.home.plasticsText}</p>
-          </Reveal>
+          </div>
           {group.image && (
-            <Reveal className="lg:col-span-6 lg:col-start-7">
+            <div className="rise lg:col-span-6 lg:col-start-7">
               <SpecimenPlate src={group.image} alt={d.catalogue.canopyAlt} sizes="(min-width: 1024px) 50vw, 100vw" lang={lang} />
-            </Reveal>
+            </div>
           )}
         </div>
       </section>
@@ -184,7 +188,7 @@ function RelatedGroup({ lang, group, items }: { lang: Lang; group: Group; items:
           <EdgeIndex lang={lang} headingLevel={3} rows={categoryRows(lang, cats, () => undefined, false)} className="md:hidden" />
           <ul className="wall plates-even hidden md:grid">
             {cats.map((cat, i) => (
-              <Reveal as="li" key={cat.slug} delay={i * 0.06}>
+              <li key={cat.slug} className="rise">
                 <Link href={c.categoryHref(cat)} className="group lift block">
                   {cat.image && <SpecimenPlate src={cat.image} alt="" ratio="var(--wall-r)" sizes="(min-width: 1280px) 24vw, 46vw" captionRow={false} lang={lang} />}
                   <div className="mt-5 flex items-start justify-between gap-4">
@@ -199,7 +203,7 @@ function RelatedGroup({ lang, group, items }: { lang: Lang; group: Group; items:
                     </span>
                   </div>
                 </Link>
-              </Reveal>
+              </li>
             ))}
           </ul>
         </div>
@@ -211,7 +215,11 @@ function RelatedGroup({ lang, group, items }: { lang: Lang; group: Group; items:
           {cats.map((cat) => (
             <div key={cat.slug}>
               <div className="flex flex-wrap items-baseline justify-between gap-x-8 gap-y-2">
-                <MaskedLines as="h2" lines={[cat.title]} className="t-h3 max-w-[40ch]" />
+                <h2 className="mask-lines rise-mask t-h3 max-w-[40ch]">
+                  <span className="mask-line">
+                    <span>{cat.title}</span>
+                  </span>
+                </h2>
                 <Link href={c.categoryHref(cat)} className="text-link t-label text-fg">
                   {d.count(cat.products.length)} →
                 </Link>

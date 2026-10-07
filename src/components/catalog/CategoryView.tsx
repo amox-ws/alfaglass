@@ -5,11 +5,12 @@ import { EdgeIndex } from "@/components/kit/EdgeIndex";
 import { MediaGallery } from "@/components/kit/MediaGallery";
 import { SpecimenPlate } from "@/components/kit/SpecimenPlate";
 import { Units } from "@/components/kit/Units";
-import { Eyebrow, Reveal, SectionHeader } from "@/components/ui";
+import { Eyebrow } from "@/components/ui";
 import { cms, stripHtml, thicknessRange, type Category } from "@/lib/content";
 import { t, type Lang } from "@/lib/i18n";
 import { mediaSize } from "@/lib/media";
 import { thicknessOfFamily } from "./localized";
+import { SectionHead } from "./SectionHead";
 import { CatalogHero, categoryRows, ProductList } from "./shared";
 
 /**
@@ -53,28 +54,28 @@ export function CategoryView({ lang, category }: { lang: Lang; category: Categor
       {hasAbout && (
         <section data-theme="mist" aria-labelledby="about-title" className="bg-surface section-y">
           <div className="shell grid gap-10 lg:grid-cols-12 lg:gap-8">
-            <Reveal className="lg:col-span-6">
+            <div className="rise lg:col-span-6">
               <Eyebrow>
                 <span id="about-title">{d.common.about}</span>
               </Eyebrow>
               {aboutText && <p className="prose-glass mt-8 text-fg-muted">{aboutText}</p>}
-            </Reveal>
+            </div>
             {(category.image || gallery.length > 0) && (
               <div className="grid content-start gap-8 lg:col-span-5 lg:col-start-8">
                 {category.image && (
-                  <Reveal>
+                  <div className="rise">
                     <SpecimenPlate src={category.image} alt={category.title} sizes="(min-width: 1024px) 40vw, 100vw" lang={lang} />
-                  </Reveal>
+                  </div>
                 )}
                 {gallery.length > 0 && (
-                  <Reveal>
+                  <div className="rise">
                     <MediaGallery
                       layout="plates"
                       lang={lang}
                       label={d.catalogue.galleryLabel(category.title)}
                       items={gallery.map((g, i) => ({ src: g.src, alt: g.caption ?? d.catalogue.imageAlt(category.title, i + 1), caption: g.caption }))}
                     />
-                  </Reveal>
+                  </div>
                 )}
               </div>
             )}
@@ -85,7 +86,7 @@ export function CategoryView({ lang, category }: { lang: Lang; category: Categor
       {siblings.length > 0 && (
         <section data-theme="frost" aria-labelledby="siblings-title" className="bg-surface section-y">
           <div className="shell">
-            <SectionHeader
+            <SectionHead
               id="siblings-title"
               size="h2"
               title={d.common.otherCategories}

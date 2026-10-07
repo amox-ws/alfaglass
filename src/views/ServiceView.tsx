@@ -1,8 +1,8 @@
 import { Cta } from "@/components/Cta";
 import { PageHero } from "@/components/page";
-import { SectionHeader } from "@/components/ui";
+import { SectionHead } from "@/components/catalog/SectionHead";
 import { BedScene } from "@/components/service/BedScene";
-import { CncEstimator } from "@/components/service/CncEstimator";
+import { EstimatorGate } from "@/components/service/EstimatorGate";
 import { DimensionLine } from "@/components/service/DimensionLine";
 import { Audience, Materials, MachineSpec, Steps, WhatWeDo } from "@/components/service/ServiceSections";
 import { contact, enquiryHref } from "@/lib/contact";
@@ -59,7 +59,7 @@ export function ServiceView({ lang }: { lang: Lang }) {
 
       <section id="aitima-kopis" data-theme="mist" aria-labelledby="estimator-title" className="bg-surface section-y">
         <div className="shell">
-          <SectionHeader
+          <SectionHead
             id="estimator-title"
             index="06"
             eyebrow={e.eyebrow}
@@ -81,7 +81,7 @@ export function ServiceView({ lang }: { lang: Lang }) {
             }
           />
           <div className="mt-16 md:mt-24">
-            <CncEstimator lang={lang} thickness={thickness} />
+            <EstimatorGate lang={lang} thickness={thickness} />
           </div>
         </div>
       </section>

@@ -513,6 +513,15 @@
 
 /* ------------------------------------------------------------------ the estimator */
 
+/* Until the form is fetched the section holds the height of the form in its first state, so nothing below it moves when it arrives */
+.est-gate[data-alive]:not([data-on]) {
+  min-height: 96rem;
+}
+@media (min-width: 64rem) {
+  .est-gate[data-alive]:not([data-on]) {
+    min-height: 49rem;
+  }
+}
 .est-layout {
   display: grid;
   gap: 3rem;

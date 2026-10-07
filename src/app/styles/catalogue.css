@@ -4,6 +4,44 @@
  * Tailwind utilities still win over it. Tokens (surface, fg, line, accent) and the System classes only; animate transform and opacity only.
  */
 
+/* ------------------------------------------------------------------ entrances without JavaScript */
+
+/*
+ * The blocks below the fold of the catalogue and the CNC service rise as they scroll into view, on a CSS scroll timeline: compositor-only,
+ * no JavaScript and nothing armed after hydration (the shared `Reveal` reads the layout of every block it arms, a forced reflow each,
+ * and the pages are long). The base rule is the finished state: a browser without scroll timelines, reduced motion, a full-page
+ * screenshot and everything already on screen at load show it as it is (an animation with `forwards` has no effect before its range).
+ * The range is a distance (not a share of the block), so a tall list is as quick to appear as a heading.
+ */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
+}
+@keyframes rise-mask {
+  from {
+    translate: 0 140%;
+  }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .rise {
+      animation: rise-in linear forwards;
+      animation-timeline: view();
+      animation-range: entry 0% entry 120px;
+    }
+    .rise-mask {
+      view-timeline: --rise-mask block;
+    }
+    .rise-mask .mask-line > span {
+      animation: rise-mask linear forwards;
+      animation-timeline: --rise-mask;
+      animation-range: entry 0% entry 90px;
+    }
+  }
+}
+
 /* ------------------------------------------------------------------ the tool wall of the related products */
 
 /* The four families as tall plates: 2 across from md, 4 from xl (the plate is 4:3 while two across, 4:5 while four) */

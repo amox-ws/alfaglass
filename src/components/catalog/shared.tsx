@@ -1,7 +1,7 @@
 import { EdgeIndex, type EdgeRow } from "@/components/kit/EdgeIndex";
 import { SpecimenCard } from "@/components/kit/SpecimenCard";
 import { Breadcrumbs, type Crumb } from "@/components/page";
-import { MaskedLines, Reveal } from "@/components/ui";
+import { MaskedLines } from "@/components/ui";
 import { cms, teaser, type Category, type Product } from "@/lib/content";
 import type { Lang } from "@/lib/i18n";
 import { thicknessOfProduct } from "./localized";
@@ -37,7 +37,7 @@ export function ProductList({
   return (
     <>
       <EdgeIndex lang={lang} rows={productRows(lang, products, gauges)} titleSize="h3" headingLevel={headingLevel} className="md:hidden" />
-      <Reveal className="hidden md:block">
+      <div className="rise hidden md:block">
         <ul className="plates-even plates-43 grid gap-x-8 gap-y-14 md:grid-cols-2 lg:grid-cols-3">
           {products.map((p, i) => (
             <li key={p.slug}>
@@ -54,7 +54,7 @@ export function ProductList({
             </li>
           ))}
         </ul>
-      </Reveal>
+      </div>
     </>
   );
 }

@@ -4,13 +4,14 @@ import { EdgeGauge } from "@/components/kit/EdgeGauge";
 import { MediaGallery, type GalleryItem } from "@/components/kit/MediaGallery";
 import { SpecTable } from "@/components/kit/SpecTable";
 import { Breadcrumbs, Prose } from "@/components/page";
-import { MaskedLines, Reveal, SectionHeader } from "@/components/ui";
+import { MaskedLines } from "@/components/ui";
 import { contact, enquiryHref } from "@/lib/contact";
 import { cms, productCopy, stripHtml, type Product } from "@/lib/content";
 import { t, type Dict, type Lang } from "@/lib/i18n";
 import { hrefFor } from "@/lib/routes";
 import { splitSpecHtml, type SpecBlock, type SpecTableData } from "@/lib/spec-table";
 import { materialOf, thicknessOfProduct } from "./localized";
+import { SectionHead } from "./SectionHead";
 import { ProductList } from "./shared";
 
 type Kind = "description" | "specs" | "applications" | "other";
@@ -191,7 +192,7 @@ export function ProductView({ lang, product }: { lang: Lang; product: Product })
 
           <div className="shell grid gap-16 pb-section pt-16 md:gap-24 md:pt-24">
             {blocks.map((b, i) => (
-              <Reveal key={b.id}>
+              <div key={b.id} className="rise">
                 <section id={b.id} aria-labelledby={`${b.id}-title`} className="scroll-mt-32">
                   {b.kind === "specs" ? (
                     <>
@@ -229,7 +230,7 @@ export function ProductView({ lang, product }: { lang: Lang; product: Product })
                     </div>
                   )}
                 </section>
-              </Reveal>
+              </div>
             ))}
           </div>
         </div>
@@ -238,7 +239,7 @@ export function ProductView({ lang, product }: { lang: Lang; product: Product })
       {related.length > 0 && (
         <section data-theme="mist" aria-labelledby="related-title" className="bg-surface section-y">
           <div className="shell">
-            <SectionHeader
+            <SectionHead
               id="related-title"
               size="h2"
               title={d.common.relatedProducts}
