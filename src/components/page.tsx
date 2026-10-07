@@ -2,35 +2,52 @@ import Image from "next/image";
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import { MaskedLines } from "@/components/reveal";
+import { excerpt } from "@/lib/content";
 import { mediaSize } from "@/lib/media";
 import { t, type Lang } from "@/lib/i18n";
 
 export type Crumb = { label: string; href?: string };
 
-/** Each crumb is a 44px-tall target; the row is the "eyebrow" of a page title. */
+/** The current page at the end of the trail is shortened (at a word) beyond this many characters: it repeats the headline below it. */
+const CURRENT_CRUMB_MAX = 36;
+
+/**
+ * The trail above a page title, the "eyebrow" of the page.
+ * From md it is the whole path: each crumb a 44px target, a separator attached to the crumb before it (so a row
+ * never starts with "/"), and the current page shortened, because an article's crumb would repeat its headline.
+ * On phones it is one back link (44px) to the nearest parent page, so the eyebrow of a product page is one row and
+ * not three.
+ */
 export function Breadcrumbs({ lang, items }: { lang: Lang; items: Crumb[] }) {
   const d = t(lang);
-  const link = "flex min-h-11 min-w-11 items-center text-fg-muted transition-colors hover:text-accent";
+  const home = { label: d.nav.home, href: lang === "el" ? "/" : `/${lang}` };
+  const trail: Crumb[] = [home, ...items];
+  const parent = [...items].reverse().find((c): c is Required<Crumb> => Boolean(c.href)) ?? home;
+  const link = "inline-flex min-h-11 items-center text-fg-muted transition-colors hover:text-accent";
   return (
     <nav aria-label={d.a11y.breadcrumbs} className="t-label">
-      <ol className="flex flex-wrap items-center gap-x-2.5">
-        <li>
-          <Link href={lang === "el" ? "/" : `/${lang}`} className={link}>
-            {d.nav.home}
-          </Link>
-        </li>
-        {items.map((c, i) => (
-          <li key={i} className="flex items-center gap-2.5">
-            <span aria-hidden className="text-fg-dim">
-              /
-            </span>
+      <Link href={parent.href} className={`${link} gap-2.5 md:hidden`}>
+        <svg width="14" height="14" viewBox="0 0 16 16" aria-hidden className="shrink-0">
+          <path d="M15 8H2M7 3 2 8l5 5" stroke="currentColor" strokeWidth="1.5" fill="none" />
+        </svg>
+        {parent.label}
+      </Link>
+      <ol className="hidden flex-wrap items-center md:flex">
+        {trail.map((c, i) => (
+          <li key={i} className={`flex items-center whitespace-nowrap ${c.href ? "shrink-0" : "min-w-0"}`}>
             {c.href ? (
-              <Link href={c.href} className={link}>
+              /* a short label such as "ΝΕΑ" gets a 44px wide target without moving its neighbours (padding cancelled by margin) */
+              <Link href={c.href} className={`${link} ${i > 0 ? "-mx-2.5 px-2.5" : ""}`}>
                 {c.label}
               </Link>
             ) : (
-              <span aria-current="page" className="text-fg">
-                {c.label}
+              <span aria-current="page" className="truncate text-fg">
+                {excerpt(c.label, CURRENT_CRUMB_MAX)}
+              </span>
+            )}
+            {i < trail.length - 1 && (
+              <span aria-hidden className="px-2.5 text-fg-dim">
+                /
               </span>
             )}
           </li>
@@ -40,21 +57,6 @@ export function Breadcrumbs({ lang, items }: { lang: Lang; items: Crumb[] }) {
   );
 }
 
-/** Split line breaks for display headlines: long titles are broken into ~2-3 lines. */
-export function headlineLines(title: string, maxChars = 18) {
-  const words = title.split(" ");
-  const lines: string[] = [];
-  let cur = "";
-  for (const w of words) {
-    if ((cur + " " + w).trim().length > maxChars && cur) {
-      lines.push(cur);
-      cur = w;
-    } else cur = (cur + " " + w).trim();
-  }
-  if (cur) lines.push(cur);
-  return lines;
-}
-
 /** A title longer than this is set one size down (`t-h1`) so a long name stays within three or four lines. */
 const LONG_TITLE = 24;
 
@@ -62,15 +64,40 @@ const LONG_TITLE = 24;
 const STRIP_MIN_WIDTH = 1328;
 /** A full-width strip is at least this wide for its height (21:8); a panorama keeps its own, wider, proportion. */
 const STRIP_ASPECT = 21 / 8;
+/** On phones a photo is 16:10; only a panorama (wider than 2:1) keeps its own proportion. */
+const PHONE_ASPECT = 16 / 10;
+/** The lead of a compact hero from lg: about two lines in the narrowest side layout, ended at a word. */
+const COMPACT_LEAD_MAX = 100;
+
+/**
+ * A lead in two parts: its start (at most `max` characters, ended at a word or a sentence) and the rest.
+ * A compact hero shows the whole lead below lg and only the start from lg ("…" added when the start ends in the
+ * middle of a sentence), so the text is never cut inside a word the way a CSS line clamp does when the last line is full.
+ */
+function splitLead(lead: string, max: number) {
+  const text = lead.replace(/\s+/g, " ").trim();
+  const short = excerpt(text, max);
+  if (short === text) return { head: text, tail: "", ellipsis: false };
+  const ellipsis = short.endsWith("…");
+  const head = ellipsis ? short.slice(0, -1) : short;
+  return { head, tail: text.slice(head.length), ellipsis };
+}
 
 /**
  * Page title block. Everything in it is in the server HTML and enters with CSS animations, so the headline, lead
  * and photo never wait for JavaScript.
  *
- * The photo never shows larger than its source: a wide photo runs full width as a strip (a panorama as a wider strip),
- * a narrower one sits beside the title at lg and above, at most as wide as the file. `compact` (catalogue pages)
- * always uses the side layout, caps the photo at 40svh and keeps the space below it short, so the first list
- * items stay above the fold.
+ * The title is one block that wraps and balances itself (no hand-made line breaks, a hyphenated name never splits).
+ *
+ * The photo never shows larger than its source: a wide photo runs full width as a strip (a panorama as a wider strip,
+ * on phones too), a narrower one sits beside the title at lg and above, at most as wide as the file. `compact`
+ * (catalogue pages) always uses the side layout, caps the photo at 40svh, shows only the start of the lead from lg
+ * (two lines at most; the full text belongs in the page's "about" section) and keeps the space below short, so the
+ * first list items stay above the fold.
+ *
+ * A hero without a strip photo (bare, or compact) ends one half block gap below its text and the section after it
+ * starts one half block gap further down (`.page-hero-tight`, globals.css): the title and the first text are 64px
+ * (phones) or 96px (md and up) apart, not the hero's padding plus the next section's.
  */
 export function PageHero({
   lang,
@@ -94,30 +121,41 @@ export function PageHero({
   children?: React.ReactNode;
 }) {
   const size = image ? mediaSize(image) : null;
+  const ratio = size ? size.w / size.h : null;
   const side = Boolean(image) && (compact || (size !== null && size.w < STRIP_MIN_WIDTH));
-  const stripAspect = size ? Math.max(STRIP_ASPECT, size.w / size.h) : STRIP_ASPECT;
+  const tight = !image || compact;
+  const stripAspect = Math.max(STRIP_ASPECT, ratio ?? 0);
+  const phoneAspect = ratio !== null && ratio > 2 ? ratio : PHONE_ASPECT;
   const long = title.length > LONG_TITLE;
+  const leadParts = lead ? (compact ? splitLead(lead, COMPACT_LEAD_MAX) : { head: lead, tail: "", ellipsis: false }) : null;
 
   const text = (
     <>
       <div className="hero-fade">
         <Breadcrumbs lang={lang} items={crumbs} />
       </div>
-      <MaskedLines
-        as="h1"
-        eager
-        lines={headlineLines(title, long ? 28 : 18)}
-        className={`mt-5 ${long ? "t-h1 max-w-[30ch]" : "t-display max-w-[18ch]"}`}
-      />
+      <MaskedLines as="h1" eager lines={[title]} className={`mt-5 ${long ? "t-h1 max-w-[30ch]" : "t-display max-w-[18ch]"}`} />
       {(lead || meta) && (
         <div className={side ? "" : "mt-6 grid gap-8 lg:grid-cols-12"}>
-          {lead && (
-            <p className={`hero-rise t-lead max-w-[52ch] text-fg-muted ${side ? "mt-6" : "lg:col-span-6"}`} style={{ animationDelay: "0.25s" }}>
-              {lead}
+          {leadParts && (
+            <p
+              className={`hero-rise t-lead max-w-[60ch] text-fg-muted ${compact ? "lg:line-clamp-2" : ""} ${side ? "mt-6" : "lg:col-span-6"}`}
+              style={{ animationDelay: "0.25s" }}
+            >
+              {leadParts.head}
+              {leadParts.tail && <span className="lg:hidden">{leadParts.tail}</span>}
+              {leadParts.tail && leadParts.ellipsis && (
+                <span aria-hidden className="hidden lg:inline">
+                  …
+                </span>
+              )}
             </p>
           )}
           {meta && (
-            <div className={`hero-rise ${side ? "mt-10" : "lg:col-span-5 lg:col-start-8"}`} style={{ animationDelay: "0.35s" }}>
+            <div
+              className={`hero-rise ${side ? (compact ? "mt-6" : "mt-10") : lead ? "lg:col-span-5 lg:col-start-8" : "lg:col-span-6"}`}
+              style={{ animationDelay: "0.35s" }}
+            >
               {meta}
             </div>
           )}
@@ -129,8 +167,8 @@ export function PageHero({
   return (
     <section
       data-theme="frost"
-      className={`relative overflow-hidden bg-surface pt-[calc(var(--header-h)+3rem)] md:pt-[calc(var(--header-h)+5rem)] ${
-        compact ? "pb-12 md:pb-14" : "pb-16 md:pb-24"
+      className={`relative overflow-hidden bg-surface pt-[calc(var(--header-h)+3rem)] ${compact ? "" : "md:pt-[calc(var(--header-h)+5rem)]"} ${
+        tight ? "page-hero-tight" : "pb-16 md:pb-24"
       }`}
     >
       <div aria-hidden className="hero-glow pointer-events-none absolute inset-x-0 top-0 h-[70%]" />
@@ -140,7 +178,7 @@ export function PageHero({
             <div className="lg:col-span-7">{text}</div>
             <div className="lg:col-span-5">
               <div
-                className="relative aspect-[4/3] overflow-hidden rounded-sm bg-surface-2 lg:max-h-[40svh]"
+                className={`relative aspect-[4/3] overflow-hidden rounded-sm bg-surface-2 ${compact ? "max-h-[40svh]" : "lg:max-h-[40svh]"}`}
                 style={size ? { maxWidth: size.w } : undefined}
               >
                 <Image src={image} alt={imageAlt} fill priority sizes="(min-width: 1024px) 40vw, 100vw" className="img-settle object-cover" />
@@ -152,8 +190,8 @@ export function PageHero({
             {text}
             {image && (
               <div
-                className="relative mt-16 aspect-[16/10] overflow-hidden rounded-sm bg-surface-2 md:mt-24 md:aspect-(--hero-aspect)"
-                style={{ "--hero-aspect": stripAspect } as CSSProperties}
+                className="relative mt-16 aspect-(--hero-aspect-sm) overflow-hidden rounded-sm bg-surface-2 md:mt-24 md:aspect-(--hero-aspect)"
+                style={{ "--hero-aspect": stripAspect, "--hero-aspect-sm": phoneAspect } as CSSProperties}
               >
                 <Image src={image} alt={imageAlt} fill priority sizes="(min-width: 1728px) 1616px, 100vw" className="img-settle object-cover" />
               </div>

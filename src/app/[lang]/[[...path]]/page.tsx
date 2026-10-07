@@ -116,8 +116,9 @@ export async function generateMetadata({ params }: PageProps<"/[lang]/[[...path]
     images: [{ url: src, alt: src === imagery.building ? d.company.buildingAlt : (title ?? "ALFA GLASS"), ...(size && { width: size.w, height: size.h }) }],
   };
   return {
-    title,
-    description,
+    // Only what the page has: an empty title or description would replace the site's default from the layout
+    ...(title && { title }),
+    ...(description && { description }),
     alternates: {
       canonical: alt[hit.lang],
       languages: { el: alt.el, en: alt.en, "x-default": alt.el },

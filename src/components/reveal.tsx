@@ -62,8 +62,26 @@ export function Reveal({
   return createElement(as, { ref, className, style: { "--rv-delay": `${delay}s`, "--rv-y": `${y}px` } as CSSProperties }, children);
 }
 
+const HYPHENATED = /\p{L}-\p{L}/u;
+
+/** A hyphenated word ("SAINT-GOBAIN", "LOW-E") stays on one line: the heading may wrap around it, never inside it. */
+function keepHyphenated(line: string): ReactNode {
+  if (!HYPHENATED.test(line)) return line;
+  return line.split(/(\s+)/).map((part, i) =>
+    HYPHENATED.test(part) ? (
+      <span key={i} className="whitespace-nowrap">
+        {part}
+      </span>
+    ) : (
+      part
+    ),
+  );
+}
+
 /**
  * Headline whose lines rise out of a mask, one after another.
+ * A title is best passed as one line and left to wrap (the scale classes balance it): the whole block then rises out
+ * of its mask. Several lines are for headings that are broken by design, such as the big home titles.
  * `eager` is for headings in the first screen: the entrance is a CSS animation that starts with the first paint
  * and needs no JavaScript. Otherwise the lines rise when the heading scrolls into view.
  */
@@ -92,7 +110,7 @@ export function MaskedLines({
     >
       {lines.map((line, i) => (
         <span key={i} className="mask-line">
-          <span style={{ "--i": i } as CSSProperties}>{line}</span>
+          <span style={{ "--i": i } as CSSProperties}>{keepHyphenated(line)}</span>
         </span>
       ))}
     </Tag>

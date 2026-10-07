@@ -47,8 +47,8 @@ The whole scale, in `globals.css` (components layer, so `font-semibold` or `text
 |---|---|---|
 | `t-mega` | 68 / 119 / 223 px | home hero title, contact title, 404 |
 | `t-display` | 52 / 64 / 121 | page titles, big section titles, the home call to action |
-| `t-h1` | 44 / 46 / 86 | product titles, secondary section titles, big phone number in the feature call to action |
-| `t-h2` | 36 / 36 / 63 | section and card titles, the band call to action |
+| `t-h1` | 44 / 46 / 86 | long page titles (over 24 characters), product titles, secondary section titles, the big phone number in the call to action |
+| `t-h2` | 36 / 36 / 63 | section and card titles, the band call to action (from lg it steps up to the `t-h1` size with `t-lg-h1`) |
 | `t-h3` | 26 / 26 / 33 | list rows, mega-menu group titles |
 | `t-lead` | 19 / 19 / 22 | lead paragraphs, key values |
 | `t-body` | 17 | running text (the page default; the class is for elements that do not inherit it) |
@@ -56,6 +56,8 @@ The whole scale, in `globals.css` (components layer, so `font-semibold` or `text
 | `t-label` | 12.5, uppercase, tracked | eyebrows, indexes, breadcrumbs, chips |
 
 Rules: nothing readable under 16px on a phone except uppercase labels (≥ 12px); running text at most 68ch; no `text-sm`…`text-4xl`, no `text-[…]`, no `!` overrides; uppercase only for display type and labels; one `h1` per page; pseudo-headings are real headings.
+
+Headings (`t-display`, `t-h1`, `t-h2`, `t-h3`) are balanced (`text-wrap: balance`): a title is passed to `MaskedLines` as one string and wraps by itself, with no hand-made line breaks (they combine with natural wrapping on phones and leave one-word lines). A hyphenated word ("SAINT-GOBAIN", "LOW-E") never breaks at its hyphen: `MaskedLines` keeps it on one line. Headings that are broken by design (the big home titles) pass several lines.
 
 Exceptions (decorative or display-scale, outside the scale on purpose):
 - `.wordmark`, the outlined "Alfaglass" closing the footer (`aria-hidden`, sized by the viewport).
@@ -84,19 +86,24 @@ A column of running text narrower than about 45 characters does not exist: betwe
 | `mt-5` (20px) | eyebrow → title |
 | `mt-6` (24px) | title → body |
 | `mt-10` (40px) | body → actions |
-| `mt-16` / `md:mt-24` (64 / 96px) | block → block inside a section |
+| `mt-16` / `md:mt-24` (64 / 96px, as variable `--block`) | block → block inside a section; the gap under a page hero without a strip photo (see `PageHero`) |
 | `section-y` (80–176px, token `--spacing-section`, utilities `py-section`, `pt-section`) | around every section; no `pt-[9vw]` hacks |
 
 **Components that carry the rhythm** (use them, do not rebuild them):
-- `PageHero`: breadcrumbs (each crumb a 44px target), title (`t-display`, at most 18ch wide; a title longer than 24 characters is set in `t-h1`, at most 30ch), lead, meta, photo. Everything is in the server HTML and enters with CSS animations. The photo is never larger than its source (`mediaSize`, from `scripts/media-sizes.mjs`): a photo at least 1328px wide runs full width as a strip (21:8, a panorama keeps its own proportion), a narrower one sits beside the title from `lg` at most as wide as its file. `compact` (catalogue pages) always uses the side layout, caps the photo at 40svh and keeps the space below the hero short, so the first list items stay above the fold.
+- `PageHero`: breadcrumbs, title, lead, meta, photo. Everything is in the server HTML and enters with CSS animations.
+  - Title: one block that wraps and balances itself (`t-display`, at most 18ch wide; a title longer than 24 characters is set in `t-h1`, at most 30ch). Never pre-broken into lines.
+  - Lead: `t-lead`, at most 60ch. In `compact` the whole lead shows below lg, and from lg only its start (100 characters at most, ended at a word or a sentence, "…" added): two lines, never cut inside a word. The full text belongs in the page's "about" section.
+  - Photo: never larger than its source (`mediaSize`, from `scripts/media-sizes.mjs`). A photo at least 1328px wide runs full width as a strip (21:8); a panorama (wider than 2:1) keeps its own proportion at every width, phones included, where an ordinary photo is 16:10. A narrower photo sits beside the title from `lg`, at most as wide as its file. `compact` (catalogue pages) always uses the side layout, caps the photo at 40svh, takes the same top padding as phones (header + 3rem), puts the meta 24px under the lead and keeps the space below short, so the first list items stay above the fold.
+  - Space below: a hero without a strip photo (bare, or `compact`) ends half a block gap under its text and the section after it starts half a block gap further down (`.page-hero-tight` and `.page-hero-tight + .section-y` in `globals.css`): the title and the first text are exactly one block gap apart (64px on phones, 96px from md), not the hero's padding on top of the next section's `section-y`. A hero with a strip photo keeps `pb-16 md:pb-24`.
+- `Breadcrumbs`: from md the whole trail (a hero places it above its columns, not inside a narrow one), each crumb a 44px target (short labels such as "ΝΕΑ" get a wider hit area without moving their neighbours), the separator attached to the crumb before it so a row never starts with "/", the current page shortened at a word (it repeats the headline). On phones the trail is one 44px back link to the nearest parent page ("← Υαλοπίνακες", "← Αρχική"): a product page's eyebrow is one row, not three. The product hero hides its category label on phones because the back link already names it.
 - `SectionHeader`: eyebrow index + title (+ intro, + link), P1, stacks below `lg`.
-- `Cta`: the one call to action on fluted glass. `feature` closes the home page, `band` closes every other page; `subject` (a product or category name) turns the title into "ask about sizes and stock" and pre-fills the mail subject. Phone first, then mobile and email (underlined at rest).
+- `Cta`: the one call to action on fluted glass. `feature` closes the home page, `band` closes every other page; both have the same glass pane (phone in `t-h1`, then mobile and email in `t-lead`, the email underlined at rest, cols 7–12). The band title is `t-h2` and `t-h1` from lg (`t-lg-h1`, at most 16ch), centred beside the pane, so every page closes with the weight of the home page's call. `subject` (a product or category name) turns the title into "ask about sizes and stock" and pre-fills the mail subject. The eyebrow reads "Επικοινωνία" (the tagline belongs to the footer headline right below it).
 - `Stamp`: the etched mark, in the language of the page.
-- `Breadcrumbs`, `MetaList`, `Prose` (`size="lead"` for article text), `Eyebrow`, `ArrowLink`, `.text-link` (a link that is visibly a link and a 44px target).
+- `MetaList`, `Prose` (`size="lead"` for article text), `Eyebrow`, `ArrowLink`, `.text-link` (a link that is visibly a link and a 44px target).
 
 **Header.** Floating glass capsule on scroll. Below 768px: logo, a 44px phone button, language switch, menu button. From 768px the phone number replaces the button (it never wraps, also at 1024px). The active section is marked (`aria-current`) and the ΕΛ/EN switch goes to the same page in the other language (on Greek pages the router reports the internal `/el/…` path; `publicPath` removes it). The mega menu (items at least 32px tall) follows its button in the DOM and closes on Esc. The mobile menu is a native modal `<dialog>` with its own top bar: focus trap, Esc, inert page behind it, focus returns to the menu button.
 
-**Footer.** Links and contact on the deep theme; every link a 44px target; address and contact outside the `nav` landmark; the credit reads "Σχεδιασμός & ανάπτυξη: AMOX".
+**Footer.** Links and contact on the deep theme; every link a 44px target; address and contact outside the `nav` landmark; the credit reads "Σχεδιασμός & ανάπτυξη: AMOX". The headline is the brand line ("Τα πάντα για το γυαλί, από το 1999", no full stop); the address appears once, in the "Έδρα" column.
 
 **Images.** No photo is shown larger than its source at 1440px × dpr 1: pick the layout from `mediaSize`, use `object-contain` on `bg-snow`, or a smaller slot. Panoramas are wide strips, never cropped to 16:9. Content images have a meaningful `alt`; `alt=""` is for decoration only.
 

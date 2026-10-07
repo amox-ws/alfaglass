@@ -117,6 +117,16 @@
   --spacing-section: clamp(5rem, 11vw, 11rem);
 }
 
+/* The block → block gap (`mt-16`, `md:mt-24`) as a variable, for rules that cannot use the utility classes */
+:root {
+  --block: 4rem;
+}
+@media (min-width: 48rem) {
+  :root {
+    --block: 6rem;
+  }
+}
+
 /* ------------------------------------------------------------------ base */
 
 @layer base {
@@ -196,7 +206,10 @@ img {
     text-transform: uppercase;
   }
 
-  /* Page titles, big section titles */
+  /*
+   * Page titles, big section titles. Headings that wrap are balanced (even lines, no one-word last line), so a
+   * title is set as one block and left to wrap: no hand-made line breaks.
+   */
   .t-display {
     font-family: var(--font-display);
     font-weight: 750;
@@ -204,6 +217,7 @@ img {
     line-height: 0.86;
     letter-spacing: -0.005em;
     text-transform: uppercase;
+    text-wrap: balance;
   }
 
   .t-h1 {
@@ -212,6 +226,7 @@ img {
     font-size: var(--fs-h1);
     line-height: 0.9;
     text-transform: uppercase;
+    text-wrap: balance;
   }
 
   .t-h2 {
@@ -220,6 +235,15 @@ img {
     font-size: var(--fs-h2);
     line-height: 0.94;
     text-transform: uppercase;
+    text-wrap: balance;
+  }
+
+  /* From lg a `t-h2` takes the size and leading of `t-h1` (the closing call to action). Must come after `.t-h2`. */
+  @media (min-width: 64rem) {
+    .t-lg-h1 {
+      font-size: var(--fs-h1);
+      line-height: 0.9;
+    }
   }
 
   .t-h3 {
@@ -228,6 +252,7 @@ img {
     font-size: var(--fs-h3);
     line-height: 1;
     text-transform: uppercase;
+    text-wrap: balance;
   }
 
   .t-lead {
@@ -277,6 +302,19 @@ img {
 
 .section-y {
   padding-block: var(--spacing-section);
+}
+
+/*
+ * A page hero without a strip photo (a bare title, or the compact catalogue hero) is followed by one block gap:
+ * half of it is the hero's own bottom padding, half the top padding of the section after it. Without this the hero's
+ * padding would stack on the following section's `section-y` (about 140px on phones, 250px on desktops of empty space
+ * under a title). The two halves keep the change of background (frost → mist) in the middle of the gap.
+ */
+.page-hero-tight {
+  padding-bottom: calc(var(--block) / 2);
+}
+.page-hero-tight + .section-y {
+  padding-top: calc(var(--block) / 2);
 }
 
 /* ------------------------------------------------------------------ prose (legacy CMS html) */

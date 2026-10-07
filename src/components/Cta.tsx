@@ -3,8 +3,10 @@ import { MaskedLines, Reveal } from "@/components/reveal";
 import { t, type Lang } from "@/lib/i18n";
 
 /**
- * The one call to action, on fluted glass: phone first, then mobile and email.
- * `feature` closes the home page (big title, a line of text); `band` closes every other page.
+ * The one call to action, on fluted glass: phone first (as big as a page title), then mobile and email.
+ * `feature` closes the home page (big title, a line of text); `band` closes every other page: its title steps up
+ * from `t-h2` to `t-h1` at lg and sits centred beside the same glass pane, so the close of a page weighs as much
+ * as the home page's.
  * `subject` is the product or category the visitor is looking at: the title asks about sizes and stock,
  * and the email link opens a message with that name in the subject line.
  */
@@ -18,17 +20,17 @@ export function Cta({ lang, variant = "band", subject }: { lang: Lang; variant?:
   const intro = (
     <>
       <p className="t-label text-fg-muted">{eyebrow}</p>
-      <MaskedLines as="h2" id="cta-title" lines={title} className={`mt-5 ${feature ? "t-display" : "t-h2 max-w-[20ch]"}`} />
+      <MaskedLines as="h2" id="cta-title" lines={title} className={`mt-5 ${feature ? "t-display" : "t-h2 t-lg-h1 max-w-[20ch] lg:max-w-[16ch]"}`} />
     </>
   );
 
   const pane = (
-    <Reveal delay={0.1} className={`glass relative rounded-[1.5rem] p-6 md:p-8 ${feature ? "lg:col-span-6 lg:col-start-7" : "lg:col-span-5 lg:col-start-8"}`}>
+    <Reveal delay={0.1} className="glass relative rounded-[1.5rem] p-6 md:p-8 lg:col-span-6 lg:col-start-7">
       <a
         href={contact.phoneHref}
         className="group flex items-center justify-between gap-6 border-b border-line-strong pb-4 transition-colors hover:border-fg"
       >
-        <span className={`tabular ${feature ? "t-h1" : "t-h2"}`}>{d.contact.phone}</span>
+        <span className="t-h1 tabular">{d.contact.phone}</span>
         <span
           aria-hidden
           className="flex size-14 shrink-0 items-center justify-center rounded-full bg-fg text-surface transition-transform duration-500 group-hover:rotate-[-45deg]"
@@ -37,12 +39,12 @@ export function Cta({ lang, variant = "band", subject }: { lang: Lang; variant?:
           →
         </span>
       </a>
-      <div className="mt-4 grid gap-x-8 sm:grid-cols-2">
-        <a href={contact.mobileHref} className="t-body flex min-h-11 items-center gap-3 tabular">
+      <div className="mt-4 flex flex-wrap items-center gap-x-8">
+        <a href={contact.mobileHref} className="t-lead flex min-h-11 items-center gap-3 tabular">
           <span className="t-label text-fg-muted">{d.contactPage.mobile}</span>
           {d.contact.mobile}
         </a>
-        <a href={mailto} className="text-link text-fg">
+        <a href={mailto} className="t-lead text-link text-fg">
           {contact.email}
         </a>
       </div>
@@ -64,7 +66,7 @@ export function Cta({ lang, variant = "band", subject }: { lang: Lang; variant?:
           </div>
         </div>
       ) : (
-        <div className="shell relative grid gap-10 lg:grid-cols-12 lg:items-end lg:gap-8">
+        <div className="shell relative grid gap-10 lg:grid-cols-12 lg:items-center lg:gap-8">
           <div className="lg:col-span-6">{intro}</div>
           {pane}
         </div>

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Eyebrow, MaskedLines, Reveal } from "@/components/ui";
 import { Cta } from "@/components/Cta";
-import { MetaList, PageHero, Prose, Breadcrumbs, headlineLines } from "@/components/page";
+import { MetaList, PageHero, Prose, Breadcrumbs } from "@/components/page";
 import { IndexList } from "./IndexList";
 import { ProductGrid } from "./ProductGrid";
 import { ProductGallery } from "./ProductGallery";
@@ -210,35 +210,39 @@ export function ProductView({ lang, product }: { lang: Lang; product: Product })
   return (
     <>
       <section data-theme="mist" className="relative bg-surface pb-16 pt-[calc(var(--header-h)+3rem)] md:pb-24 md:pt-[calc(var(--header-h)+4rem)]">
-        <div className="shell grid gap-12 lg:grid-cols-12 lg:gap-16">
-          <div className="lg:col-span-5">
-            <Breadcrumbs lang={lang} items={crumbs} />
-            <p className="t-label mt-10 text-accent md:mt-14">{flat ? group.title : category.title}</p>
-            <MaskedLines as="h1" eager lines={headlineLines(product.title, 16)} className="t-h1 mt-4" />
-            {copy.summary && (
-              <Reveal delay={0.15}>
-                <p className="t-lead mt-6 text-fg-muted">{copy.summary}</p>
+        <div className="shell">
+          {/* The trail spans the whole hero: in the text column alone (5 of 12 columns) it would wrap into several rows */}
+          <Breadcrumbs lang={lang} items={crumbs} />
+          <div className="mt-5 grid gap-12 lg:grid-cols-12 lg:gap-16">
+            <div className="lg:col-span-5">
+              {/* On phones the back link above already names the category */}
+              <p className="t-label hidden text-accent md:block">{flat ? group.title : category.title}</p>
+              <MaskedLines as="h1" eager lines={[product.title]} className="t-h1 md:mt-5" />
+              {copy.summary && (
+                <Reveal delay={0.15}>
+                  <p className="t-lead mt-6 text-fg-muted">{copy.summary}</p>
+                </Reveal>
+              )}
+              <Reveal delay={0.25} className="mt-10 flex flex-wrap gap-3">
+                <a
+                  href={`mailto:${contact.email}?subject=${mailSubject}`}
+                  className="group inline-flex items-center gap-3 rounded-full bg-fg py-3 pl-6 pr-3 font-semibold text-surface transition-colors hover:bg-accent"
+                >
+                  {d.common.requestQuote}
+                  <span className="flex size-8 items-center justify-center rounded-full bg-surface text-fg">→</span>
+                </a>
+                <a
+                  href={contact.phoneHref}
+                  className="inline-flex items-center gap-2 rounded-full border border-line-strong px-6 py-3 font-semibold transition-colors hover:border-fg"
+                >
+                  <span className="tabular">{d.contact.phone}</span>
+                </a>
               </Reveal>
-            )}
-            <Reveal delay={0.25} className="mt-10 flex flex-wrap gap-3">
-              <a
-                href={`mailto:${contact.email}?subject=${mailSubject}`}
-                className="group inline-flex items-center gap-3 rounded-full bg-fg py-3 pl-6 pr-3 font-semibold text-surface transition-colors hover:bg-accent"
-              >
-                {d.common.requestQuote}
-                <span className="flex size-8 items-center justify-center rounded-full bg-surface text-fg">→</span>
-              </a>
-              <a
-                href={contact.phoneHref}
-                className="inline-flex items-center gap-2 rounded-full border border-line-strong px-6 py-3 font-semibold transition-colors hover:border-fg"
-              >
-                <span className="tabular">{d.contact.phone}</span>
-              </a>
+            </div>
+            <Reveal delay={0.1} className="lg:col-span-7">
+              <ProductGallery lang={lang} images={gallery} title={product.title} />
             </Reveal>
           </div>
-          <Reveal delay={0.1} className="lg:col-span-7">
-            <ProductGallery lang={lang} images={gallery} title={product.title} />
-          </Reveal>
         </div>
       </section>
 
