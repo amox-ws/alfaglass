@@ -1,4 +1,5 @@
 import { PanoStrip } from "@/components/company/PanoStrip";
+import { preloadImage } from "@/components/company/preload-image";
 import { paragraphs } from "@/components/company/prose";
 import { Cta } from "@/components/Cta";
 import { AttikiExit } from "@/components/kit/AttikiExit";
@@ -25,6 +26,10 @@ export function FacilitiesView({ lang }: { lang: Lang }) {
   // The legacy text is two sentences: where the company is, and how goods are stored and leave. The second is the logistics text below.
   const [location = ""] = paragraphs(facilities.html);
   const insideSize = mediaSize(slots.warehouse.still?.src);
+
+  // On a phone the aerial strip is in the first screen and the largest thing painted there: it starts loading from the head (the sizes are DroneBand's own)
+  const aerial = slots.drone.loop ? slots.drone.loop.poster : slots.drone.still;
+  if (aerial) preloadImage(aerial.src, slots.drone.loop ? "(min-width: 1920px) 1920px, 100vw" : "(min-width: 1926px) 1926px, (min-width: 768px) 100vw, 1040px");
 
   return (
     <>
