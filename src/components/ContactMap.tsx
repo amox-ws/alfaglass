@@ -9,7 +9,7 @@ import { t, type Lang } from "@/lib/i18n";
 export function ContactMap({ lang }: { lang: Lang }) {
   const d = t(lang);
   return (
-    <div className="contact-map relative aspect-[4/3] overflow-hidden rounded-sm border border-line bg-surface-2">
+    <div className="contact-map relative aspect-[4/3] overflow-hidden rounded-xs border border-line bg-surface-2">
       <div aria-hidden className="contact-map-grid absolute inset-0 flex items-center justify-center text-accent">
         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.25">
           <path d="M12 21s7-6.2 7-11.2A7 7 0 0 0 5 9.8C5 14.8 12 21 12 21Z" />

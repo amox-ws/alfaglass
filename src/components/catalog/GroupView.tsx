@@ -3,6 +3,7 @@ import { Cta } from "@/components/Cta";
 import { EdgeIndex } from "@/components/kit/EdgeIndex";
 import { MachineBlueprint } from "@/components/kit/MachineBlueprint";
 import { Marquee } from "@/components/kit/Marquee";
+import { PillArrow } from "@/components/kit/PillArrow";
 import { SpecimenPlate } from "@/components/kit/SpecimenPlate";
 import { Units } from "@/components/kit/Units";
 import { PageHero, Prose } from "@/components/page";
@@ -132,8 +133,9 @@ function PlasticsGroup({ lang, group, items }: { lang: Lang; group: Group; items
             <MachineBlueprint lang={lang} variant="band" id="bp-cut" />
           </div>
           <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-8">
-            <Link href={service} className="inline-flex min-h-12 items-center justify-center rounded-full bg-snow px-7 font-semibold text-brand-indigo">
+            <Link href={service} className="btn-pill btn-pill-dark">
               {d.nav.serviceLong}
+              <PillArrow />
             </Link>
             <Link href={`${service}#aitima-kopis`} className="text-link inline-flex items-center justify-center font-semibold sm:justify-start">
               {d.nav.estimator} →

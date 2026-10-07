@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { MaskedLines, Reveal } from "@/components/reveal";
-import { t, type Lang } from "@/lib/i18n";
 
 export { Reveal, MaskedLines, ease } from "@/components/reveal";
 
@@ -82,27 +81,6 @@ export function SectionHeader({
           {action && <div className={intro ? "mt-10" : ""}>{action}</div>}
         </div>
       )}
-    </div>
-  );
-}
-
-/**
- * The etched manufacturer's stamp found in the corner of a tempered pane,
- * reinterpreted as the company's own mark of origin.
- */
-export function Stamp({ lang, className = "" }: { lang: Lang; className?: string }) {
-  const d = t(lang);
-  return (
-    <div
-      role="group"
-      aria-label={d.home.stampLabel}
-      className={`t-label etched hidden select-none items-stretch rounded-[0.4rem] border border-line-strong leading-none md:flex ${className}`}
-    >
-      {d.stamp.map((cell, i) => (
-        <span key={i} className={`flex items-center px-3 py-2 tabular ${i < d.stamp.length - 1 ? "border-r border-line-strong" : ""}`}>
-          {cell}
-        </span>
-      ))}
     </div>
   );
 }

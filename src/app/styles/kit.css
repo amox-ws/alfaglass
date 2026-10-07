@@ -21,6 +21,66 @@
   text-decoration-color: currentColor;
 }
 
+/* ------------------------------------------------------------------ buttons: the actions of a page */
+
+/*
+ * One pill, 56px tall, whatever the page: the home hero, the machine, the service and the product data sheet all use it. `btn-pill-dark` is
+ * the primary action: the text colour of its surface with the surface as its word, so on `deep` it turns into a snow pill with an indigo
+ * word; it ends in a round arrow (`btn-pill-icon`, 32px). `btn-pill-line` is a hairline outline. A pane dresses the same pill:
+ * `glass glass-thin glass-sheen` on frost, `glass glass-dark` on deep and night. Pills that stand side by side are always the same
+ * height; on a phone they stack, full width, and the arrow of the primary stays at the right edge.
+ */
+.btn-pill {
+  position: relative;
+  display: inline-flex;
+  min-height: 3.5rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  text-align: center;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s,
+    color 0.3s;
+}
+.btn-pill-dark {
+  justify-content: space-between;
+  padding-right: 0.75rem;
+  background: var(--fg);
+  color: var(--surface);
+}
+.btn-pill-icon {
+  display: flex;
+  width: 2rem;
+  height: 2rem;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: var(--surface);
+  color: var(--fg);
+  transition: transform 0.5s var(--ease-out);
+}
+.btn-pill-line {
+  border: 1px solid var(--line-strong);
+}
+@media (hover: hover) {
+  .btn-pill-dark:hover {
+    background: var(--accent);
+    color: var(--accent-fg);
+  }
+  .btn-pill-dark:hover .btn-pill-icon {
+    transform: translateX(2px);
+  }
+  .btn-pill-line:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+}
+
 /* ------------------------------------------------------------------ rack lines, grain */
 
 .rack-lines span {

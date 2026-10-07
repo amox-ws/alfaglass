@@ -15,6 +15,7 @@ import { CategoryView, GroupView, ProductView } from "@/components/catalog/views
 import { JsonLd } from "@/components/JsonLd";
 import { works } from "@/content/works";
 import { cms, excerpt, imagery, stripHtml } from "@/lib/content";
+import { features } from "@/lib/features";
 import { LANGS, isLang, t, type Lang } from "@/lib/i18n";
 import { slots } from "@/lib/media-slots";
 import { mediaSize } from "@/lib/media";
@@ -64,7 +65,7 @@ function titleAndDescription(lang: Lang, route: Route): { title?: string; descri
     case "service":
       return { title: d.nav.serviceLong, description: `${d.machine.promise} ${d.machine.lead}` };
     case "works":
-      return { title: d.nav.works };
+      return { title: d.nav.works, description: features.works ? d.works.listLead : d.works.emptyLead };
     case "work": {
       const w = works.find((x) => x.slug === route.slug)!;
       return { title: w.title, description: excerpt(w.summary, 160) };

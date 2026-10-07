@@ -14,7 +14,7 @@ node scripts/qa/selftest.mjs                         # proves the gates fire on 
 
 | option | meaning |
 |---|---|
-| `--group a[,b]` / `--pages x,y` | groups from `pages.json` (home, company-facilities, catalogue, product, news, contact, links-legal), or page ids / URL paths |
+| `--group a[,b]` / `--pages x,y` | groups from `pages.json` (home, company-facilities, catalogue, product, news, contact, links-legal, service, works), or page ids / URL paths |
 | `--lang el\|en\|all` | default `el`. English pages stay in `pages.json` and run with `en`/`all`; the `untranslated` gate only runs then (otherwise "skipped (English phase)") |
 | `--label` | output folder `qa/runs/<label>/` (default timestamp) |
 | `--port` | port of the `next start` child (default 3100); use another per worktree. Paths are relative to the repo root you run it from |

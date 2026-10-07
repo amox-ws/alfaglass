@@ -799,7 +799,7 @@
 }
 .est-btn {
   display: inline-flex;
-  min-height: 3rem;
+  min-height: 3.5rem;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
@@ -812,6 +812,10 @@
     background-color 0.3s,
     border-color 0.3s,
     color 0.3s;
+}
+/* The pill of a row of the form (add a piece) is as tall as the inputs beside it; the actions of the page are 56px like every pill */
+.est-btn-sm {
+  min-height: 3rem;
 }
 .est-btn-solid {
   background: var(--fg);

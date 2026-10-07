@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore, type CSSProperties } from "react";
+import { PillArrow } from "@/components/kit/PillArrow";
 import { RackLines } from "@/components/kit/RackLines";
 import { Units } from "@/components/kit/Units";
 import { contact } from "@/lib/content";
@@ -145,18 +146,13 @@ export function Hero({ lang, productsHref, serviceHref }: { lang: Lang; products
               {h.leadRest}
             </p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-              <Link
-                href={productsHref}
-                className="group inline-flex items-center justify-between gap-3 rounded-full bg-fg py-3 pl-6 pr-3 font-semibold text-surface transition-colors hover:bg-accent sm:justify-start"
-              >
+              <Link href={productsHref} className="btn-pill btn-pill-dark">
                 {d.common.viewProducts}
-                <span className="flex size-8 items-center justify-center rounded-full bg-surface text-fg transition-transform duration-500 group-hover:translate-x-0.5">
-                  →
-                </span>
+                <PillArrow />
               </Link>
               <a
                 href={contact.phoneHref}
-                className="glass glass-thin glass-sheen relative inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 font-semibold"
+                className="btn-pill glass glass-thin glass-sheen gap-2"
               >
                 {d.common.callUs} <span className="font-mono tabular text-fg-muted">{d.contact.phone}</span>
               </a>

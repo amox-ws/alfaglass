@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MachineBlueprint } from "@/components/kit/MachineBlueprint";
+import { PillArrow } from "@/components/kit/PillArrow";
 import { Units } from "@/components/kit/Units";
 import { Eyebrow, MaskedLines, Reveal } from "@/components/ui";
 import { t, type Lang } from "@/lib/i18n";
@@ -51,14 +52,9 @@ export function Machine({ lang, serviceHref, estimatorHref, film }: { lang: Lang
             ))}
           </ul>
           <div className="flex flex-col items-start gap-2 lg:col-span-4 lg:col-start-9">
-            <Link
-              href={serviceHref}
-              className="group inline-flex w-full items-center justify-between gap-3 rounded-full bg-fg py-3 pl-6 pr-3 font-semibold text-surface transition-colors hover:bg-accent sm:w-auto sm:justify-start"
-            >
+            <Link href={serviceHref} className="btn-pill btn-pill-dark w-full sm:w-auto">
               {m.serviceLink}
-              <span className="flex size-8 items-center justify-center rounded-full bg-surface text-fg transition-transform duration-500 group-hover:translate-x-0.5">
-                →
-              </span>
+              <PillArrow />
             </Link>
             <Link href={estimatorHref} className="text-link gap-2 font-semibold">
               {d.nav.estimator} <span aria-hidden>→</span>

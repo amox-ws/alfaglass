@@ -274,16 +274,3 @@ export function Prose({ html, className = "", size = "body" }: { html: string; c
     />
   );
 }
-
-export function MetaList({ items }: { items: { label: string; value: React.ReactNode }[] }) {
-  return (
-    <dl className="grid grid-cols-2 gap-x-8 gap-y-5 border-t border-line pt-5">
-      {items.map((it) => (
-        <div key={it.label}>
-          <dt className="t-label text-fg-muted">{it.label}</dt>
-          <dd className="t-lead mt-2 font-medium text-fg tabular">{it.value}</dd>
-        </div>
-      ))}
-    </dl>
-  );
-}

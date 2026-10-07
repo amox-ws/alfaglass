@@ -336,7 +336,7 @@ export function CncEstimator({ lang, thickness }: { lang: Lang; thickness: Recor
               })}
             </ol>
             <div className="mt-4 flex flex-wrap items-center gap-x-6 gap-y-3">
-              <button id="est-add" type="button" className="est-btn est-btn-line" onClick={addRow} disabled={rows.length >= MAX_ROWS}>
+              <button id="est-add" type="button" className="est-btn est-btn-line est-btn-sm" onClick={addRow} disabled={rows.length >= MAX_ROWS}>
                 <Icon kind="plus" />
                 {e.add}
               </button>

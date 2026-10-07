@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Cta } from "@/components/Cta";
+import { PillArrow } from "@/components/kit/PillArrow";
 import { PageHero } from "@/components/page";
 import { FixtureBanner } from "@/components/works/FixtureBanner";
 import { FrameWall } from "@/components/works/FrameWall";
@@ -11,12 +12,6 @@ import { features } from "@/lib/features";
 import { t, type Lang } from "@/lib/i18n";
 import { APPLICATIONS, MATERIALS } from "@/lib/machine";
 import { hrefFor } from "@/lib/routes";
-
-const arrow = (
-  <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden>
-    <path d="M1 8h13M9 3l5 5-5 5" stroke="currentColor" strokeWidth="1.5" fill="none" />
-  </svg>
-);
 
 /**
  * Έργα, the list. While there are fewer than three real works (`features.works` off) it is an honest empty state: the title, what is coming,
@@ -35,9 +30,9 @@ export function WorksView({ lang }: { lang: Lang }) {
             {d.works.emptyLead}
           </p>
           <div className="hero-rise mt-10 flex flex-col gap-3 sm:flex-row sm:flex-wrap" style={{ animationDelay: "0.4s" }}>
-            <Link href={hrefFor(lang, { kind: "service" })} className="btn-pill btn-pill-dark group">
+            <Link href={hrefFor(lang, { kind: "service" })} className="btn-pill btn-pill-dark">
               {d.nav.serviceLong}
-              <span className="btn-pill-icon">{arrow}</span>
+              <PillArrow />
             </Link>
             <Link href={hrefFor(lang, { kind: "group", key: "yalopinakes" })} className="btn-pill btn-pill-line">
               {d.common.viewProducts}

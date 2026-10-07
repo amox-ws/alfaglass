@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Cta } from "@/components/Cta";
 import { EdgeGauge } from "@/components/kit/EdgeGauge";
 import { MediaGallery, type GalleryItem } from "@/components/kit/MediaGallery";
+import { PillArrow } from "@/components/kit/PillArrow";
 import { SpecTable } from "@/components/kit/SpecTable";
 import { Breadcrumbs, Prose } from "@/components/page";
 import { MaskedLines } from "@/components/ui";
@@ -138,16 +139,11 @@ export function ProductView({ lang, product }: { lang: Lang; product: Product })
               )}
               {codes > 0 && <p className="t-label mt-6 text-fg-muted">{d.catalogue.codes(codes)}</p>}
               <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-                <a
-                  href={quote}
-                  className="group inline-flex min-h-12 items-center justify-between gap-3 rounded-full bg-fg py-2 pl-6 pr-2 font-semibold text-surface transition-colors hover:bg-accent"
-                >
+                <a href={quote} className="btn-pill btn-pill-dark">
                   {d.common.requestQuote}
-                  <span aria-hidden className="flex size-8 items-center justify-center rounded-full bg-surface text-fg">
-                    →
-                  </span>
+                  <PillArrow />
                 </a>
-                <a href={contact.phoneHref} className="inline-flex min-h-12 items-center justify-center gap-2 rounded-full border border-line-strong px-6 font-semibold transition-colors hover:border-fg">
+                <a href={contact.phoneHref} className="btn-pill btn-pill-line">
                   <span className="tabular">{d.contact.phone}</span>
                 </a>
               </div>

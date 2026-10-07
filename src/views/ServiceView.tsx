@@ -3,6 +3,7 @@ import { PageHero } from "@/components/page";
 import { SectionHead } from "@/components/catalog/SectionHead";
 import { BedScene } from "@/components/service/BedScene";
 import { EstimatorGate } from "@/components/service/EstimatorGate";
+import { PillArrow } from "@/components/kit/PillArrow";
 import { DimensionLine } from "@/components/service/DimensionLine";
 import { Audience, Materials, MachineSpec, Steps, WhatWeDo } from "@/components/service/ServiceSections";
 import { contact, enquiryHref } from "@/lib/contact";
@@ -41,10 +42,11 @@ export function ServiceView({ lang }: { lang: Lang }) {
         fallback={<DimensionLine lang={lang} />}
       >
         <div className="mt-10 flex flex-col gap-3 sm:flex-row">
-          <a href="#aitima-kopis" className="inline-flex min-h-12 items-center justify-center rounded-full bg-snow px-7 font-semibold text-brand-indigo">
+          <a href="#aitima-kopis" className="btn-pill btn-pill-dark">
             {d.nav.estimator}
+            <PillArrow />
           </a>
-          <a href={contact.phoneHref} className="glass glass-dark relative inline-flex min-h-12 items-center justify-center gap-2 rounded-full px-7 font-semibold">
+          <a href={contact.phoneHref} className="btn-pill glass glass-dark gap-2">
             {d.common.callUs} <span className="t-data tabular">{d.contact.phone}</span>
           </a>
         </div>

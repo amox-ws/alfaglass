@@ -163,10 +163,6 @@ export function cms(lang: Lang) {
 
 export type Cms = ReturnType<typeof cms>;
 
-export function formatDate(iso: string, locale: string) {
-  return new Intl.DateTimeFormat(locale, { day: "2-digit", month: "long", year: "numeric" }).format(new Date(iso));
-}
-
 export function stripHtml(html: string) {
   return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
 }

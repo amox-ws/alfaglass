@@ -16,11 +16,13 @@
       { "id": "category-el", "url": "/yalopinakes/epistromenoi-yalopinakes-eidikon-efarmogon", "lang": "el", "template": "category (long title, 5 products)" },
       { "id": "plastics-el", "url": "/plastika-fylla", "lang": "el", "template": "group (plastics, flat product grid)" },
       { "id": "related-el", "url": "/synafi-proionta", "lang": "el", "template": "group (related products)" },
+      { "id": "category-gauge-el", "url": "/yalopinakes/diakosmitikoi-yalopinakes", "lang": "el", "template": "category (family thickness gauge in the hero)" },
       { "id": "category-related-el", "url": "/synafi-proionta/syskeyes-elegchou-yalopinakon", "lang": "el", "template": "category (related group: no thickness gauges)" },
       { "id": "glass-en", "url": "/en/glass", "lang": "en", "template": "group (glass, categories index)" },
       { "id": "category-en", "url": "/en/glass/coated-glasses-for-special-applications", "lang": "en", "template": "category (long title, 5 products)" },
       { "id": "plastics-en", "url": "/en/plastic-sheets", "lang": "en", "template": "group (plastics, flat product grid)" },
       { "id": "related-en", "url": "/en/related-products", "lang": "en", "template": "group (related products)" },
+      { "id": "category-gauge-en", "url": "/en/glass/decorative-glasses", "lang": "en", "template": "category (family thickness gauge in the hero)" },
       { "id": "category-related-en", "url": "/en/related-products/glass-and-window-test-equipment", "lang": "en", "template": "category (related group: no thickness gauges)" }
     ],
     "product": [
