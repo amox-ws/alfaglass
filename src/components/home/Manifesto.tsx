@@ -8,8 +8,8 @@ export function Manifesto({ lang, companyHref }: { lang: Lang; companyHref: stri
   const h = t(lang).home;
   const emphasis = new Set(h.emphasis);
   const words = h.statement.split(" ");
-  // Each word takes its slice of the 12%–68% stretch of the statement's pass through the viewport.
-  const at = (i: number) => `${(12 + (56 * i) / words.length).toFixed(2)}%`;
+  // Each word takes its slice of the 11%–63% stretch of the statement's pass through the viewport.
+  const at = (i: number) => `${(11 + (52 * i) / words.length).toFixed(2)}%`;
 
   return (
     <section data-theme="frost" className="relative bg-surface section-y" aria-labelledby="manifesto-title">

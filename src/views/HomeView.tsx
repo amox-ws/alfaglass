@@ -8,7 +8,7 @@ import { Related } from "@/components/home/Related";
 import { Brands } from "@/components/home/Brands";
 import { News } from "@/components/home/News";
 import { Cta } from "@/components/Cta";
-import { cms, imagery, stripHtml } from "@/lib/content";
+import { cms, imagery, stripHtml, teaser } from "@/lib/content";
 import { brandsOf } from "@/lib/brands";
 import type { Lang } from "@/lib/i18n";
 import { mediaSize } from "@/lib/media";
@@ -33,7 +33,8 @@ export function HomeView({ lang }: { lang: Lang }) {
         rows={c.categoriesOf(glass).map((cat) => ({
           href: c.categoryHref(cat),
           title: cat.title,
-          summary: cat.summary || stripHtml(cat.intro),
+          // About two lines in the index, cut at a word; a family without a text of its own borrows its first product's
+          summary: teaser(cat.summary || stripHtml(cat.intro) || c.productsOf(cat)[0]?.summary || "", 110),
           image: cat.image,
           count: cat.products.length,
         }))}

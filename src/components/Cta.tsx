@@ -1,10 +1,12 @@
 import { contact } from "@/lib/content";
 import { MaskedLines, Reveal } from "@/components/reveal";
+import { Eyebrow } from "@/components/ui";
 import { t, type Lang } from "@/lib/i18n";
 
 /**
  * The one call to action, on fluted glass: phone first (as big as a page title), then mobile and email.
- * `feature` closes the home page (big title, a line of text); `band` closes every other page: its title steps up
+ * `feature` closes the home page (the eighth numbered section: big title with its line of text right under it, the pane
+ * centred beside them); `band` closes every other page: its title steps up
  * from `t-h2` to `t-h1` at lg and sits centred beside the same glass pane, so the close of a page weighs as much
  * as the home page's.
  * `subject` is the product or category the visitor is looking at: the title asks about sizes and stock,
@@ -19,7 +21,7 @@ export function Cta({ lang, variant = "band", subject }: { lang: Lang; variant?:
 
   const intro = (
     <>
-      <p className="t-label text-fg-muted">{eyebrow}</p>
+      {feature ? <Eyebrow index="08">{eyebrow}</Eyebrow> : <p className="t-label text-fg-muted">{eyebrow}</p>}
       <MaskedLines as="h2" id="cta-title" lines={title} className={`mt-5 ${feature ? "t-display" : "t-h2 t-lg-h1 max-w-[20ch] lg:max-w-[16ch]"}`} />
     </>
   );
@@ -56,14 +58,14 @@ export function Cta({ lang, variant = "band", subject }: { lang: Lang; variant?:
     <section data-theme="azure" aria-labelledby="cta-title" className="relative overflow-hidden bg-surface section-y">
       <div aria-hidden className="fluted pointer-events-none absolute inset-0" />
       {feature ? (
-        <div className="shell relative">
-          {intro}
-          <div className="mt-16 grid gap-10 md:mt-24 lg:grid-cols-12 lg:items-end lg:gap-8">
-            <Reveal className="lg:col-span-5">
-              <p className="t-lead max-w-[34ch] text-fg-muted">{d.home.ctaText}</p>
+        <div className="shell relative grid gap-10 lg:grid-cols-12 lg:items-center lg:gap-8">
+          <div className="lg:col-span-6">
+            {intro}
+            <Reveal delay={0.05}>
+              <p className="t-lead mt-6 max-w-[34ch] text-fg-muted">{d.home.ctaText}</p>
             </Reveal>
-            {pane}
           </div>
+          {pane}
         </div>
       ) : (
         <div className="shell relative grid gap-10 lg:grid-cols-12 lg:items-center lg:gap-8">

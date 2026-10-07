@@ -162,17 +162,25 @@ export function excerpt(text: string, max = 240) {
 /** A text should not stop on a little word ("…χρησιμοποιήθηκαν για να…" reads as cut off): one to three letters. */
 const HANGING_WORDS = /(?:\s+\p{L}{1,3})+$/u;
 
+/** Where a bracket or a quotation is still open at the end of `text` (the last such mark), or -1. */
+function lastOpenMark(text: string) {
+  const open = [["(", ")"], ["«", "»"], ["“", "”"]].map(([o, c]) => (text.lastIndexOf(o) > text.lastIndexOf(c) ? text.lastIndexOf(o) : -1));
+  const straight = text.split('"').length % 2 === 0 ? text.lastIndexOf('"') : -1; // an odd number of straight quotes
+  return Math.max(...open, straight);
+}
+
 /**
- * `excerpt` for a hero or a card, where nothing has to continue at the cut: it also stops before a bracket that the cut
- * would leave open ("(έκδοση που…") and before the little words (up to three letters) hanging at the end, as long as
- * that keeps at least 60 % of `max`.
+ * `excerpt` for a hero or a card, where nothing has to continue at the cut: it also stops before a bracket or a quotation
+ * that the cut would leave open ("(έκδοση που…", "“Energy…") and before the little words (up to three letters) hanging
+ * at the end, as long as that keeps at least 60 % of `max`.
  */
 export function teaser(text: string, max = 240) {
   const short = excerpt(text, max);
   if (!short.endsWith("…")) return short;
   let words = short.slice(0, -1);
-  const open = words.lastIndexOf("(");
-  if (open > words.lastIndexOf(")") && open >= max * 0.6) words = words.slice(0, open).replace(/[\s,;:·–-]+$/, "");
+  for (let open = lastOpenMark(words); open >= max * 0.6; open = lastOpenMark(words)) {
+    words = words.slice(0, open).replace(/[\s,;:·–-]+$/, "");
+  }
   const trimmed = words.replace(HANGING_WORDS, "").replace(/[\s,;:·–-]+$/, "");
   return `${trimmed.length >= max * 0.6 ? trimmed : words}…`;
 }

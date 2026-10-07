@@ -36,15 +36,18 @@ export default function GlassScene({ lines, onReady, onSlow, active }: Props) {
           <Headline lines={lines} onReady={onReady} />
           <Panes />
         </Rig>
-        {/* A bright studio for the panes to reflect: a dark environment would turn them grey on a light page. */}
+        {/*
+          A bright studio for the panes to reflect. The strips are tall, like the panes: a horizontal strip showed up as a
+          faint band across a pane, a tall one lights its edge.
+        */}
         <Environment resolution={256} frames={1}>
           <mesh scale={60}>
             <sphereGeometry args={[1, 32, 16]} />
             <meshBasicMaterial color="#e9eef6" side={THREE.BackSide} />
           </mesh>
           <Lightformer form="rect" intensity={6} color="#ffffff" position={[0, 5, -3]} scale={[12, 0.4, 1]} />
-          <Lightformer form="rect" intensity={5} color="#ffffff" position={[-6, 0, 2]} rotation-y={Math.PI / 2} scale={[10, 0.25, 1]} />
-          <Lightformer form="rect" intensity={4} color="#ffffff" position={[6, -1, 2]} rotation-y={-Math.PI / 2} scale={[10, 0.25, 1]} />
+          <Lightformer form="rect" intensity={3} color="#ffffff" position={[-6, 0, 2]} rotation-y={Math.PI / 2} scale={[0.6, 12, 1]} />
+          <Lightformer form="rect" intensity={3} color="#ffffff" position={[6, 0, 2]} rotation-y={-Math.PI / 2} scale={[0.6, 12, 1]} />
           <Lightformer form="rect" intensity={1} color="#262354" position={[0, -5, 3]} rotation-x={-Math.PI / 2} scale={[14, 0.5, 1]} />
         </Environment>
       </Suspense>
@@ -178,6 +181,7 @@ function Panes() {
   // at half the canvas size (what is seen through thick glass is soft anyway).
   // Each pane rendering its own 1024² buffer used to cost four extra renders a frame.
   const buffer = useFBO(Math.max(1, Math.round(size.width * 0.5)), Math.max(1, Math.round(size.height * 0.5)));
+  const falloff = useEdgeFalloff();
   useFrame((state) => {
     const g = group.current;
     if (!g) return;
@@ -211,6 +215,7 @@ function Panes() {
           height={paneH * p.h}
           phase={p.phase}
           buffer={buffer.texture}
+          falloff={falloff}
         />
       ))}
     </group>
@@ -224,6 +229,7 @@ function Pane({
   height,
   phase,
   buffer,
+  falloff,
 }: {
   x: number;
   baseRot: number;
@@ -231,6 +237,7 @@ function Pane({
   height: number;
   phase: number;
   buffer: THREE.Texture;
+  falloff: THREE.Texture;
 }) {
   const ref = useRef<THREE.Mesh>(null);
   useFrame((state, delta) => {
@@ -244,26 +251,92 @@ function Pane({
     m.position.y = height * 0.12 + Math.sin(t * 0.5 + phase) * 0.08;
   });
 
+  const rim = useMemo(() => {
+    // The front face's outline, a hair in front of it: 1px of bright glass edge (WebGL draws every line 1px wide)
+    const hw = width / 2 - 0.02;
+    const hh = height / 2 - 0.02;
+    const z = PANE_DEPTH / 2 + 0.002;
+    return new Float32Array([-hw, -hh, z, hw, -hh, z, hw, hh, z, -hw, hh, z]);
+  }, [width, height]);
+
   return (
-    <RoundedBox ref={ref} args={[width, height, 0.14]} radius={0.035} smoothness={4} position={[x, height * 0.12, 0.6]}>
+    <RoundedBox ref={ref} args={[width, height, PANE_DEPTH]} radius={0.035} smoothness={4} position={[x, height * 0.12, 0.6]}>
+      {/*
+        Ultra-clear glass: the transmitted light is not tone-mapped (the ACES curve turned the pale page behind the pane
+        into a grey slab), the refraction is thin enough to bend the headline instead of doubling it, and the colour
+        fringe is a hair, not a ghost.
+      */}
       <MeshTransmissionMaterial
         buffer={buffer}
         resolution={16} // the material's own buffers go unused with a shared one: keep them tiny
         samples={4}
         transmission={1}
-        thickness={0.32}
+        thickness={0.14}
         roughness={0}
-        ior={1.5}
-        chromaticAberration={0.035}
+        ior={1.45}
+        chromaticAberration={0.012}
         anisotropicBlur={0}
         distortion={0}
         distortionScale={0}
         temporalDistortion={0}
-        envMapIntensity={0.55}
+        envMapIntensity={0.7}
         color="#ffffff"
-        attenuationColor="#e9effa"
-        attenuationDistance={4}
+        attenuationColor="#e8eefa"
+        attenuationDistance={3}
+        toneMapped={false}
       />
+      {/* A little cool shade toward the rim, the way thick glass darkens at its edge, and two streaks of studio light */}
+      <mesh position={[0, 0, PANE_DEPTH / 2 + 0.001]} renderOrder={2}>
+        <planeGeometry args={[width, height]} />
+        <meshBasicMaterial map={falloff} transparent depthWrite={false} toneMapped={false} />
+      </mesh>
+      <lineLoop renderOrder={3}>
+        <bufferGeometry>
+          <bufferAttribute attach="attributes-position" args={[rim, 3]} />
+        </bufferGeometry>
+        <lineBasicMaterial color="#ffffff" transparent opacity={0.95} toneMapped={false} />
+      </lineLoop>
     </RoundedBox>
   );
+}
+
+const PANE_DEPTH = 0.14;
+
+/** Clear in the middle, a faint blue-grey toward the rims, and two soft streaks of light across the face. */
+function useEdgeFalloff() {
+  return useMemo(() => {
+    const w = 128;
+    const h = 512;
+    const c = document.createElement("canvas");
+    c.width = w;
+    c.height = h;
+    const ctx = c.getContext("2d")!;
+    const sides = ctx.createLinearGradient(0, 0, w, 0);
+    sides.addColorStop(0, "rgba(146, 168, 204, 0.42)");
+    sides.addColorStop(0.08, "rgba(146, 168, 204, 0.16)");
+    sides.addColorStop(0.5, "rgba(146, 168, 204, 0)");
+    sides.addColorStop(0.92, "rgba(146, 168, 204, 0.16)");
+    sides.addColorStop(1, "rgba(146, 168, 204, 0.42)");
+    ctx.fillStyle = sides;
+    ctx.fillRect(0, 0, w, h);
+    const ends = ctx.createLinearGradient(0, 0, 0, h);
+    ends.addColorStop(0, "rgba(146, 168, 204, 0.3)");
+    ends.addColorStop(0.05, "rgba(146, 168, 204, 0)");
+    ends.addColorStop(0.95, "rgba(146, 168, 204, 0)");
+    ends.addColorStop(1, "rgba(146, 168, 204, 0.3)");
+    ctx.fillStyle = ends;
+    ctx.fillRect(0, 0, w, h);
+    const streak = ctx.createLinearGradient(0, 0, w * 1.6, h * 0.7);
+    streak.addColorStop(0.2, "rgba(255, 255, 255, 0)");
+    streak.addColorStop(0.3, "rgba(255, 255, 255, 0.3)");
+    streak.addColorStop(0.38, "rgba(255, 255, 255, 0)");
+    streak.addColorStop(0.5, "rgba(255, 255, 255, 0)");
+    streak.addColorStop(0.55, "rgba(255, 255, 255, 0.14)");
+    streak.addColorStop(0.6, "rgba(255, 255, 255, 0)");
+    ctx.fillStyle = streak;
+    ctx.fillRect(0, 0, w, h);
+    const t = new THREE.CanvasTexture(c);
+    t.colorSpace = THREE.SRGBColorSpace;
+    return t;
+  }, []);
 }

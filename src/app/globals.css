@@ -893,10 +893,16 @@ img {
   }
 }
 
+/*
+ * Every view timeline is measured against the whole viewport (`view-timeline-inset: 0`). By default the inset is the
+ * scroller's `scroll-padding` (the header's height, set on `html` for anchor links), and a pinned scene would already be
+ * that far into its animation when it reaches the top of the screen: the history strip started slid to the left.
+ */
 @supports (animation-timeline: view()) {
   @media (prefers-reduced-motion: no-preference) {
     .hero {
       view-timeline: --hero block;
+      view-timeline-inset: 0;
     }
     /* As the hero scrolls away, the fanned panes close into a wall of glass */
     .hero-pane {
@@ -913,6 +919,7 @@ img {
 
     .manifesto {
       view-timeline: --manifesto block;
+      view-timeline-inset: 0;
     }
     .manifesto-word {
       animation: word-light linear both;
@@ -923,6 +930,7 @@ img {
     .fac-track {
       height: 240svh;
       view-timeline: --fac block;
+      view-timeline-inset: 0;
     }
     @media (max-width: 63.99rem) {
       .fac-track {
@@ -937,42 +945,43 @@ img {
       display: block;
       animation: fac-open linear both;
       animation-timeline: --fac;
-      animation-range: contain 0% contain 55%;
+      animation-range: contain 0% contain 50%;
     }
     .fac-zoom {
       animation: fac-zoom linear both;
       animation-timeline: --fac;
-      animation-range: contain 0% contain 60%;
+      animation-range: contain 0% contain 55%;
     }
     .fac-pane {
       animation: fac-pane linear both;
       animation-timeline: --fac;
-      animation-range: contain 42% contain 72%;
+      animation-range: contain 36% contain 64%;
     }
     .fac-glare {
       animation: fac-glare linear both;
       animation-timeline: --fac;
-      animation-range: contain 42% contain 100%;
+      animation-range: contain 36% contain 100%;
     }
     .fac-shade {
       animation: fac-fade-in linear both;
       animation-timeline: --fac;
-      animation-range: contain 50% contain 72%;
+      animation-range: contain 44% contain 64%;
     }
     .fac-copy {
       animation: fac-copy linear both;
       animation-timeline: --fac;
-      animation-range: contain 58% contain 76%;
+      animation-range: contain 50% contain 66%;
     }
     .fac-head {
       animation: fac-head linear both;
       animation-timeline: --fac;
-      animation-range: contain 0% contain 25%;
+      animation-range: contain 0% contain 22%;
     }
 
     .hist-track {
       height: calc(100svh + var(--hist-distance) / var(--hist-speed));
       view-timeline: --hist block;
+      view-timeline-inset: 0;
     }
     .hist-stage {
       position: sticky;
