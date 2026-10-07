@@ -946,7 +946,38 @@ export async function collect(opts) {
       prev = h.level;
     }
     if (list.length && list[0].level !== 1) skips.unshift({ from: 0, to: list[0].level, text: list[0].text, sel: list[0].sel, where: list[0].where });
-    out.headings = { h1Visible: h1s.filter((h) => h.visible).length, h1Total: h1s.length, h1: h1s.slice(0, 6), count: list.length, skips: skips.slice(0, 20), all: list.slice(0, 60) };
+    // A title set in several blocks (the masked lines of a headline) must keep a space between them in its text:
+    // "Μιλήστε" and "μαζί μας" side by side must not read "Μιλήστεμαζί μας" for copy and paste, search snippets and screen readers.
+    // Two text runs in different blocks that touch (a letter or digit on both sides, no white space between) are reported.
+    const glued = [];
+    for (const h of hs) {
+      const blockOf = (node) => {
+        for (let el = node.parentElement; el && el !== h; el = el.parentElement) {
+          const d = cs(el).display;
+          if (d !== "inline" && d !== "contents") return el;
+        }
+        return h;
+      };
+      const joins = [];
+      let prev = null;
+      const tw = doc.createTreeWalker(h, NodeFilter.SHOW_TEXT);
+      for (let n = tw.nextNode(); n; n = tw.nextNode()) {
+        const el = n.parentElement;
+        if (!n.nodeValue.length || !el || !isRendered(el) || ariaHidden(el)) continue;
+        if (prev) {
+          const a = prev.nodeValue.slice(-1);
+          const b = n.nodeValue[0];
+          if (/[\p{L}\p{N}]/u.test(a) && /[\p{L}\p{N}]/u.test(b) && blockOf(prev) !== blockOf(n)) {
+            const before = prev.nodeValue.trimEnd().split(/\s+/).pop();
+            const after = n.nodeValue.trimStart().split(/\s+/)[0];
+            joins.push({ before: clip(before, 24), after: clip(after, 24), joined: before + after, caseJoin: /\p{Ll}/u.test(a) && /\p{Lu}/u.test(b) });
+          }
+        }
+        prev = n;
+      }
+      if (joins.length) glued.push({ level: Number(h.tagName[1]), text: clip(h.textContent, 60), sel: selOf(h), where: whereOf(h), joins: joins.slice(0, 4) });
+    }
+    out.headings = { h1Visible: h1s.filter((h) => h.visible).length, h1Total: h1s.length, h1: h1s.slice(0, 6), count: list.length, skips: skips.slice(0, 20), glued: glued.slice(0, 20), all: list.slice(0, 60) };
   }
 
   /* ---------- structure: landmarks, language, a way out ---------- */

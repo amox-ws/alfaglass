@@ -44,20 +44,8 @@ export function GroupView({ lang, group }: { lang: Lang; group: Group }) {
         }
       />
 
-      {rest && stripHtml(rest).length > 40 && (
-        <section data-theme="mist" className="bg-surface section-y">
-          <div className="shell grid gap-10 md:grid-cols-12">
-            <div className="md:col-span-4">
-              <Eyebrow>{d.common.about}</Eyebrow>
-            </div>
-            <Reveal className="md:col-span-7 md:col-start-6">
-              <Prose html={rest} />
-            </Reveal>
-          </div>
-        </section>
-      )}
-
-      <section data-theme="frost" className="bg-surface section-y">
+      {/* The list comes right after the hero (the buyer is here to find a product); the essay follows it */}
+      <section data-theme="mist" className="bg-surface section-y">
         <div className="shell">
           <div className="mb-12 flex items-baseline justify-between border-b border-line pb-6 md:mb-16">
             <h2 className="t-h2">{flat ? d.common.materials : d.common.categories}</h2>
@@ -79,6 +67,19 @@ export function GroupView({ lang, group }: { lang: Lang; group: Group }) {
           )}
         </div>
       </section>
+
+      {rest && stripHtml(rest).length > 40 && (
+        <section data-theme="frost" className="bg-surface section-y">
+          <div className="shell grid gap-10 md:grid-cols-12">
+            <div className="md:col-span-4">
+              <Eyebrow>{d.common.about}</Eyebrow>
+            </div>
+            <Reveal className="md:col-span-7 md:col-start-6">
+              <Prose html={rest} />
+            </Reveal>
+          </div>
+        </section>
+      )}
       <Cta lang={lang} />
     </>
   );
@@ -96,6 +97,7 @@ export function CategoryView({ lang, category }: { lang: Lang; category: Categor
   const full = (category.summary || introText).replace(/\s+/g, " ").trim();
   const lead = excerpt(full, 280);
   const rest = full.slice(lead.replace(/…$/, "").length).trim();
+  const hasAbout = rest.length > 60;
 
   return (
     <>
@@ -116,8 +118,19 @@ export function CategoryView({ lang, category }: { lang: Lang; category: Categor
         }
       />
 
-      {rest.length > 60 && (
-        <section data-theme="frost" className="bg-surface pt-[clamp(5rem,9vw,8rem)]">
+      {/* The products come right after the hero; the essay and the sibling categories follow, on alternating surfaces */}
+      <section data-theme="frost" className="bg-surface section-y">
+        <div className="shell">
+          <div className="mb-12 flex items-baseline justify-between border-b border-line pb-6 md:mb-16">
+            <h2 className="t-h2">{d.common.products}</h2>
+            <span className="t-label text-fg-muted tabular">{items.length}</span>
+          </div>
+          <ProductGrid lang={lang} items={items} />
+        </div>
+      </section>
+
+      {hasAbout && (
+        <section data-theme="mist" className="bg-surface section-y">
           <div className="shell grid gap-10 md:grid-cols-12">
             <div className="md:col-span-4">
               <Eyebrow>{d.common.about}</Eyebrow>
@@ -129,18 +142,8 @@ export function CategoryView({ lang, category }: { lang: Lang; category: Categor
         </section>
       )}
 
-      <section data-theme="frost" className="bg-surface section-y">
-        <div className="shell">
-          <div className="mb-12 flex items-baseline justify-between border-b border-line pb-6 md:mb-16">
-            <h2 className="t-h2">{d.common.products}</h2>
-            <span className="t-label text-fg-muted tabular">{items.length}</span>
-          </div>
-          <ProductGrid lang={lang} items={items} />
-        </div>
-      </section>
-
       {siblings.length > 0 && (
-        <section data-theme="mist" className="bg-surface section-y">
+        <section data-theme={hasAbout ? "frost" : "mist"} className="bg-surface section-y">
           <div className="shell">
             <div className="mb-12 flex items-end justify-between gap-6">
               <MaskedLines as="h2" lines={[d.common.otherCategories]} className="t-h2" />

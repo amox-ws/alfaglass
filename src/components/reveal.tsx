@@ -1,6 +1,6 @@
 "use client";
 
-import { createElement, useEffect, useRef, type CSSProperties, type ReactNode } from "react";
+import { createElement, Fragment, useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 
 export const ease = [0.22, 1, 0.36, 1] as const;
 
@@ -84,6 +84,8 @@ function keepHyphenated(line: string): ReactNode {
  * of its mask. Several lines are for headings that are broken by design, such as the big home titles.
  * `eager` is for headings in the first screen: the entrance is a CSS animation that starts with the first paint
  * and needs no JavaScript. Otherwise the lines rise when the heading scrolls into view.
+ * The lines are blocks stacked in a grid, so the white space between them is not rendered and changes no layout;
+ * it is what keeps the words apart in the text of the heading (copy and paste, search snippets, screen readers).
  */
 export function MaskedLines({
   lines,
@@ -109,9 +111,12 @@ export function MaskedLines({
       style={{ "--rv-delay": `${delay}s` } as CSSProperties}
     >
       {lines.map((line, i) => (
-        <span key={i} className="mask-line">
-          <span style={{ "--i": i } as CSSProperties}>{keepHyphenated(line)}</span>
-        </span>
+        <Fragment key={i}>
+          {i > 0 && " "}
+          <span className="mask-line">
+            <span style={{ "--i": i } as CSSProperties}>{keepHyphenated(line)}</span>
+          </span>
+        </Fragment>
       ))}
     </Tag>
   );

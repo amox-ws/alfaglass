@@ -66,21 +66,19 @@ const STRIP_MIN_WIDTH = 1328;
 const STRIP_ASPECT = 21 / 8;
 /** On phones a photo is 16:10; only a panorama (wider than 2:1) keeps its own proportion. */
 const PHONE_ASPECT = 16 / 10;
-/** The lead of a compact hero from lg: about two lines in the narrowest side layout, ended at a word. */
+/** The lead of a compact hero, at every width: two or three lines, ended at a word or a sentence ("…" added), never cut inside a word. */
 const COMPACT_LEAD_MAX = 100;
 
 /**
- * A lead in two parts: its start (at most `max` characters, ended at a word or a sentence) and the rest.
- * A compact hero shows the whole lead below lg and only the start from lg ("…" added when the start ends in the
- * middle of a sentence), so the text is never cut inside a word the way a CSS line clamp does when the last line is full.
+ * The start of a lead: `excerpt`, without a little word left hanging before the "…" ("…χρησιμοποιήθηκαν για να…" reads as
+ * cut off, "…χρησιμοποιήθηκαν…" does not). The hero only teases the text, so nothing has to continue where it stops.
  */
-function splitLead(lead: string, max: number) {
-  const text = lead.replace(/\s+/g, " ").trim();
-  const short = excerpt(text, max);
-  if (short === text) return { head: text, tail: "", ellipsis: false };
-  const ellipsis = short.endsWith("…");
-  const head = ellipsis ? short.slice(0, -1) : short;
-  return { head, tail: text.slice(head.length), ellipsis };
+function leadStart(lead: string, max: number) {
+  const short = excerpt(lead, max);
+  if (!short.endsWith("…")) return short;
+  const text = short.slice(0, -1);
+  const trimmed = text.replace(/(?:\s+\p{L}{1,3})+$/u, "");
+  return `${trimmed.length >= max * 0.6 ? trimmed : text}…`;
 }
 
 /**
@@ -91,9 +89,10 @@ function splitLead(lead: string, max: number) {
  *
  * The photo never shows larger than its source: a wide photo runs full width as a strip (a panorama as a wider strip,
  * on phones too), a narrower one sits beside the title at lg and above, at most as wide as the file. `compact`
- * (catalogue pages) always uses the side layout, caps the photo at 40svh, shows only the start of the lead from lg
- * (two lines at most; the full text belongs in the page's "about" section) and keeps the space below short, so the
- * first list items stay above the fold.
+ * (catalogue pages) always uses the side layout, shows only the start of the lead at every width (two or three lines;
+ * the full text belongs in the page's "about" section), puts a 16:9 photo capped at 30svh after the meta on phones
+ * and tablets (40svh beside the text from lg) and keeps the space below short, so the first list items stay above
+ * the fold at 1440 × 900 and come within about 1.3 screens at 390 × 844 (measured: 0.9 to 1.15).
  *
  * A hero without a strip photo (bare, or compact) ends one half block gap below its text and the section after it
  * starts one half block gap further down (`.page-hero-tight`, globals.css): the title and the first text are 64px
@@ -127,7 +126,7 @@ export function PageHero({
   const stripAspect = Math.max(STRIP_ASPECT, ratio ?? 0);
   const phoneAspect = ratio !== null && ratio > 2 ? ratio : PHONE_ASPECT;
   const long = title.length > LONG_TITLE;
-  const leadParts = lead ? (compact ? splitLead(lead, COMPACT_LEAD_MAX) : { head: lead, tail: "", ellipsis: false }) : null;
+  const leadText = lead ? (compact ? leadStart(lead, COMPACT_LEAD_MAX) : lead) : null;
 
   const text = (
     <>
@@ -137,18 +136,9 @@ export function PageHero({
       <MaskedLines as="h1" eager lines={[title]} className={`mt-5 ${long ? "t-h1 max-w-[30ch]" : "t-display max-w-[18ch]"}`} />
       {(lead || meta) && (
         <div className={side ? "" : "mt-6 grid gap-8 lg:grid-cols-12"}>
-          {leadParts && (
-            <p
-              className={`hero-rise t-lead max-w-[60ch] text-fg-muted ${compact ? "lg:line-clamp-2" : ""} ${side ? "mt-6" : "lg:col-span-6"}`}
-              style={{ animationDelay: "0.25s" }}
-            >
-              {leadParts.head}
-              {leadParts.tail && <span className="lg:hidden">{leadParts.tail}</span>}
-              {leadParts.tail && leadParts.ellipsis && (
-                <span aria-hidden className="hidden lg:inline">
-                  …
-                </span>
-              )}
+          {leadText && (
+            <p className={`hero-rise t-lead max-w-[60ch] text-fg-muted ${side ? "mt-6" : "lg:col-span-6"}`} style={{ animationDelay: "0.25s" }}>
+              {leadText}
             </p>
           )}
           {meta && (
@@ -174,11 +164,11 @@ export function PageHero({
       <div aria-hidden className="hero-glow pointer-events-none absolute inset-x-0 top-0 h-[70%]" />
       <div className="shell relative">
         {image && side ? (
-          <div className="grid gap-12 lg:grid-cols-12 lg:items-start lg:gap-8">
+          <div className={`grid lg:grid-cols-12 lg:items-start lg:gap-8 ${compact ? "gap-8" : "gap-12"}`}>
             <div className="lg:col-span-7">{text}</div>
             <div className="lg:col-span-5">
               <div
-                className={`relative aspect-[4/3] overflow-hidden rounded-sm bg-surface-2 ${compact ? "max-h-[40svh]" : "lg:max-h-[40svh]"}`}
+                className={`relative overflow-hidden rounded-sm bg-surface-2 ${compact ? "aspect-video max-h-[30svh] w-full lg:aspect-[4/3] lg:max-h-[40svh] lg:w-auto" : "aspect-[4/3] lg:max-h-[40svh]"}`}
                 style={size ? { maxWidth: size.w } : undefined}
               >
                 <Image src={image} alt={imageAlt} fill priority sizes="(min-width: 1024px) 40vw, 100vw" className="img-settle object-cover" />

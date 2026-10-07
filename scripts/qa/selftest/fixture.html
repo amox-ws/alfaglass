@@ -79,6 +79,8 @@
       <p id="ok-running">Some running text with an <a href="#top" style="font-size:12px">inline link</a> inside the sentence.</p>
       <div id="ok-glass" style="position:relative;padding:12px 16px;background:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,0) 46%),rgba(250,251,253,.4);backdrop-filter:blur(10px)"><p style="margin:0">Text on a frosted glass panel</p></div>
       <div style="position:relative;height:60px;margin-top:12px"><canvas aria-hidden="true" width="300" height="60" style="position:absolute;inset:0;width:100%;height:60px"></canvas><p id="ok-canvas" style="position:relative;margin:0;padding-top:14px">Text over a canvas scene</p></div>
+      <h2 id="ok-masked" style="display:grid"><span style="display:block;overflow:hidden"><span style="display:block">Speak</span></span> <span style="display:block;overflow:hidden"><span style="display:block">with us</span></span></h2>
+      <h2 id="ok-hyphen"><span style="white-space:nowrap">SAINT-</span><span style="white-space:nowrap">GOBAIN</span> glass</h2>
       <p><span lang="el" id="ok-lang">ΕΛ</span> <img id="ok-decorative" src="/ok.svg" alt="" width="24" height="24"></p>
       <address id="ok-address">Θέση Κύριλλος, Ασπρόπυργος</address>
     </div>
@@ -102,6 +104,8 @@
       <p class="greek" data-n="3" id="greek-3">Υαλοπίνακες ασφαλείας</p>
       <p class="greek" data-n="4" id="greek-4">Πλαστικά φύλλα</p>
       <h1 id="extra-h1" data-extra="1">A second h1</h1>
+      <h2 id="bad-glue-1" data-glue="1" style="display:grid"><span style="display:block;overflow:hidden"><span style="display:block">Speak</span></span><span style="display:block;overflow:hidden"><span style="display:block">with us</span></span></h2>
+      <h2 id="bad-glue-2" data-glue="1" style="display:grid"><span style="display:block;overflow:hidden"><span style="display:block">Clear glass</span></span><span style="display:block;overflow:hidden"><span style="display:block">Panes</span></span></h2>
     </div>
   </section>
 </main>
@@ -111,6 +115,16 @@
   const greek = Number(q.get("greek") ?? 4);
   document.querySelectorAll(".greek").forEach((el) => { if (Number(el.dataset.n) > greek) el.remove(); });
   if (!q.has("h1")) document.querySelector("[data-extra]").remove();
+  if (!q.has("glue")) document.querySelectorAll("[data-glue]").forEach((el) => el.remove());
+  if (q.has("tall")) {
+    // twelve thousand css px in six bands of one colour each: a screenshot that wraps shows the wrong colour at the bottom
+    document.querySelectorAll("header, main, footer, a.sr-only").forEach((el) => el.remove());
+    const colors = ["#ff0000", "#00ff00", "#0000ff", "#ffff00", "#ff00ff", "#00ffff"];
+    const tall = document.createElement("div");
+    tall.id = "tall";
+    tall.innerHTML = colors.map((c) => `<div style="height:2000px;background:${c}"></div>`).join("");
+    document.body.appendChild(tall);
+  }
   if (q.has("quiet")) { /* no console noise */ } else {
     console.error("qa-selftest console error");
     setTimeout(() => { throw new Error("qa-selftest exception"); }, 30);

@@ -464,7 +464,8 @@ async function main() {
     console.log(`[qa] perf: ${gated.length} pages × ${opts.perfRuns} run${opts.perfRuns > 1 ? "s" : ""}, a fresh Chrome per run (mobile profile, 4x CPU, slow network) …`);
     perfResults = await runPerf(server.url, gated, {
       runs: opts.perfRuns,
-      onRun: (id, i, n, r) => console.log(`[qa] perf ${id.padEnd(20)} run ${i}/${n} ${r.error ? "ERROR " + r.error : `LCP ${r.lcp} ms, TBT ${r.tbt} ms, frames>50ms ${r.scroll ? r.scroll.over50 : 0}`}`),
+      onRun: (id, i, n, r) => console.log(`[qa] perf ${id.padEnd(20)} run ${i}/${n} ${r.error ? "ERROR " + r.error : `LCP ${r.lcp} ms, TBT ${r.tbt} ms, frames>50ms ${r.scroll ? r.scroll.over50 : 0}, load ${r.load1}`}`),
+      onRerun: (id, why) => console.log(`[qa] perf ${id.padEnd(20)} not trustworthy (${why.join("; ")}): measuring again with 5 runs`),
     });
     for (const e of perfResults) e.gate = evaluatePerf(e);
   }

@@ -5,6 +5,7 @@ import { writeFileSync } from "node:fs";
 import path from "node:path";
 import { sleep } from "./lifecycle.mjs";
 import { collect, findScenes, freezeInfinite, hideText, setResting, settleHero, settlePage, walkPage } from "./inpage.mjs";
+import { stitchVertical } from "./png.mjs";
 
 export const VIEWPORTS = {
   mobile: { name: "mobile", width: 390, height: 844, dpr: 2, mobile: true, touch: true },
@@ -12,6 +13,24 @@ export const VIEWPORTS = {
   desktop: { name: "desktop", width: 1440, height: 900, dpr: 1, mobile: false, touch: false },
 };
 export const REDUCED = { ...VIEWPORTS.desktop, name: "desktop-rm", reducedMotion: true };
+
+/**
+ * Chrome draws a screenshot into one texture of at most 16384 device pixels: a taller capture wraps (at dpr 2 the header
+ * and the hero show up again from about 8192 css px, and the bottom of the page is never seen). Pages taller than
+ * this are shot in tiles and joined into one PNG, so everything downstream (contact sheets, diffs, pixel sampling) can
+ * treat the page as one image at the viewport's own resolution.
+ */
+export const MAX_TILE_DEVICE_PX = 16000;
+
+/** The whole page (css px: width × height) as one PNG; returns { png, tiles }. */
+export async function shootFullPage(page, { width, height, dpr }) {
+  const tile = Math.max(1000, Math.floor(MAX_TILE_DEVICE_PX / dpr));
+  const shoot = (y, h) => page.screenshot({ format: "png", captureBeyondViewport: true, clip: { x: 0, y, width, height: h, scale: 1 } });
+  if (height <= tile) return { png: await shoot(0, height), tiles: 1 };
+  const parts = [];
+  for (let y = 0; y < height; y += tile) parts.push(await shoot(y, Math.min(tile, height - y)));
+  return { png: stitchVertical(parts), tiles: parts.length };
+}
 
 const argText = (args = []) =>
   args
@@ -86,9 +105,9 @@ export async function runLoad(browser, opts) {
       const fold = await page.screenshot({ format: "png" });
       writeFileSync(`${base}-fold.png`, fold);
       const docH = await page.eval("document.documentElement.scrollHeight");
-      const full = await page.screenshot({ format: "png", captureBeyondViewport: true, clip: { x: 0, y: 0, width: vp.width, height: docH, scale: 1 } });
-      writeFileSync(`${base}.png`, full);
-      result.shots = { fold: `${def.id}-${vp.name}-fold.png`, full: `${def.id}-${vp.name}.png`, width: vp.width, height: docH, dpr: vp.dpr, viewportHeight: vp.height, scenes: [] };
+      const full = await shootFullPage(page, { width: vp.width, height: docH, dpr: vp.dpr });
+      writeFileSync(`${base}.png`, full.png);
+      result.shots = { fold: `${def.id}-${vp.name}-fold.png`, full: `${def.id}-${vp.name}.png`, width: vp.width, height: docH, dpr: vp.dpr, viewportHeight: vp.height, tiles: full.tiles, scenes: [] };
       // Pinned scroll scenes show a blank track in a full-page shot: shoot each one at 0, 33, 66 and 100% of its track.
       if (opts.scenes !== false && (vp.name === "mobile" || vp.name === "desktop")) {
         const scenes = await page.call(findScenes);
@@ -126,9 +145,9 @@ export async function runLoad(browser, opts) {
           await page.call(hideText, true);
           await sleep(150);
           const docH2 = await page.eval("document.documentElement.scrollHeight");
-          const bg = await page.screenshot({ format: "png", captureBeyondViewport: true, clip: { x: 0, y: 0, width: vp.width, height: docH2, scale: 1 } });
+          const bg = await shootFullPage(page, { width: vp.width, height: docH2, dpr: vp.dpr });
           const bgName = `${def.id}-${vp.name}.bg.png`;
-          writeFileSync(path.join(opts.shotsDir, bgName), bg);
+          writeFileSync(path.join(opts.shotsDir, bgName), bg.png);
           result.sampleFile = bgName;
           await page.call(hideText, false);
         }

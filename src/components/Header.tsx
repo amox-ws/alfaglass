@@ -316,13 +316,16 @@ export function Header({ data }: { data: HeaderData }) {
               lang={otherLang}
               aria-label={d.switchTo}
               title={d.switchTo}
-              className={`t-label relative flex h-11 items-center rounded-full px-3.5 transition-colors hover:text-accent ${control}`}
+              className={`t-label group relative flex h-11 items-center rounded-full px-3.5 ${control}`}
             >
-              <span aria-hidden className="text-fg-muted">
+              {/* The language you are reading is the strong one; the other is the link to it */}
+              <span aria-hidden className="font-semibold text-fg">
                 {lang === "el" ? "ΕΛ" : "EN"}
               </span>
               <span aria-hidden className="mx-1.5 h-3 w-px bg-line-strong" />
-              <span>{lang === "el" ? "EN" : "ΕΛ"}</span>
+              <span className="font-medium text-fg-muted transition-colors group-hover:text-accent group-focus-visible:text-accent">
+                {lang === "el" ? "EN" : "ΕΛ"}
+              </span>
             </Link>
             <button
               ref={burger}

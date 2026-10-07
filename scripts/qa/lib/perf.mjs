@@ -2,17 +2,23 @@
 // LCP and TBT after load, then a synthesized touch scroll of the whole page at 2000 px/s while every frame is timed.
 // One fresh Chrome per run, run one after the other so measurements do not compete for the CPU.
 // With --perf-runs N every page is measured N times and the gate uses the MEDIAN, because this machine is noisy.
+// When the machine was busy or a page's runs are far apart, that page is measured again with 5 runs (see noiseReasons)
+// and the gate uses the median of those; a limit that is still missed by a median whose best run is within it, on a
+// machine that stays noisy, is reported as "noisy" (a warning), not as a failure of the page.
 
 import os from "node:os";
 import { Browser } from "./cdp.mjs";
 import { sleep } from "./lifecycle.mjs";
 
 export const PERF_LIMITS = { lcp: 2500, tbt: 200, slowFrames: 2, slowFrameMs: 50 };
+/** A page whose measurements cannot be trusted is measured again with this many runs. */
+export const PERF_RERUN_RUNS = 5;
 const VIEWPORT_H = 823;
 
 const LONGTASKS = "window.__lt=[];try{new PerformanceObserver(l=>{for(const e of l.getEntries())window.__lt.push([e.startTime,e.duration])}).observe({type:'longtask'})}catch(e){}";
 
 async function measureOnce(baseUrl, def, { settle = 6000 } = {}) {
+  const load0 = os.loadavg()[0];
   const browser = await Browser.launch({ label: "qa-perf" });
   try {
     const page = await browser.newPage();
@@ -64,7 +70,8 @@ async function measureOnce(baseUrl, def, { settle = 6000 } = {}) {
           slowFrames: window.__fy.slice(1).filter(([, d]) => d > 50).slice(0, 300).map(([t, d, y]) => ({ t, ms: Math.round(d), y: Math.round(y), section: at(y) })) };
       })()`);
     }
-    return { ...load, docH, viewportH: VIEWPORT_H, scroll, load1: Math.round(os.loadavg()[0] * 10) / 10 };
+    // the 1-minute load average at the start and at the end of the run: the higher one counts
+    return { ...load, docH, viewportH: VIEWPORT_H, scroll, load1: Math.round(Math.max(load0, os.loadavg()[0]) * 10) / 10 };
   } finally {
     await browser.close();
   }
@@ -132,8 +139,28 @@ export function describePattern(p) {
   return `${p.total} slow frames, ${p.fromPct}–${p.toPct}% of the page`;
 }
 
+/**
+ * Why the runs of one page cannot be trusted as they are (an empty list when they can):
+ * the machine was busy (1-minute load average above half of its cores), or the slowest run of TBT or LCP took more than
+ * twice as long as the fastest (one outlier decides a median of three).
+ */
+export function noiseReasons(runs, cpus = os.cpus().length) {
+  const ok = runs.filter((r) => !r.error);
+  const reasons = [];
+  const load = Math.max(0, ...ok.map((r) => r.load1 ?? 0));
+  if (load > cpus / 2) reasons.push(`load average ${load} on ${cpus} cores (more than half of them busy)`);
+  for (const [name, key, floor] of [["TBT", "tbt", 25], ["LCP", "lcp", 200]]) {
+    const v = ok.map((r) => r[key]).filter((x) => x != null && Number.isFinite(x));
+    if (v.length < 2) continue;
+    const lo = Math.min(...v);
+    const hi = Math.max(...v);
+    if (hi > 2 * Math.max(lo, floor)) reasons.push(`${name} ${lo}–${hi} ms: the slowest run took more than twice as long as the fastest`);
+  }
+  return reasons;
+}
+
 /** Medians and ranges over the runs of one page. */
-export function summarizeRuns(pageId, runs) {
+export function summarizeRuns(pageId, runs, cpus) {
   const ok = runs.filter((r) => !r.error);
   const pick = (fn) => ok.map(fn);
   const median$ = {
@@ -152,27 +179,43 @@ export function summarizeRuns(pageId, runs) {
     lcpEl: (ok.find((r) => r.lcpEl) || {}).lcpEl || null,
     loadAverage: ok.length ? [Math.min(...ok.map((r) => r.load1)), Math.max(...ok.map((r) => r.load1))] : null,
     pattern: slowFramePattern(ok),
+    noise: noiseReasons(ok, cpus),
     errors: runs.filter((r) => r.error).map((r) => r.error),
     runs,
   };
 }
 
-/** Runs the pages one at a time, `runs` times each. onResult(summary) is called after each page. */
-export async function runPerf(baseUrl, pages, { runs = 1, onRun, onResult } = {}) {
+/**
+ * Runs the pages one at a time, `runs` times each. A page whose runs cannot be trusted (see noiseReasons) is measured
+ * again with PERF_RERUN_RUNS runs, and its result is the median of those; the first runs stay in `rerun.first`.
+ * onResult(summary) is called after each page. `measure` and `cpus` exist for the self-test.
+ */
+export async function runPerf(baseUrl, pages, { runs = 1, onRun, onRerun, onResult, measure = measureOnce, cpus } = {}) {
   const results = [];
-  for (const def of pages) {
+  const series = async (def, n) => {
     const list = [];
-    for (let i = 0; i < runs; i++) {
+    for (let i = 0; i < n; i++) {
       let res;
       try {
-        res = await measureOnce(baseUrl, def);
+        res = await measure(baseUrl, def);
       } catch (err) {
         res = { error: String(err.message || err) };
       }
       list.push(res);
-      if (onRun) onRun(def.id, i + 1, runs, res);
+      if (onRun) onRun(def.id, i + 1, n, res);
     }
-    const summary = summarizeRuns(def.id, list);
+    return list;
+  };
+  for (const def of pages) {
+    const first = await series(def, runs);
+    let summary = summarizeRuns(def.id, first, cpus);
+    if (summary.noise.length && runs < PERF_RERUN_RUNS) {
+      if (onRerun) onRerun(def.id, summary.noise);
+      const again = await series(def, PERF_RERUN_RUNS);
+      const second = summarizeRuns(def.id, again, cpus);
+      second.rerun = { reasons: summary.noise, firstRunCount: first.length, first: { median: summary.median, range: summary.range, runs: first } };
+      summary = second;
+    }
     results.push(summary);
     if (onResult) onResult(summary);
   }

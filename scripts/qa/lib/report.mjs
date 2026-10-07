@@ -169,6 +169,7 @@ function buildSummaryOnce(ctx) {
         const unk = Object.values(c.stats || {}).reduce((n, s) => Math.max(n, (s && s.unknown) || 0), 0);
         if (unk) t += ` ?${unk}`;
       }
+      if (g === "perf" && c && c.stats.mobile && c.stats.mobile.reran) t += " (reran)";
       if (g === "perf" && c && c.stats.mobile && c.stats.mobile.noisy) t += " (noisy)";
       return t;
     });
@@ -286,8 +287,8 @@ function buildSummaryOnce(ctx) {
   L();
 
   if (perfResults && perfResults.length) {
-    const n = perfResults[0].runCount;
-    L(`## Performance (mobile profile, 4x CPU, slow network; ${n} run${n > 1 ? "s" : ""} per page; the gate uses the median, min–max in brackets)`);
+    const n = options.perfRuns || perfResults[0].runCount;
+    L(`## Performance (mobile profile, 4x CPU, slow network; ${n} run${n > 1 ? "s" : ""} per page, 5 when the first runs were noisy; the gate uses the median, min–max in brackets)`);
     L("| page | LCP ms | TBT ms | frames > 50 ms | worst frame ms | where the slow frames are |");
     L("|---|---|---|---|---|---|");
     for (const p of perfResults) {
@@ -297,6 +298,13 @@ function buildSummaryOnce(ctx) {
       }
       L(`| ${p.pageId} | ${rangeText(p.median.lcp, p.range.lcp)} | ${rangeText(p.median.tbt, p.range.tbt)} | ${rangeText(p.median.over50, p.range.over50)} | ${rangeText(p.median.maxFrame, p.range.maxFrame)} | ${trunc(describePattern(p.pattern), 120)} |`);
     }
+    for (const p of perfResults) {
+      if (!p.rerun) continue;
+      const f = p.rerun.first;
+      L(`- ${p.pageId}: the first ${p.rerun.firstRunCount} runs could not be trusted (${p.rerun.reasons.join("; ")}${f.median ? `; median LCP ${rangeText(f.median.lcp, f.range.lcp)}, TBT ${rangeText(f.median.tbt, f.range.tbt)}` : ""}); measured again with ${p.runCount} runs, and the table shows those`);
+    }
+    const noisyPages = perfResults.filter((p) => p.gate && p.gate.stats && p.gate.stats.noisy);
+    if (noisyPages.length) L(`- noisy (a warning, not a failure): ${noisyPages.map((p) => p.pageId).join(", ")}: the machine was too busy to say whether the page is slow; see the perf items in report.json and repeat on an idle machine`);
     const loads1 = perfResults.filter((p) => p.loadAverage).flatMap((p) => p.loadAverage);
     if (loads1.length) {
       const cpus = ctx.cpus || 1;

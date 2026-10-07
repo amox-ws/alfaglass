@@ -12,8 +12,9 @@ import { Browser } from "./lib/cdp.mjs";
 import { applyContrastSamples, evaluateLoad, evaluatePerf } from "./lib/gates.mjs";
 import { diffShots, planSheets, startFileServer, writeSheets } from "./lib/compose.mjs";
 import { findScenes } from "./lib/inpage.mjs";
-import { REDUCED, VIEWPORTS, runLoad } from "./lib/load.mjs";
-import { slowFramePattern, summarizeRuns } from "./lib/perf.mjs";
+import { REDUCED, VIEWPORTS, runLoad, shootFullPage } from "./lib/load.mjs";
+import { noiseReasons, runPerf, slowFramePattern, summarizeRuns } from "./lib/perf.mjs";
+import { decodePng, encodePng, stitchVertical } from "./lib/png.mjs";
 
 const HERE = path.dirname(fileURLToPath(import.meta.url));
 const results = [];
@@ -78,6 +79,11 @@ try {
   check("untranslated: two Greek elements only warn", gate(variant, "untranslated").status === "warn");
   check("headings: two visible h1 fail", gate(variant, "headings").status === "fail" && /2 visible h1/.test(gate(variant, "headings").items[0].value), JSON.stringify(gate(variant, "headings").items));
 
+  const glue = await load("/fixture.html?glue&greek=0&quiet", VIEWPORTS.desktop);
+  const glueItems = gate(glue, "headings").items.filter((i) => /run together/.test(i.value));
+  check("headings: the lines of a title that run together are reported, with the words and the join (\"Speak\" + \"with us\", lowercase into uppercase)", gate(glue, "headings").status === "fail" && same(glueItems.map((i) => i.sel), ["h2#bad-glue-1", "h2#bad-glue-2"]) && /"Speak" \+ "with" reads "Speakwith"/.test(glueItems[0].value) && /lowercase into uppercase/.test(glueItems[1].value), JSON.stringify(glueItems.map((i) => i.sel + " " + i.value)));
+  check("headings: titles with a space between their lines, and hyphenated words in inline spans, are not reported", !gate(glue, "headings").items.some((i) => /ok-/.test(i.sel + i.element)) && !hd.items.some((i) => /run together/.test(i.value)), JSON.stringify(gate(glue, "headings").items.map((i) => i.element)));
+
   const bare = await load("/fixture.html?nolandmarks&greek=0", VIEWPORTS.desktop, "el");
   const bareHeadings = gate(bare, "headings");
   check("headings: a page without header and footer, and with <html lang=\"en\"> on a Greek page, fails", bareHeadings.status === "fail" && bareHeadings.items.some((i) => /no <header>, <footer> landmark/.test(i.value)) && bareHeadings.items.some((i) => /lang="en"/.test(i.value)), JSON.stringify(bareHeadings.items.map((i) => i.value)));
@@ -127,6 +133,35 @@ try {
     await pg.close();
   }
 
+  console.log("tall pages");
+  {
+    const pg = await browser.newPage();
+    await pg.send("Page.enable");
+    await pg.send("Emulation.setDeviceMetricsOverride", { width: 390, height: 844, deviceScaleFactor: 2, mobile: true });
+    const nv = pg.waitFor("Page.loadEventFired");
+    await pg.send("Page.navigate", { url: `${base}/fixture.html?tall&quiet` });
+    await nv;
+    const docH = await pg.eval("document.documentElement.scrollHeight");
+    const shot = await shootFullPage(pg, { width: 390, height: docH, dpr: 2 });
+    const img = decodePng(shot.png);
+    const bands = ["ff0000", "00ff00", "0000ff", "ffff00", "ff00ff", "00ffff"];
+    const at = (cssY) => {
+      const o = (Math.round(cssY * 2) * img.width + 10) * img.bpp;
+      return [...img.data.subarray(o, o + 3)].map((v) => v.toString(16).padStart(2, "0")).join("");
+    };
+    const seen = bands.map((_, i) => at(i * 2000 + 1000));
+    check("a page of 12000 css px at dpr 2 (24000 device px, over Chrome's 16384 limit) is shot in tiles and joined into one image", docH === 12000 && shot.tiles === 2 && img.width === 780 && img.height === 24000, JSON.stringify({ docH, tiles: shot.tiles, w: img.width, h: img.height }));
+    check("every band of the tall page shows its own colour from top to bottom (no wrapping, the bottom is captured)", same(seen, bands) && seen.every((c, i) => c === bands[i]) && at(11995) === bands[5] && at(1999) === bands[0] && at(2001) === bands[1], JSON.stringify(seen));
+    const small = await shootFullPage(pg, { width: 390, height: 3000, dpr: 2 });
+    check("a page that fits in one texture is shot in one piece", small.tiles === 1 && decodePng(small.png).height === 6000);
+    await pg.close();
+    // PNG round trip (all five row filters Chrome may choose are exercised by real screenshots above; this checks the joining itself)
+    const a = encodePng({ width: 2, height: 1, color: 6, data: Buffer.from([1, 2, 3, 255, 4, 5, 6, 255]) });
+    const b = encodePng({ width: 2, height: 2, color: 6, data: Buffer.from([7, 8, 9, 255, 10, 11, 12, 255, 13, 14, 15, 255, 16, 17, 18, 255]) });
+    const joined = decodePng(stitchVertical([a, b]));
+    check("png: tiles are joined row by row", joined.width === 2 && joined.height === 3 && joined.data.length === 24 && joined.data[0] === 1 && joined.data[8] === 7 && joined.data[23] === 255, JSON.stringify([...joined.data]));
+  }
+
   console.log("perf statistics");
   const mkRun = (ys, docH = 15000) => ({ lcp: 2000, tbt: 100, fcp: 900, lcpEl: "h1", docH, viewportH: 823, scroll: { over50: ys.length, max: 90, slowFrames: ys.map((y) => ({ t: 1, ms: 60, y, section: "§1" })) } });
   const clustered = slowFramePattern([mkRun([5000, 5100, 5200, 5300]), mkRun([5050, 5150, 9000])]);
@@ -148,6 +183,35 @@ try {
   check("median of three runs, range kept", sum.median.lcp === 2200 && sum.median.tbt === 120 && sum.range.lcp[0] === 2000 && sum.range.lcp[1] === 4000, JSON.stringify(sum.median));
   const sum2 = summarizeRuns("p", [mkRun([]), { ...mkRun([]), lcp: 3000 }]);
   check("median of two runs is their mean", sum2.median.lcp === 2500);
+
+  // Noisy measurements: a busy machine or runs far apart are measured again with 5 runs; a miss that only the noise explains is not a failure
+  const calm = [{ ...mkRun([]), tbt: 80, load1: 1.2 }, { ...mkRun([]), tbt: 90, load1: 1.4 }, { ...mkRun([]), tbt: 85, load1: 1.3 }];
+  check("noise: calm runs on an idle machine are trustworthy", noiseReasons(calm, 8).length === 0, JSON.stringify(noiseReasons(calm, 8)));
+  check("noise: a load average above half of the cores makes the runs untrustworthy", noiseReasons(calm.map((r) => ({ ...r, load1: 4.5 })), 8).some((x) => /load average 4\.5 on 8 cores/.test(x)) && noiseReasons(calm.map((r) => ({ ...r, load1: 4 })), 8).length === 0);
+  check("noise: a TBT whose slowest run took more than twice as long as the fastest is untrustworthy (74 / 81 / 239), a modest spread (80 / 150) is not", noiseReasons([{ ...mkRun([]), tbt: 74 }, { ...mkRun([]), tbt: 239 }, { ...mkRun([]), tbt: 81 }], 8).some((x) => /TBT 74–239/.test(x)) && noiseReasons([{ ...mkRun([]), tbt: 80 }, { ...mkRun([]), tbt: 150 }], 8).length === 0);
+  const slow = (tbt) => ({ ...mkRun([]), tbt, load1: 4.5 });
+  const noisyTbt = evaluatePerf(summarizeRuns("p", [slow(74), slow(239), slow(250)], 8));
+  check("perf gate: a TBT median over the limit with a good best run on a busy machine is 'noisy', a warning, not a failure", noisyTbt.status === "warn" && noisyTbt.stats.noisy === true && /treated as machine noise/.test(noisyTbt.items[0].value), JSON.stringify(noisyTbt));
+  const everyRunSlow = evaluatePerf(summarizeRuns("p", [slow(260), slow(280), slow(300)], 8));
+  check("perf gate: a page whose every run misses the limit fails even on a busy machine", everyRunSlow.status === "fail", JSON.stringify(everyRunSlow));
+  const calmSlow = evaluatePerf(summarizeRuns("p", [{ ...mkRun([]), tbt: 230, load1: 1 }, { ...mkRun([]), tbt: 250, load1: 1 }, { ...mkRun([]), tbt: 210, load1: 1 }], 8));
+  check("perf gate: a TBT over the limit on a quiet machine with steady runs fails", calmSlow.status === "fail", JSON.stringify(calmSlow));
+
+  // runPerf with a fake measurement: a page with an outlier is measured again with 5 runs and gated on their median
+  const script = { "outlier": [{ tbt: 74, load1: 4.6 }, { tbt: 239, load1: 4.6 }, { tbt: 239, load1: 4.5 }, { tbt: 80, load1: 2 }, { tbt: 78, load1: 2 }, { tbt: 79, load1: 2 }, { tbt: 81, load1: 2 }, { tbt: 77, load1: 2 }], "steady": [{ tbt: 80, load1: 1 }, { tbt: 85, load1: 1 }, { tbt: 90, load1: 1 }] };
+  const calls = { outlier: 0, steady: 0 };
+  const reruns = [];
+  const ran = await runPerf("http://x", [{ id: "outlier", url: "/a" }, { id: "steady", url: "/b" }], {
+    runs: 3,
+    cpus: 8,
+    measure: async (_, def) => ({ ...mkRun([]), ...script[def.id][calls[def.id]++] }),
+    onRerun: (id, why) => reruns.push([id, why.length]),
+  });
+  const [o, st] = ran;
+  check("runPerf: the page with an outlier on a busy machine is measured again with 5 runs, the steady page is not", calls.outlier === 8 && calls.steady === 3 && reruns.length === 1 && reruns[0][0] === "outlier", JSON.stringify({ calls, reruns }));
+  check("runPerf: the result of a rerun is the median of the 5 new runs, and the first three stay on record", o.runCount === 5 && o.median.tbt === 79 && o.rerun.firstRunCount === 3 && o.rerun.first.median.tbt === 239 && evaluatePerf(o).status === "pass" && st.runCount === 3 && !st.rerun, JSON.stringify({ n: o.runCount, m: o.median, r: o.rerun && o.rerun.first.median }));
+  const five = await runPerf("http://x", [{ id: "outlier", url: "/a" }], { runs: 5, cpus: 8, measure: async () => ({ ...mkRun([]), tbt: [74, 239, 250, 260, 90][calls.outlier++ % 5], load1: 4.6 }) });
+  check("runPerf: with 5 runs to begin with there is no second round, the noise is classified instead", five[0].runCount === 5 && !five[0].rerun && five[0].noise.length > 0 && evaluatePerf(five[0]).status === "warn", JSON.stringify([five[0].runCount, five[0].noise, evaluatePerf(five[0]).status]));
 
   console.log("contrast sampling verdicts");
   const c = { total: 3, pass: 0, fail: 0, warn: 0, unknown: 3, fails: [], warns: [], unknowns: [{ sel: "a", rects: [[0, 0, 1, 1]], sampleFg: {} }, { sel: "b", rects: [[0, 0, 1, 1]], sampleFg: {} }, { sel: "c", rects: [[0, 0, 1, 1]], sampleFg: {} }] };

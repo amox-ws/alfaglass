@@ -24,7 +24,7 @@ Page specs live in [`SPEC.md`](SPEC.md). The design system is [`../../DESIGN.md`
 
 The user chose autonomous mode: phases 0–3 run back to back without approvals; the orchestrator signs off each phase. The final merge into `main` and phase 4 wait for the user.
 
-Speed gates use the median of three perf runs (`--perf-runs 3`); slow frames scattered across the whole page with no cluster are treated as machine noise, not as a page defect.
+Speed gates use the median of three perf runs (`--perf-runs 3`); slow frames scattered across the whole page with no cluster are treated as machine noise, not as a page defect. A page whose runs cannot be trusted (1-minute load average above half of the cores, or a TBT or LCP outlier more than twice the fastest run) is measured again automatically with 5 runs and gated on their median; a limit that the median still misses while the best run is within it, on a machine that stays noisy, is reported as "noisy" (a warning). A page whose every run misses a limit fails.
 
 ## Page groups (one worker each)
 

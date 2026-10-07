@@ -180,6 +180,18 @@ export function evaluateLoad(load) {
       if (load.lang && !st.htmlLang.toLowerCase().startsWith(load.lang)) items.push({ element: "html", sel: "html", text: "", where: "", region: "document", value: st.htmlLang ? `<html lang="${st.htmlLang}"> on a ${load.lang === "el" ? "Greek" : "English"} page` : `<html> has no lang attribute (expected "${load.lang}")` });
       if (st.links === 0) items.push({ element: "document", sel: "links", text: "", where: "", region: "document", value: "the page has no links at all (dead end)" });
     }
+    // the lines of a title that run together in its text (see inpage.mjs)
+    for (const g of h.glued || []) {
+      const j = g.joins[0];
+      items.push({
+        element: `${g.sel} "${g.text}" @${g.where}`,
+        sel: g.sel,
+        text: g.text,
+        where: g.where,
+        region: regionKind(g.where),
+        value: `h${g.level}: the words run together where two blocks meet, "${j.before}" + "${j.after}" reads "${j.joined}"${j.caseJoin ? " (lowercase into uppercase)" : ""}${g.joins.length > 1 ? `, ${g.joins.length} joins` : ""}: put a space between the lines`,
+      });
+    }
     const skips = h.skips.map((s) => ({ element: `${s.sel} "${s.text}" @${s.where}`, sel: s.sel, text: s.text, where: s.where, region: regionKind(s.where), value: `heading level jumps h${s.from} → h${s.to}`, warn: true }));
     out.push(res("headings", items.length ? "fail" : skips.length ? "warn" : "pass", [...items, ...skips], { h1: h.h1Visible, headings: h.count }));
   }
@@ -219,8 +231,11 @@ export function applyContrastSamples(contrast, samples) {
 }
 
 /**
- * Gate 11 on the median of the runs of one page (see perf.mjs). Slow frames that are scattered over the whole page with
- * no cluster and do not repeat at the same positions are machine noise: they are reported ("noisy") but do not fail the gate.
+ * Gate 11 on the median of the runs of one page (see perf.mjs). A page whose runs were not trustworthy (busy machine, runs
+ * far apart) was measured again with 5 runs and is gated on the median of those.
+ * "Noisy" instead of FAIL, for what the machine can explain: slow frames scattered over the whole page with no cluster that
+ * do not repeat at the same positions, and an LCP or TBT limit that the median misses while its best run is within it and the
+ * runs are still not trustworthy. A page whose every run misses a limit fails, noise or not.
  */
 export function evaluatePerf(summary) {
   const L = PERF_LIMITS;
@@ -231,10 +246,18 @@ export function evaluatePerf(summary) {
   const m = summary.median;
   const r = summary.range;
   const items = [];
-  const noisy = !!summary.pattern && summary.pattern.kind === "noisy";
+  const framesNoisy = !!summary.pattern && summary.pattern.kind === "noisy";
+  const noise = summary.noise || [];
+  // a limit missed by the median only: the best run is within it and the machine or the runs are not trustworthy
+  const missed = (element, sel, value, best, limit) => {
+    const noisy = noise.length > 0 && best != null && best <= limit;
+    items.push({ element, sel, text: "", where: "", region: "document", warn: noisy, value: noisy ? `${value}; the best run is within the limit [treated as machine noise: ${noise.join("; ")}]` : value });
+    return noisy;
+  };
+  let noisyMetric = false;
   if (m.lcp == null) items.push({ element: "LCP", sel: "lcp", text: "", where: "", region: "document", value: "no largest-contentful-paint entry in most runs" });
-  else if (m.lcp > L.lcp) items.push({ element: `LCP element ${summary.lcpEl || "?"}`, sel: "lcp", text: "", where: "", region: "document", value: `median LCP ${fmt(m.lcp, r.lcp, " ms")} > ${L.lcp} ms` });
-  if (m.tbt > L.tbt) items.push({ element: "main thread", sel: "tbt", text: "", where: "", region: "document", value: `median TBT ${fmt(m.tbt, r.tbt, " ms")} > ${L.tbt} ms` });
+  else if (m.lcp > L.lcp) noisyMetric = missed(`LCP element ${summary.lcpEl || "?"}`, "lcp", `median LCP ${fmt(m.lcp, r.lcp, " ms")} > ${L.lcp} ms`, r.lcp && r.lcp[0], L.lcp) || noisyMetric;
+  if (m.tbt > L.tbt) noisyMetric = missed("main thread", "tbt", `median TBT ${fmt(m.tbt, r.tbt, " ms")} > ${L.tbt} ms`, r.tbt && r.tbt[0], L.tbt) || noisyMetric;
   if (m.over50 > L.slowFrames) {
     items.push({
       element: "scroll",
@@ -242,11 +265,12 @@ export function evaluatePerf(summary) {
       text: "",
       where: "",
       region: "document",
-      warn: noisy,
-      value: `median ${fmt(m.over50, r.over50)} frames > ${L.slowFrameMs} ms during the full-page touch scroll, worst frame ${fmt(m.maxFrame, r.maxFrame, " ms")}; ${describePattern(summary.pattern)}${noisy ? " [treated as machine noise]" : ""}`,
+      warn: framesNoisy,
+      value: `median ${fmt(m.over50, r.over50)} frames > ${L.slowFrameMs} ms during the full-page touch scroll, worst frame ${fmt(m.maxFrame, r.maxFrame, " ms")}; ${describePattern(summary.pattern)}${framesNoisy ? " [treated as machine noise]" : ""}`,
     });
   }
   const failing = items.filter((i) => !i.warn);
+  const noisy = framesNoisy || noisyMetric;
   return res("perf", failing.length ? "fail" : items.length ? "warn" : "pass", items, {
     lcp: m.lcp,
     tbt: m.tbt,
@@ -255,5 +279,6 @@ export function evaluatePerf(summary) {
     fcp: m.fcp,
     runs: summary.okRuns,
     noisy,
+    reran: !!summary.rerun,
   });
 }
