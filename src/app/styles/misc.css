@@ -1,6 +1,500 @@
 /*
  * News, contact, links, legal, 404 and Έργα (lane News + Contact + Links).
- * Created empty by the System. This file is imported by globals.css into the components layer, after every System rule: a rule here wins
- * a tie with a System one, and Tailwind utilities still win over it. Use the tokens (surface, fg, line, accent) and the System
- * classes (t-*, glass, rack-lines, glint, lift ...); animate transform and opacity only.
+ * Imported by globals.css into the components layer, after every System rule: a rule here wins a tie with a System one, and Tailwind
+ * utilities still win over it. Tokens (surface, fg, line, accent, edge) and the System classes (t-*, glass, glint, lift, specimen-*,
+ * cta-call ...) only; transform and opacity are all that ever animates.
+ *
+ * Careful: the rules that globals.css keeps outside any layer (`.prose-glass`, `[data-rv]`, `.hero-rise`, `.mask-*`, `.shell`,
+ * `.section-y`) beat every layered rule whatever its specificity, so nothing here tries to override them: it adds to them.
  */
+
+/* ------------------------------------------------------------------ the two pills (the actions of a page) */
+
+.btn-pill {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s,
+    color 0.3s;
+}
+.btn-pill-dark {
+  padding-right: 0.75rem;
+  background: var(--fg);
+  color: var(--surface);
+}
+.btn-pill-icon {
+  display: flex;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  background: var(--surface);
+  color: var(--fg);
+  transition: transform 0.5s var(--ease-out);
+}
+.btn-pill-line {
+  border: 1px solid var(--line-strong);
+}
+@media (hover: hover) {
+  .btn-pill-dark:hover {
+    background: var(--accent);
+    color: var(--accent-fg);
+  }
+  .btn-pill-dark:hover .btn-pill-icon {
+    transform: translateX(2px);
+  }
+  .btn-pill-line:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+}
+
+/* A round arrow that fills with the accent when its row or card is the one under the pointer or the focus */
+@media (hover: hover) {
+  .news-row:hover .specimen-arrow,
+  .contact-row:hover .specimen-arrow,
+  .links-tool:hover .specimen-arrow,
+  .nf-row:hover .specimen-arrow {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--accent-fg);
+  }
+}
+.news-row:has(.news-link:focus-visible) .specimen-arrow,
+.contact-row:focus-visible .specimen-arrow,
+.links-tool:focus-visible .specimen-arrow,
+.nf-row:focus-visible .specimen-arrow {
+  border-color: var(--accent);
+  background: var(--accent);
+  color: var(--accent-fg);
+}
+
+/* ------------------------------------------------------------------ news */
+
+/* The whole row is the link: the title's link stretches over it (the plate and the text stay selectable underneath) */
+.news-row {
+  position: relative;
+}
+.news-link::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+/* The pointer is on the row, not on the plate (the link covers it): the top edge of the plate catches the light all the same */
+@media (hover: hover) and (pointer: fine) {
+  .news-row:hover .glint-edge::before {
+    animation: glint-edge 1.2s var(--ease-glint) 1 both;
+  }
+}
+/* A logo in an article: a plate as wide as the logo (plus its frame), never wider than the column; its white ground melts into the plate */
+.article-logo {
+  display: block;
+  width: 100%;
+  padding: 1.5rem;
+}
+.article-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  mix-blend-mode: multiply;
+}
+/* A narrow column of plates in an article: two across on a phone and a tablet, one in columns 9–12 */
+.article-media .gallery-plates {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+/* a single photograph takes the whole column */
+.article-media .gallery-plates:has(> li:only-child) {
+  grid-template-columns: minmax(0, 1fr);
+}
+@media (min-width: 64rem) {
+  .article-media .gallery-plates {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ------------------------------------------------------------------ contact */
+
+/* A line of the page: its label above, the value as large as its rank, the way to act at the end. One link, at least 64px */
+.contact-row {
+  position: relative;
+  display: grid;
+  min-height: 4rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-areas:
+    "label label"
+    "value act";
+  align-items: center;
+  column-gap: 1.5rem;
+  row-gap: 0.625rem;
+  padding-block: 1.5rem;
+}
+.contact-row[data-row="phone"] {
+  padding-block: 2rem;
+}
+.contact-row-label {
+  grid-area: label;
+}
+.contact-row-value {
+  grid-area: value;
+  min-width: 0;
+}
+.contact-call,
+.contact-arrow {
+  grid-area: act;
+}
+/* From lg the phone number takes the whole width of its column (it is as wide as the column), and the call button moves up beside its label */
+@media (min-width: 64rem) {
+  .contact-row[data-row="phone"] {
+    grid-template-areas:
+      "label act"
+      "value value";
+  }
+}
+@media (hover: hover) and (pointer: fine) {
+  .contact-row:hover .contact-call {
+    transform: rotate(-12deg) scale(1.06);
+  }
+}
+.contact-call {
+  width: 3.5rem;
+  height: 3.5rem;
+}
+/*
+ * The phone number is as large as the scale makes it (`t-display`) and never larger than its column holds: ten digits and a space are 4.7 em
+ * wide, so the size is capped at a fifth of the column (a container query unit). At 1440 the scale decides; between 1024 and about 1400, and on
+ * the narrowest phones, the column does, so the number never runs into the call button or out of the page.
+ */
+.contact-row[data-row="phone"] .contact-row-value {
+  container-type: inline-size;
+}
+.contact-phone {
+  font-size: min(var(--fs-display), 20cqw);
+}
+/* The rack lines of the title fade out below it, so they never run through the lines of the page */
+.contact-rack {
+  -webkit-mask-image: linear-gradient(to bottom, #000 0, #000 38rem, transparent 56rem);
+  mask-image: linear-gradient(to bottom, #000 0, #000 38rem, transparent 56rem);
+}
+
+/* The preset enquiries: a pill that opens an email with its subject written, and the one that leads to the estimator */
+.contact-chip {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.5rem 1.5rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 9999px;
+  font-weight: 600;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s,
+    color 0.3s;
+}
+.contact-chip-cnc {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+@media (hover: hover) {
+  .contact-chip:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+  .contact-chip-cnc:hover {
+    background: var(--accent);
+    color: var(--accent-fg);
+  }
+}
+
+/* What shows until the map has loaded (and if it never does): a drafting grid with a pin */
+.contact-map-grid {
+  background-image: linear-gradient(var(--line) 1px, transparent 1px), linear-gradient(90deg, var(--line) 1px, transparent 1px);
+  background-size: 3rem 3rem;
+}
+
+/* ------------------------------------------------------------------ useful links */
+
+/* The logo on a snow plate, at its own size (never larger than its file), in the tone it shares with the others */
+.links-plate {
+  display: flex;
+  height: 7rem;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem 1.5rem;
+}
+@media (min-width: 64rem) {
+  .links-plate {
+    height: 8rem;
+  }
+}
+.links-logo {
+  display: block;
+  max-width: 100%;
+  object-fit: contain;
+  mix-blend-mode: multiply;
+}
+/* A tool of a house: its label, where it leads, a round ↗ */
+.links-tool {
+  display: grid;
+  min-height: 5rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 1.5rem;
+  padding-block: 1.125rem;
+}
+
+/* ------------------------------------------------------------------ legal texts */
+
+/* The sections of a policy are divided by a hairline, and its headings are the ink of the page (the prose is the muted tone) */
+.legal-prose h2 {
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--line);
+  color: var(--fg);
+}
+.legal-prose > h2:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+.legal-prose li {
+  color: var(--fg-muted);
+}
+/* The tables of a policy scroll inside their box on a phone: give their sentences a readable column there (the prose rule gives a cell 14rem) */
+@media (max-width: 47.99rem) {
+  .legal-prose td p {
+    min-width: 17rem;
+  }
+}
+
+/* ------------------------------------------------------------------ the 404 */
+
+/*
+ * "404" in outline, and the cracks fanning out from the middle of it (a box of 2000 × 1200 centred on the digits, clipped by the page). They fade out
+ * with the distance from the impact (a mask, drawn once): on a phone the lines stop short of the title, from lg they thin out before the text.
+ */
+.nf-digits {
+  position: relative;
+  width: fit-content;
+}
+.nf-crack {
+  --rx: 340px;
+  --ry: 240px;
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 2000px;
+  height: 1200px;
+  margin: -600px 0 0 -1000px;
+  overflow: visible;
+  pointer-events: none;
+  stroke: var(--edge);
+  -webkit-mask-image: radial-gradient(ellipse var(--rx) var(--ry) at 50% 50%, #000 30%, transparent 100%);
+  mask-image: radial-gradient(ellipse var(--rx) var(--ry) at 50% 50%, #000 30%, transparent 100%);
+}
+/* From lg the digits are in the right column and the text in the left: the cracks reach out to the right, up and down, and fade out towards the text (a second mask, joined to the first) */
+@media (min-width: 64rem) {
+  .nf-crack {
+    --rx: 780px;
+    --ry: 600px;
+    -webkit-mask-image: radial-gradient(ellipse var(--rx) var(--ry) at 50% 50%, #000 30%, transparent 100%), linear-gradient(to right, transparent 34%, #000 50%);
+    mask-image: radial-gradient(ellipse var(--rx) var(--ry) at 50% 50%, #000 30%, transparent 100%), linear-gradient(to right, transparent 34%, #000 50%);
+    -webkit-mask-composite: source-in;
+    mask-composite: intersect;
+  }
+}
+/* The surface fading out over the top of the page, above the cracks and under the menu: nothing of the page lies there but the cracks */
+.nf-veil {
+  position: absolute;
+  inset: 0 0 auto 0;
+  z-index: 3;
+  height: calc(var(--header-h) + 2.5rem);
+  pointer-events: none;
+  background: linear-gradient(to bottom, var(--surface) 55%, transparent);
+}
+.nf-404 {
+  position: relative;
+  color: transparent;
+  -webkit-text-stroke: 1.5px var(--fg-dim);
+}
+.nf-row {
+  display: grid;
+  min-height: 4.5rem;
+  grid-template-columns: 3rem minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 1rem;
+  padding-block: 1rem;
+}
+
+/* ------------------------------------------------------------------ Έργα: the frame wall (the empty state) */
+
+/* An opening in the wall where a photograph will hang: a dashed frame, a mat, the diagonals of an opening in an architect's plan */
+.frame {
+  position: relative;
+  width: 100%;
+  border: 1px dashed var(--line-strong);
+}
+.frame::before {
+  content: "";
+  position: absolute;
+  inset: 0.625rem;
+  border: 1px solid var(--line);
+}
+.frame-cross {
+  position: absolute;
+  inset: 0.625rem;
+  width: calc(100% - 1.25rem);
+  height: calc(100% - 1.25rem);
+}
+.frame-cross line {
+  stroke: var(--line);
+  stroke-width: 1;
+  vector-effect: non-scaling-stroke;
+}
+.frame-tab {
+  position: absolute;
+  left: 1.25rem;
+  top: 1.25rem;
+  display: flex;
+  flex-wrap: wrap;
+  max-width: calc(100% - 2.5rem);
+  gap: 0.125rem 0.75rem;
+  padding: 0.375rem 0.75rem;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  color: var(--fg-muted);
+}
+/* In the small frames of a phone the label drops under its number, so that a long word ("ΚΑΤΑΣΤΗΜΑΤΩΝ") stays inside its tab */
+@media (max-width: 47.99rem) {
+  .frame-tab {
+    left: 1rem;
+    top: 1rem;
+    max-width: calc(100% - 2rem);
+    padding: 0.375rem 0.5rem;
+  }
+}
+
+/* ------------------------------------------------------------------ Έργα: the list, the cards, the filters */
+
+.work-frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  background: var(--surface-2);
+}
+.work-frame[data-fit="contain"] {
+  background: var(--snow);
+  border: 1px solid var(--line);
+}
+@media (hover: hover) and (pointer: fine) {
+  .work-card:hover .work-frame::after {
+    animation: glint 1.2s var(--ease-glint) 1 both;
+  }
+}
+
+.works-fixture {
+  width: 100%;
+  padding: 0.75rem var(--gutter);
+  background: var(--signal);
+  color: var(--snow);
+  text-align: center;
+}
+
+.works-filters {
+  display: grid;
+  gap: 1.5rem;
+}
+.works-chips {
+  display: grid;
+  gap: 0.75rem 1.5rem;
+  align-items: start;
+}
+@media (min-width: 64rem) {
+  .works-chips {
+    grid-template-columns: 8rem minmax(0, 1fr);
+  }
+}
+.works-chips > span {
+  display: flex;
+  min-height: 2.75rem;
+  align-items: center;
+}
+.works-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.works-chip {
+  position: relative;
+  display: inline-flex;
+}
+/* The real radio covers the chip (a 44px target for the pointer and the keyboard) and shows nothing of its own */
+.works-chip input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  margin: 0;
+  opacity: 0;
+  cursor: pointer;
+}
+.works-chip-face {
+  display: inline-flex;
+  min-height: 2.75rem;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0 1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 9999px;
+  font-weight: 600;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s,
+    color 0.3s;
+}
+.works-chip-count {
+  color: var(--fg-muted);
+}
+.works-chip input:checked + .works-chip-face {
+  border-color: var(--fg);
+  background: var(--fg);
+  color: var(--surface);
+}
+.works-chip input:checked + .works-chip-face .works-chip-count {
+  color: var(--surface);
+}
+.works-chip input:focus-visible + .works-chip-face {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+@media (hover: hover) {
+  .works-chip input:not(:checked):hover + .works-chip-face {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+}
+.works-select {
+  display: grid;
+  gap: 0.5rem;
+}
+.works-select select {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0 0.75rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  background: var(--surface);
+  color: var(--fg);
+}
+
+/* The cards carry their own view-transition name only while the filter is re-flowing them (a name is a backdrop root, and a page full of them would be heavy) */
+:root[data-vt="filter"] .works-item {
+  view-transition-name: var(--vt);
+}
