@@ -1,4 +1,5 @@
 import { MediaSlot } from "@/components/kit/MediaSlot";
+import { Units } from "@/components/kit/Units";
 import { ArrowLink, Eyebrow } from "@/components/ui";
 import { mediaSize } from "@/lib/media";
 import { slots } from "@/lib/media-slots";
@@ -51,7 +52,7 @@ export function Warehouse({ lang, facilitiesHref }: { lang: Lang; facilitiesHref
               <ul className="whs-facts t-label">
                 {h.warehouseFacts.map((fact) => (
                   <li key={fact} className="tabular">
-                    {fact}
+                    <Units>{fact}</Units>
                   </li>
                 ))}
               </ul>

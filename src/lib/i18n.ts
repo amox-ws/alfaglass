@@ -509,7 +509,7 @@ const en: Dict = {
     stampLabel: "ALFA GLASS, since 1999, 13,000 m², Aspropyrgos",
     cncLine: "New · CNC cutting of sheets up to 2.1 × 6.05 m",
     warehouseNumber: "13,000",
-    warehouseTitle: "m² of owned premises",
+    warehouseTitle: "square metres of owned premises",
     warehouseFacts: ["1999 · Founded", "2021 · +4,000 m²", "Own trucks"],
     watchCut: "Watch the machine cut",
   },

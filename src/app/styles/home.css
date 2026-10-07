@@ -21,7 +21,7 @@
   border-left-color: var(--line);
 }
 
-/* The crate label (from lg): four cells stencilled in a hairline frame, what is painted on the side of a crate that leaves the warehouse */
+/* The crate label (from xl): four cells stencilled in a hairline frame, what is painted on the side of a crate that leaves the warehouse */
 .hero-crate {
   align-items: stretch;
   border: 1px solid var(--line-strong);
@@ -38,10 +38,24 @@
 .hero-crate-cell:first-child {
   border-left: 0;
 }
-/* The second pillar's line leaves a short phone: before it would crowd the headline it is gone (the products and the phone stay) */
+/*
+ * The second pillar's line sits under the buttons. A short phone has no room for it before it would crowd the headline (the products and the
+ * phone stay); from lg a short screen moves it to the right-hand column, under the crate label, for the same reason.
+ */
+.hero-cnc-side {
+  display: none;
+}
 @media (max-width: 47.99rem) and (max-height: 43.75rem) {
-  .hero-cnc {
+  .hero-cnc-main {
     display: none;
+  }
+}
+@media (min-width: 64rem) and (max-height: 51.99rem) {
+  .hero-cnc-main {
+    display: none;
+  }
+  .hero-cnc-side {
+    display: inline-flex;
   }
 }
 
@@ -196,6 +210,12 @@
   position: absolute;
   inset: 0;
   margin-inline: auto;
+}
+/* On a screen wider than the file the photo ends in the night: its two edges melt into it instead of standing as lines */
+@media (min-width: 2001px) {
+  .whs-zoom {
+    mask-image: linear-gradient(to right, transparent, #000 6%, #000 94%, transparent);
+  }
 }
 .whs-shade {
   position: absolute;
@@ -431,6 +451,30 @@
 
 /* ------------------------------------------------------------------ the machine (deep): the drawing and what sits under it */
 
+/*
+ * The gantry crosses the bed and the cut path appears behind it, once, as the drawing rises into view. The base rule of the drawing is the
+ * finished job (the gantry at the end of the bed, the whole path), which is what a browser without scroll timelines, reduced motion and a
+ * screenshot see. The animation holds the first frame until 15% of its range and has no backwards fill: before the range the finished drawing
+ * is shown, and the range starts at the moment the drawing's top edge enters the screen, when none of it is visible yet, so nothing ever jumps.
+ */
+@keyframes mach-sweep {
+  0%,
+  15% {
+    translate: 0 0;
+  }
+}
+@keyframes mach-wipe-clip {
+  0%,
+  15% {
+    translate: var(--wipe-from, -100% 0);
+  }
+}
+@keyframes mach-wipe-content {
+  0%,
+  15% {
+    translate: var(--wipe-inv, 100% 0);
+  }
+}
 .mach-facts li {
   padding-block: 0.875rem;
   border-top: 1px solid var(--line);
@@ -732,19 +776,19 @@
       view-timeline-inset: 0;
     }
     .mach-drawing .bp-gantry {
-      animation: sweep linear both;
+      animation: mach-sweep linear forwards;
       animation-timeline: --mach;
-      animation-range: entry 20% cover 55%;
+      animation-range: entry 0% cover 55%;
     }
     .mach-drawing .bp-path {
-      animation: wipe-clip linear both;
+      animation: mach-wipe-clip linear forwards;
       animation-timeline: --mach;
-      animation-range: entry 20% cover 55%;
+      animation-range: entry 0% cover 55%;
     }
     .mach-drawing .bp-path .bp-wipe-in {
-      animation: wipe-content linear both;
+      animation: mach-wipe-content linear forwards;
       animation-timeline: --mach;
-      animation-range: entry 20% cover 55%;
+      animation-range: entry 0% cover 55%;
     }
 
     .hist-track {

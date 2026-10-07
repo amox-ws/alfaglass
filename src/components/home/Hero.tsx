@@ -161,28 +161,39 @@ export function Hero({ lang, productsHref, serviceHref }: { lang: Lang; products
                 {d.common.callUs} <span className="font-mono tabular text-fg-muted">{d.contact.phone}</span>
               </a>
             </div>
-            {/* The second pillar: one mono line, not a banner (it leaves a short phone before it would crowd the headline) */}
-            <Link href={serviceHref} className="hero-cnc text-link t-label mt-3 text-fg">
-              <span>
-                <Units>{h.cncLine}</Units>
-              </span>
-              <span aria-hidden className="ml-3 text-accent">
-                →
-              </span>
-            </Link>
+            {/* The second pillar: one mono line, not a banner. Under the buttons; on a short screen from lg it moves to the right-hand column instead */}
+            <CncLine href={serviceHref} text={h.cncLine} className="hero-cnc-main mt-3" />
           </div>
 
-          {/* The crate label: what is stencilled on the side of every crate that leaves the warehouse */}
-          <div role="group" aria-label={h.stampLabel} className="hero-fade hero-crate t-label hidden lg:flex" style={{ animationDelay: "1.1s" }}>
-            {d.stamp.map((cell) => (
-              <span key={cell} className="hero-crate-cell tabular">
-                {cell}
-              </span>
-            ))}
+          {/* The right-hand column (from lg): the crate label, what is stencilled on the side of every crate that leaves the warehouse (from xl),
+              and, on a short screen, the second pillar's line */}
+          <div className="hero-fade hidden flex-col items-end gap-3 lg:flex" style={{ animationDelay: "1.1s" }}>
+            <div role="group" aria-label={h.stampLabel} className="hero-crate t-label hidden xl:flex">
+              {d.stamp.map((cell) => (
+                <span key={cell} className="hero-crate-cell tabular">
+                  <Units>{cell}</Units>
+                </span>
+              ))}
+            </div>
+            <CncLine href={serviceHref} text={h.cncLine} className="hero-cnc-side" />
           </div>
         </div>
       </div>
     </section>
+  );
+}
+
+/** "Νέο · CNC κοπή φύλλων έως 2,1 × 6,05 m →": a mono link line, its units in SI case, a 44px target. */
+function CncLine({ href, text, className = "" }: { href: string; text: string; className?: string }) {
+  return (
+    <Link href={href} className={`text-link t-label text-fg ${className}`}>
+      <span>
+        <Units>{text}</Units>
+      </span>
+      <span aria-hidden className="ml-3 text-accent">
+        →
+      </span>
+    </Link>
   );
 }
 
