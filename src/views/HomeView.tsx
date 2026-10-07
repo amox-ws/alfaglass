@@ -1,5 +1,6 @@
 import { Hero } from "@/components/home/Hero";
 import { Warehouse } from "@/components/home/Warehouse";
+import { DroneBand } from "@/components/kit/DroneBand";
 import { GlassIndex } from "@/components/home/GlassIndex";
 import { Plastics } from "@/components/home/Plastics";
 import { Machine } from "@/components/home/Machine";
@@ -16,6 +17,7 @@ import { features } from "@/lib/features";
 import type { Lang } from "@/lib/i18n";
 import { slots } from "@/lib/media-slots";
 import { hrefFor } from "@/lib/routes";
+import { geoCaption } from "@/lib/seo";
 
 /**
  * The home page, in the rhythm of DIRECTION.md §4.1: frost hero · night warehouse · frost glass index · mist plastics · deep machine ·
@@ -37,6 +39,8 @@ export function HomeView({ lang }: { lang: Lang }) {
     <>
       <Hero lang={lang} productsHref={c.groupHref(glass)} serviceHref={service} />
       <Warehouse lang={lang} facilitiesHref={hrefFor(lang, { kind: "facilities" })} />
+      {/* The drone film, once it exists (until then the warehouse chapter carries the scale); daylight, because the page already has its three night chapters */}
+      {slots.drone.loop && <DroneBand slot={slots.drone} caption={geoCaption(lang)} lang={lang} theme="frost" />}
       <GlassIndex
         lang={lang}
         allHref={c.groupHref(glass)}
