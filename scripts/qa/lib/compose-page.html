@@ -1,0 +1,257 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>qa compose</title>
+<script>
+// Image work done by Chrome itself: contact sheets, pixel diffs, crops. Driven over CDP by compose.mjs.
+// Images are served by the harness (same origin), so canvases are never tainted.
+
+function loadImage(src) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve(img);
+    img.onerror = () => reject(new Error("cannot load " + src));
+    img.src = src;
+  });
+}
+
+function smooth(ctx) {
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = "high";
+}
+
+/** Draws pre-planned image tiles and labels (see planSheets in compose.mjs) and returns a JPEG data URL. */
+async function drawSheet(spec) {
+  const c = document.createElement("canvas");
+  c.width = spec.width;
+  c.height = spec.height;
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = spec.bg;
+  ctx.fillRect(0, 0, c.width, c.height);
+  const bySrc = new Map();
+  for (const op of spec.images) {
+    if (!bySrc.has(op.src)) bySrc.set(op.src, []);
+    bySrc.get(op.src).push(op);
+  }
+  for (const [src, ops] of bySrc) {
+    const img = await loadImage(src);
+    smooth(ctx);
+    for (const o of ops) {
+      ctx.drawImage(img, o.sx, o.sy, o.sw, o.sh, o.dx, o.dy, o.dw, o.dh);
+      ctx.strokeStyle = o.stroke || "rgba(40,26,106,0.35)";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(o.dx - 0.5, o.dy - 0.5, o.dw + 1, o.dh + 1);
+    }
+    img.src = "";
+  }
+  for (const t of spec.texts) {
+    ctx.font = t.font;
+    ctx.fillStyle = t.color;
+    ctx.fillText(t.text, t.x, t.y);
+  }
+  return c.toDataURL("image/jpeg", spec.quality);
+}
+
+/** Pixel diff of two screenshots of the same page. Masked regions (css px) are ignored. */
+async function diffImages(spec) {
+  const [a, b] = await Promise.all([loadImage(spec.oldUrl), loadImage(spec.newUrl)]);
+  const W = Math.max(a.naturalWidth, b.naturalWidth);
+  const H = Math.max(a.naturalHeight, b.naturalHeight);
+  const cell = 16;
+  const gw = Math.ceil(W / cell);
+  const gh = Math.ceil(H / cell);
+  const cells = new Uint16Array(gw * gh);
+  const BAND = 256;
+  const ca = document.createElement("canvas");
+  const cb = document.createElement("canvas");
+  ca.width = cb.width = W;
+  ca.height = cb.height = BAND;
+  const xa = ca.getContext("2d", { willReadFrequently: true });
+  const xb = cb.getContext("2d", { willReadFrequently: true });
+  const dpr = spec.dpr || 1;
+  const masks = (spec.masks || []).map((m) => ({ x0: (m.x - 3) * dpr, y0: (m.y - 3) * dpr, x1: (m.x + m.w + 3) * dpr, y1: (m.y + m.h + 3) * dpr }));
+  const tol = spec.tolerance || 48;
+  let changed = 0;
+  let masked = 0;
+  for (let y0 = 0; y0 < H; y0 += BAND) {
+    const h = Math.min(BAND, H - y0);
+    xa.clearRect(0, 0, W, BAND);
+    xb.clearRect(0, 0, W, BAND);
+    if (y0 < a.naturalHeight) xa.drawImage(a, 0, y0, a.naturalWidth, Math.min(h, a.naturalHeight - y0), 0, 0, a.naturalWidth, Math.min(h, a.naturalHeight - y0));
+    if (y0 < b.naturalHeight) xb.drawImage(b, 0, y0, b.naturalWidth, Math.min(h, b.naturalHeight - y0), 0, 0, b.naturalWidth, Math.min(h, b.naturalHeight - y0));
+    const da = xa.getImageData(0, 0, W, h).data;
+    const db = xb.getImageData(0, 0, W, h).data;
+    const ua = new Uint32Array(da.buffer);
+    const ub = new Uint32Array(db.buffer);
+    for (let i = 0, n = W * h; i < n; i++) {
+      if (ua[i] === ub[i]) continue;
+      const o = i * 4;
+      const d = Math.abs(da[o] - db[o]) + Math.abs(da[o + 1] - db[o + 1]) + Math.abs(da[o + 2] - db[o + 2]) + Math.abs(da[o + 3] - db[o + 3]);
+      if (d <= tol) continue;
+      const x = i % W;
+      const y = y0 + (i - x) / W;
+      let inMask = false;
+      for (const m of masks) if (x >= m.x0 && x < m.x1 && y >= m.y0 && y < m.y1) { inMask = true; break; }
+      if (inMask) { masked++; continue; }
+      changed++;
+      cells[((y / cell) | 0) * gw + ((x / cell) | 0)]++;
+    }
+    await new Promise((r) => setTimeout(r, 0));
+  }
+  // group changed cells into regions (cells within 2 cells of each other belong together)
+  const seen = new Uint8Array(gw * gh);
+  const boxes = [];
+  const MIN = 4;
+  for (let s = 0; s < cells.length; s++) {
+    if (cells[s] < MIN || seen[s]) continue;
+    const stack = [s];
+    seen[s] = 1;
+    let x0 = Infinity, y0 = Infinity, x1 = -1, y1 = -1, px = 0;
+    while (stack.length) {
+      const c = stack.pop();
+      const cx = c % gw;
+      const cy = (c - cx) / gw;
+      x0 = Math.min(x0, cx); x1 = Math.max(x1, cx); y0 = Math.min(y0, cy); y1 = Math.max(y1, cy);
+      px += cells[c];
+      for (let dy = -2; dy <= 2; dy++) {
+        for (let dx = -2; dx <= 2; dx++) {
+          const nx = cx + dx;
+          const ny = cy + dy;
+          if (nx < 0 || ny < 0 || nx >= gw || ny >= gh) continue;
+          const n = ny * gw + nx;
+          if (seen[n] || cells[n] < MIN) continue;
+          seen[n] = 1;
+          stack.push(n);
+        }
+      }
+    }
+    boxes.push({ x: x0 * cell, y: y0 * cell, w: (x1 - x0 + 1) * cell, h: (y1 - y0 + 1) * cell, pixels: px });
+  }
+  boxes.sort((p, q) => q.pixels - p.pixels);
+  const total = W * H;
+  const out = { width: W, height: H, total, changed, masked, pct: (changed / total) * 100, regions: boxes.length, boxes: boxes.slice(0, 24) };
+  if (changed === 0 || !spec.images) return out;
+
+  // the new screenshot with the changed regions boxed
+  const sc = Math.min(1, (spec.maxWidth || 1600) / W, 30000 / H);
+  const c = document.createElement("canvas");
+  c.width = Math.round(W * sc);
+  c.height = Math.round(H * sc);
+  const ctx = c.getContext("2d");
+  smooth(ctx);
+  ctx.fillStyle = "#fff";
+  ctx.fillRect(0, 0, c.width, c.height);
+  ctx.drawImage(b, 0, 0, b.naturalWidth, b.naturalHeight, 0, 0, b.naturalWidth * sc, b.naturalHeight * sc);
+  ctx.lineWidth = 3;
+  boxes.slice(0, 24).forEach((bx, i) => {
+    const x = bx.x * sc - 4, y = bx.y * sc - 4, w = bx.w * sc + 8, h = bx.h * sc + 8;
+    ctx.fillStyle = "rgba(255,0,60,0.10)";
+    ctx.fillRect(x, y, w, h);
+    ctx.strokeStyle = "rgb(255,0,60)";
+    ctx.strokeRect(x, y, w, h);
+    ctx.fillStyle = "rgb(255,0,60)";
+    ctx.fillRect(x, y, 22, 18);
+    ctx.fillStyle = "#fff";
+    ctx.font = "bold 13px sans-serif";
+    ctx.fillText(String(i + 1), x + 6, y + 14);
+  });
+  out.diffImage = c.toDataURL("image/jpeg", 0.8);
+
+  // before | after crops for the biggest regions
+  out.crops = [];
+  for (const [i, bx] of boxes.slice(0, spec.maxCrops || 4).entries()) {
+    const pad = 24;
+    const x = Math.max(0, bx.x - pad), y = Math.max(0, bx.y - pad);
+    const w = Math.min(W - x, bx.w + 2 * pad), h = Math.min(H - y, bx.h + 2 * pad);
+    const cs = Math.min(1, 780 / w, 1500 / h);
+    const cw = Math.round(w * cs), ch = Math.round(h * cs);
+    const cc = document.createElement("canvas");
+    cc.width = cw * 2 + 30;
+    cc.height = ch + 28;
+    const k = cc.getContext("2d");
+    smooth(k);
+    k.fillStyle = "#222";
+    k.fillRect(0, 0, cc.width, cc.height);
+    k.drawImage(a, x, y, w, h, 10, 24, cw, ch);
+    k.drawImage(b, x, y, w, h, cw + 20, 24, cw, ch);
+    k.fillStyle = "#fff";
+    k.font = "12px sans-serif";
+    k.fillText(`#${i + 1} before  (x ${Math.round(x / dpr)}, y ${Math.round(y / dpr)}, ${Math.round(w / dpr)}×${Math.round(h / dpr)} css px)`, 10, 16);
+    k.fillText("after", cw + 20, 16);
+    out.crops.push({ box: bx, dataUrl: cc.toDataURL("image/jpeg", 0.85) });
+  }
+  return out;
+}
+
+/** A zoomed crop of a screenshot (coordinates in css px). */
+async function cropImage(spec) {
+  const img = await loadImage(spec.src);
+  const d = spec.dpr || 1;
+  const sx = Math.max(0, Math.round(spec.x * d)), sy = Math.max(0, Math.round(spec.y * d));
+  const sw = Math.min(img.naturalWidth - sx, Math.round(spec.w * d)), sh = Math.min(img.naturalHeight - sy, Math.round(spec.h * d));
+  const scale = spec.scale || 1;
+  const c = document.createElement("canvas");
+  c.width = Math.round((sw / d) * scale * (d >= 1 ? d : 1));
+  c.height = Math.round((sh / d) * scale * (d >= 1 ? d : 1));
+  const ctx = c.getContext("2d");
+  smooth(ctx);
+  ctx.drawImage(img, sx, sy, sw, sh, 0, 0, c.width, c.height);
+  return c.toDataURL(spec.type || "image/jpeg", spec.quality || 0.85);
+}
+
+/**
+ * Contrast of text over photos, glass or the 3D scene: reads the real pixels behind each text line from a screenshot
+ * taken with the glyphs hidden, and measures the contrast of the text colour against every sampled pixel.
+ */
+async function sampleContrast(spec) {
+  const img = await loadImage(spec.src);
+  const d = spec.dpr || 1;
+  const lin = (v) => {
+    v /= 255;
+    return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
+  };
+  const LUT = new Float32Array(256);
+  for (let i = 0; i < 256; i++) LUT[i] = lin(i);
+  const c = document.createElement("canvas");
+  const ctx = c.getContext("2d", { willReadFrequently: true });
+  const out = [];
+  for (const it of spec.items) {
+    const ratios = [];
+    const a = it.fg.a;
+    for (const r of it.rects) {
+      const sx = Math.max(0, Math.floor(r[0] * d));
+      const sy = Math.max(0, Math.floor(r[1] * d));
+      const ex = Math.min(img.naturalWidth, Math.ceil(r[2] * d));
+      const ey = Math.min(img.naturalHeight, Math.ceil(r[3] * d));
+      const w = ex - sx;
+      const h = ey - sy;
+      if (w < 1 || h < 1) continue;
+      c.width = w;
+      c.height = h;
+      ctx.drawImage(img, sx, sy, w, h, 0, 0, w, h);
+      const data = ctx.getImageData(0, 0, w, h).data;
+      const stride = Math.max(1, Math.floor(Math.sqrt((w * h) / 12000)));
+      for (let y = 0; y < h; y += stride) {
+        for (let x = 0; x < w; x += stride) {
+          const o = (y * w + x) * 4;
+          const pr = data[o], pg = data[o + 1], pb = data[o + 2];
+          const l2 = 0.2126 * LUT[pr] + 0.7152 * LUT[pg] + 0.0722 * LUT[pb];
+          const fr = it.fg.r * a + pr * (1 - a), fg = it.fg.g * a + pg * (1 - a), fb = it.fg.b * a + pb * (1 - a);
+          const l1 = 0.2126 * lin(fr) + 0.7152 * lin(fg) + 0.0722 * lin(fb);
+          ratios.push((Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05));
+        }
+      }
+    }
+    if (!ratios.length) {
+      out.push({ key: it.key, n: 0 });
+      continue;
+    }
+    ratios.sort((x, y) => x - y);
+    const pick = (q) => ratios[Math.min(ratios.length - 1, Math.floor(q * ratios.length))];
+    out.push({ key: it.key, n: ratios.length, p5: pick(0.05), p50: pick(0.5), min: ratios[0], failFrac: ratios.filter((v) => v < it.need - 1e-9).length / ratios.length });
+  }
+  img.src = "";
+  return out;
+}
+
+window.QA = { drawSheet, diffImages, cropImage, sampleContrast };
+</script>

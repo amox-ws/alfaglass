@@ -18,11 +18,13 @@ Page specs live in [`SPEC.md`](SPEC.md). The design system is [`../../DESIGN.md`
 
 0. **Spec**: site-wide characteristics and one spec per page (`SPEC.md`). Calibration: the critic scores three current pages so the bar is visible.
 1. **Foundation** (serial): type and spacing scale, grid, shared components (header, footer, buttons, section shells), QA harness. Must pass before pages start.
-2. **Pages**: seven worker groups, up to three in parallel (one git worktree and one port each).
+2. **Pages**: seven worker groups, one after another on this branch. (Parallel worktrees were dropped: concurrent builds and browsers distort the speed measurements, and page workers touch shared files.)
 3. **Integration**: whole Greek site at three widths, regression against approved baselines, final sign-off, merge.
 4. **English** (after the user approves the Greek site as final): English copy and pages brought in line with the approved Greek ones, then the English gates and a critic pass on the English pages.
 
-The user approves between phases.
+The user chose autonomous mode: phases 0–3 run back to back without approvals; the orchestrator signs off each phase. The final merge into `main` and phase 4 wait for the user.
+
+Speed gates use the median of three perf runs (`--perf-runs 3`); slow frames scattered across the whole page with no cluster are treated as machine noise, not as a page defect.
 
 ## Page groups (one worker each)
 

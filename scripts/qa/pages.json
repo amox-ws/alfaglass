@@ -1,0 +1,49 @@
+{
+  "_comment": "One representative URL per template per language, grouped like docs/redesign/PLAN.md 'Page groups'. Greek URLs are unprefixed, English live under /en. expectStatus defaults to 200. Add data-qa-allow-overlap to an element to silence an intentional text overlap.",
+  "groups": {
+    "home": [
+      { "id": "home-el", "url": "/", "lang": "el", "template": "home" },
+      { "id": "home-en", "url": "/en", "lang": "en", "template": "home" }
+    ],
+    "company-facilities": [
+      { "id": "company-el", "url": "/etaireia", "lang": "el", "template": "company" },
+      { "id": "facilities-el", "url": "/egkatastaseis", "lang": "el", "template": "facilities" },
+      { "id": "company-en", "url": "/en/company", "lang": "en", "template": "company" },
+      { "id": "facilities-en", "url": "/en/facilities", "lang": "en", "template": "facilities" }
+    ],
+    "catalogue": [
+      { "id": "glass-el", "url": "/yalopinakes", "lang": "el", "template": "group (glass, categories index)" },
+      { "id": "category-el", "url": "/yalopinakes/epistromenoi-yalopinakes-eidikon-efarmogon", "lang": "el", "template": "category (long title, 5 products)" },
+      { "id": "plastics-el", "url": "/plastika-fylla", "lang": "el", "template": "group (plastics, flat product grid)" },
+      { "id": "related-el", "url": "/synafi-proionta", "lang": "el", "template": "group (related products)" },
+      { "id": "glass-en", "url": "/en/glass", "lang": "en", "template": "group (glass, categories index)" },
+      { "id": "category-en", "url": "/en/glass/coated-glasses-for-special-applications", "lang": "en", "template": "category (long title, 5 products)" },
+      { "id": "plastics-en", "url": "/en/plastic-sheets", "lang": "en", "template": "group (plastics, flat product grid)" },
+      { "id": "related-en", "url": "/en/related-products", "lang": "en", "template": "group (related products)" }
+    ],
+    "product": [
+      { "id": "product-el", "url": "/yalopinakes/diakosmitikoi-yalopinakes/vammenoi-yalopinakes", "lang": "el", "template": "product (14 gallery images, specs table)" },
+      { "id": "product-plastic-el", "url": "/plastika-fylla/polykarvonika-kypselota-fylla", "lang": "el", "template": "product (flat group URL, specs table)" },
+      { "id": "product-en", "url": "/en/glass/decorative-glasses/coloured-painted-glasses", "lang": "en", "template": "product (14 gallery images, specs table)" },
+      { "id": "product-plastic-en", "url": "/en/plastic-sheets/polycarbonate-multiwall-sheets", "lang": "en", "template": "product (flat group URL, specs table)" }
+    ],
+    "news": [
+      { "id": "news-el", "url": "/nea", "lang": "el", "template": "news list" },
+      { "id": "article-el", "url": "/nea/saint-gobain-low-e-se-apothema", "lang": "el", "template": "news article" },
+      { "id": "news-en", "url": "/en/news", "lang": "en", "template": "news list" },
+      { "id": "article-en", "url": "/en/news/saint-gobain-low-e-glass-in-stock", "lang": "en", "template": "news article" }
+    ],
+    "contact": [
+      { "id": "contact-el", "url": "/epikoinonia", "lang": "el", "template": "contact" },
+      { "id": "contact-en", "url": "/en/contact", "lang": "en", "template": "contact" }
+    ],
+    "links-legal": [
+      { "id": "links-el", "url": "/xrisimoi-syndesmoi", "lang": "el", "template": "useful links" },
+      { "id": "legal-el", "url": "/politiki-aporritou", "lang": "el", "template": "legal (longest text)" },
+      { "id": "notfound-el", "url": "/δεν-υπάρχει-αυτή-η-σελίδα", "lang": "el", "template": "404", "expectStatus": 404 },
+      { "id": "links-en", "url": "/en/useful-links", "lang": "en", "template": "useful links" },
+      { "id": "legal-en", "url": "/en/privacy-policy", "lang": "en", "template": "legal (longest text)" },
+      { "id": "notfound-en", "url": "/en/this-page-does-not-exist", "lang": "en", "template": "404", "expectStatus": 404 }
+    ]
+  }
+}

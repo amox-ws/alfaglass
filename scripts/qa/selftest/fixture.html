@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>QA self-test fixture</title>
+<meta name="description" content="Fixture for the QA harness self-test">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 17px/1.6 Arial, Helvetica, sans-serif; color: #1c1a4a; background: #f8fafd; overflow-x: clip; }
+  a { color: #1c1a4a; }
+  .shell { max-width: 1100px; margin: 0 auto; padding: 0 16px; }
+  section { position: relative; padding: 20px 0; }
+  .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border-width: 0; }
+  .truncate { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .line-clamp-2 { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; }
+  .link-underline { background-image: linear-gradient(currentColor, currentColor); background-size: 0% 1px; background-repeat: no-repeat; background-position: 0 100%; }
+  @keyframes slide { to { transform: translateX(-400px); } }
+  @keyframes marquee { to { transform: translateX(-50%); } }
+  .rm-hide { }
+  @media (prefers-reduced-motion: reduce) { .rm-hide { opacity: 0; } }
+  h1 { font-size: 56px; line-height: 1; margin: 60px 0 10px; }
+  h2 { font-size: 30px; line-height: 1.1; margin: 0 0 12px; }
+  h3 { font-size: 22px; margin: 0 0 6px; }
+  p { margin: 0 0 12px; }
+</style>
+</head>
+<body>
+<a class="sr-only" href="#main">Skip to content</a>
+<header>
+  <nav class="shell"><a href="#top" style="display:inline-block;padding:13px 16px">Home</a><a href="#top" style="display:inline-block;padding:13px 16px">Products</a></nav>
+</header>
+<main id="main">
+
+  <!-- CONTROL: intentional design that must produce no findings -->
+  <section style="height:260px;overflow:hidden;background:#f8fafd" data-theme="frost">
+    <div aria-hidden="true" id="ok-pane" style="position:absolute;left:18%;top:14px;width:260px;height:220px;overflow:hidden">
+      <p style="font-size:120px;line-height:.8;white-space:nowrap;margin:0">DECORATIVE COPY OF THE HEADLINE</p>
+    </div>
+    <div class="shell"><h1>Fixture headline</h1><p>A lead paragraph that sits under the glass panes.</p></div>
+  </section>
+
+  <section style="overflow:hidden" data-theme="deep-track">
+    <div class="shell"><h2>Track</h2></div>
+    <div id="ok-track" style="overflow:hidden">
+      <div style="display:flex;gap:24px;width:max-content;animation:slide 30s linear infinite;padding-left:16px">
+        <article style="width:420px"><h3>1999</h3><p>The first card of a horizontal track that is wider than the screen and moves sideways.</p></article>
+        <article style="width:420px"><h3>2004</h3><p>The second card is cut by the edge of the track on a phone and on a laptop.</p></article>
+        <article style="width:420px"><h3>2012</h3><p>The third card is entirely outside the visible area until the track moves.</p></article>
+        <article style="width:420px"><h3>2021</h3><p>The fourth card is far away to the right.</p></article>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding:0">
+    <div id="ok-scene" style="height:1400px"><div style="position:sticky;top:0;height:100vh;overflow:hidden;background:#dfe7f3"><div class="shell"><h2 style="padding-top:40px">Pinned scene</h2><p>Text on a pinned stage that stays while the track scrolls.</p></div></div></div>
+  </section>
+
+  <section>
+    <div aria-hidden="true" id="ok-marquee" style="display:flex;overflow:hidden;white-space:nowrap;border-top:1px solid #ccd;border-bottom:1px solid #ccd">
+      <div style="display:flex;flex-shrink:0;animation:marquee 20s linear infinite;font-size:80px;font-weight:800;line-height:1.1"><span style="padding:0 30px">ACRYLIC</span><span style="padding:0 30px">POLYCARBONATE</span><span style="padding:0 30px">PET-G</span></div>
+      <div style="display:flex;flex-shrink:0;animation:marquee 20s linear infinite;font-size:80px;font-weight:800;line-height:1.1"><span style="padding:0 30px">ACRYLIC</span><span style="padding:0 30px">POLYCARBONATE</span><span style="padding:0 30px">PET-G</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="shell">
+      <h2>Controls</h2>
+      <p class="truncate" id="ok-truncate" style="width:200px">A very long sentence that is cut with an ellipsis on purpose</p>
+      <p class="line-clamp-2" id="ok-clamp" style="width:220px">A long paragraph that is limited to two lines with line clamp. It carries on for several more lines than two so that the last lines are hidden by design and nobody should complain.</p>
+      <span class="sr-only" id="ok-sr">Visually hidden text for screen readers</span>
+      <div id="ok-scroller" style="overflow-x:auto;width:300px"><table style="width:900px;border-collapse:collapse"><tr><td style="padding:6px 20px 6px 0;white-space:nowrap">Code</td><td style="padding:6px 20px 6px 0;white-space:nowrap">Description of the product</td><td style="padding:6px 20px 6px 0;white-space:nowrap">Colour</td><td style="padding:6px 20px 6px 0;white-space:nowrap">Base glass</td><td style="padding:6px 20px 6px 0;white-space:nowrap">Thickness</td><td style="padding:6px 20px 6px 0;white-space:nowrap">Dimension</td></tr></table></div>
+      <div id="ok-allow" data-qa-allow-overlap style="position:relative;height:30px"><p style="position:absolute;left:0;top:0;margin:0">Allowed A</p><p style="position:absolute;left:6px;top:4px;margin:0">Allowed B</p></div>
+      <p style="display:none">Not rendered text</p>
+      <p style="visibility:hidden;margin-top:-24px">Hidden but taking space</p>
+      <p id="ok-large" style="font-size:28px;color:#8a8fa8;line-height:1.2">Large text at 3.2 to 1</p>
+      <p id="ok-bold" style="font-size:19px;font-weight:700;color:#8a8fa8">Bold 19px text at 3.2 to 1</p>
+      <p><a id="ok-underline" class="link-underline" href="#top" style="display:inline-block;padding:10px 0">Link with a hairline underline</a></p>
+      <p id="ok-running">Some running text with an <a href="#top" style="font-size:12px">inline link</a> inside the sentence.</p>
+      <div id="ok-glass" style="position:relative;padding:12px 16px;background:linear-gradient(180deg,rgba(255,255,255,.38),rgba(255,255,255,0) 46%),rgba(250,251,253,.4);backdrop-filter:blur(10px)"><p style="margin:0">Text on a frosted glass panel</p></div>
+      <div style="position:relative;height:60px;margin-top:12px"><canvas aria-hidden="true" width="300" height="60" style="position:absolute;inset:0;width:100%;height:60px"></canvas><p id="ok-canvas" style="position:relative;margin:0;padding-top:14px">Text over a canvas scene</p></div>
+      <p><span lang="el" id="ok-lang">ΕΛ</span> <img id="ok-decorative" src="/ok.svg" alt="" width="24" height="24"></p>
+      <address id="ok-address">Θέση Κύριλλος, Ασπρόπυργος</address>
+    </div>
+  </section>
+
+  <!-- DEFECTS: each of these must be found -->
+  <section>
+    <div class="shell" style="padding-top:6px">
+      <h2 id="h-defects">Defects</h2>
+      <div id="bad-overflow" style="width:1800px;height:30px;background:#cdd7ea;padding:4px">A wide element that sticks out of the page</div>
+      <div id="bad-clip-self" style="width:70px;overflow:hidden;white-space:nowrap;margin-top:12px">This text is much wider than its box</div>
+      <div style="height:14px;overflow:hidden;margin-top:12px"><p id="bad-clip-anc" style="margin:0;font-size:22px;line-height:1.3">Text cut by its container</p></div>
+      <div style="position:relative;height:60px;margin-top:20px"><p id="bad-overlap-a" style="position:absolute;left:0;top:0;margin:0">Overlapping text A</p><p id="bad-overlap-b" style="position:absolute;left:20px;top:6px;margin:0">Overlapping text B</p></div>
+      <p><img id="bad-broken" src="/missing-image.png" alt="a broken image" width="40" height="40"> <img id="bad-noalt" src="/ok.svg" width="40" height="40"></p>
+      <p id="bad-contrast" style="color:#a6adbd">Small light grey text on a pale background</p>
+      <div style="padding:6px 0"><a id="bad-tap" href="#x" style="display:inline-block;width:18px;height:18px;background:#036;color:#fff;font-size:10px;line-height:18px;text-align:center;vertical-align:top">x</a> <a id="warn-tap" href="#y" style="display:inline-block;width:32px;height:32px;background:#036;color:#fff;line-height:32px;text-align:center;vertical-align:top">y</a></div>
+      <h4 id="bad-skip" style="margin:12px 0">A heading that skips levels</h4>
+      <h2 id="bad-rm" class="rm-hide">Heading hidden when motion is reduced</h2>
+      <p class="greek" data-n="1" id="greek-1">Καλημέρα κόσμε</p>
+      <p class="greek" data-n="2" id="greek-2">Τα πάντα για το γυαλί</p>
+      <p class="greek" data-n="3" id="greek-3">Υαλοπίνακες ασφαλείας</p>
+      <p class="greek" data-n="4" id="greek-4">Πλαστικά φύλλα</p>
+      <h1 id="extra-h1" data-extra="1">A second h1</h1>
+    </div>
+  </section>
+</main>
+<footer><div class="shell"><a href="#top" style="display:inline-block;padding:12px 0">Footer link</a></div></footer>
+<script>
+  const q = new URLSearchParams(location.search);
+  const greek = Number(q.get("greek") ?? 4);
+  document.querySelectorAll(".greek").forEach((el) => { if (Number(el.dataset.n) > greek) el.remove(); });
+  if (!q.has("h1")) document.querySelector("[data-extra]").remove();
+  if (q.has("quiet")) { /* no console noise */ } else {
+    console.error("qa-selftest console error");
+    setTimeout(() => { throw new Error("qa-selftest exception"); }, 30);
+  }
+  if (q.has("quiet")) document.getElementById("bad-broken")?.setAttribute("src", "/ok.svg");
+  if (q.has("nolandmarks")) { document.querySelector("header")?.remove(); document.querySelector("footer")?.remove(); }
+</script>
+</body>
+</html>
