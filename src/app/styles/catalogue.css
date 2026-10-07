@@ -1,6 +1,114 @@
 /*
  * Catalogue and product (lane Catalogue + Product).
- * Created empty by the System. This file is imported by globals.css into the components layer, after every System rule: a rule here wins
- * a tie with a System one, and Tailwind utilities still win over it. Use the tokens (surface, fg, line, accent) and the System
- * classes (t-*, glass, rack-lines, glint, lift ...); animate transform and opacity only.
+ * This file is imported by globals.css into the components layer, after every System rule: a rule here wins a tie with a System one, and
+ * Tailwind utilities still win over it. Tokens (surface, fg, line, accent) and the System classes only; animate transform and opacity only.
  */
+
+/* ------------------------------------------------------------------ entrances without JavaScript */
+
+/*
+ * The blocks below the fold of the catalogue and the CNC service rise as they scroll into view, on a CSS scroll timeline: compositor-only,
+ * no JavaScript and nothing armed after hydration (the shared `Reveal` reads the layout of every block it arms, a forced reflow each,
+ * and the pages are long). The base rule is the finished state: a browser without scroll timelines, reduced motion, a full-page
+ * screenshot and everything already on screen at load show it as it is (an animation with `forwards` has no effect before its range).
+ * The range is a distance (not a share of the block), so a tall list is as quick to appear as a heading.
+ */
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    translate: 0 16px;
+  }
+}
+@keyframes rise-mask {
+  from {
+    translate: 0 140%;
+  }
+}
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .rise {
+      animation: rise-in linear forwards;
+      animation-timeline: view();
+      animation-range: entry 0% entry 120px;
+    }
+    .rise-mask {
+      view-timeline: --rise-mask block;
+    }
+    .rise-mask .mask-line > span {
+      animation: rise-mask linear forwards;
+      animation-timeline: --rise-mask;
+      animation-range: entry 0% entry 90px;
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ the tool wall of the related products */
+
+/* The four families as tall plates: 2 across from md, 4 from xl (the plate is 4:3 while two across, 4:5 while four) */
+.wall {
+  --wall-r: 4 / 3;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3.5rem 2rem;
+}
+@media (min-width: 80rem) {
+  .wall {
+    --wall-r: 4 / 5;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+/* ------------------------------------------------------------------ the product page */
+
+/* The anchors of the data sheet (and, from lg, the quote button) stay under the header while the tables are read */
+.sheet-bar {
+  position: sticky;
+  top: calc(var(--header-h) - 0.5rem);
+  z-index: 10;
+  border-bottom: 1px solid var(--line);
+  background: var(--surface);
+}
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  min-height: 2.25rem;
+  padding-inline: 1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  color: var(--fg);
+}
+a.pill {
+  min-height: 2.75rem;
+  padding-inline: 0.75rem;
+  transition:
+    border-color 0.3s,
+    background-color 0.3s;
+}
+a.pill:hover {
+  border-color: var(--accent);
+  background: var(--surface-2);
+}
+
+/* ------------------------------------------------------------------ even plates */
+
+/*
+ * The plates of a list or a gallery are all one size. The kit caps a plate at the natural width of its photograph (so nothing is ever
+ * enlarged), which in a row of cards or a strip of photographs leaves plates of every width and height, and a gallery whose controls float
+ * below its tallest slide. Here the plate keeps the column's width and a photograph smaller than it stands in the middle at its own size
+ * (`scale-down`: it is never enlarged either). The kit sets the cap and the ratio inline, and the fit with a utility class, so these three
+ * rules need `!important`; they apply only inside `.plates-even` (and, for the ratio, `.plates-43`).
+ */
+.plates-even .specimen {
+  max-width: none !important;
+}
+.plates-even .specimen-plate img {
+  object-fit: scale-down !important;
+}
+.plates-43 .specimen-plate {
+  aspect-ratio: 4 / 3 !important;
+}
+@media (min-width: 40rem) {
+  a.pill {
+    padding-inline: 1rem;
+  }
+}

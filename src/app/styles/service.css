@@ -1,6 +1,862 @@
 /*
  * The CNC service page and the estimator (lane Catalogue + Product).
- * Created empty by the System. This file is imported by globals.css into the components layer, after every System rule: a rule here wins
- * a tie with a System one, and Tailwind utilities still win over it. Use the tokens (surface, fg, line, accent) and the System
- * classes (t-*, glass, rack-lines, glint, lift ...); animate transform and opacity only.
+ * This file is imported by globals.css into the components layer, after every System rule: a rule here wins a tie with a System one, and
+ * Tailwind utilities still win over it. Tokens (surface, fg, line, accent, edge) and the System classes only; only transform and opacity
+ * animate, and the base rule of every scene is its final frame.
  */
+
+/* ------------------------------------------------------------------ the dimension line of the hero */
+
+/* The length of the bed at the width of the screen: the top edge of the bed that the scene below draws */
+.dim {
+  margin-top: 2rem;
+  /* it rises like the rest of the first screen, but without fading in: the figures are the largest paint of the page, and a fade would put its LCP back by the length of the fade */
+  animation: dim-rise 1.1s var(--ease-out) 0.35s backwards;
+}
+@keyframes dim-rise {
+  from {
+    translate: 0 24px;
+  }
+}
+@media (min-width: 48rem) {
+  .dim {
+    margin-top: 2.5rem;
+  }
+}
+.dim-value {
+  text-align: center;
+  /* the digits stand on the line: the line box of the display face is taller than its figures */
+  margin-bottom: -0.1em;
+}
+.dim-unit {
+  margin-left: 0.5rem;
+  color: var(--fg-muted);
+}
+.dim-line {
+  display: flex;
+  align-items: center;
+  height: 1.5rem;
+  margin-top: 0.5rem;
+}
+.dim-tick {
+  flex: none;
+  width: 1px;
+  height: 1.5rem;
+  background: var(--edge);
+}
+.dim-rule {
+  flex: 1 1 auto;
+  height: 1px;
+  background: var(--edge);
+}
+.dim-arrow {
+  flex: none;
+  width: 0.75rem;
+  height: 0.5625rem;
+  background: var(--edge);
+}
+.dim-arrow[data-side="start"] {
+  clip-path: polygon(0 50%, 100% 0, 100% 100%);
+}
+.dim-arrow[data-side="end"] {
+  clip-path: polygon(100% 50%, 0 0, 0 100%);
+}
+
+/* ------------------------------------------------------------------ the bed scene */
+
+/*
+ * The track and its stage. Base rule = the finished drawing: the stage is an ordinary block, the pins and the legend are there, and there is
+ * no empty scroll. With scroll timelines and motion allowed (the @supports block below) the track is 240svh (160svh below md), the stage
+ * is pinned for the length of it and every layer of the drawing runs on one view timeline, `--bed`.
+ */
+.bed {
+  position: relative;
+  background: var(--surface);
+}
+.bed-stage {
+  position: relative;
+  overflow: hidden;
+  padding-block: 2rem 3rem;
+}
+.bed-head {
+  padding-bottom: 1.25rem;
+}
+.bed-title {
+  color: var(--fg-muted);
+}
+.bed-scale {
+  margin-top: 0.5rem;
+  color: var(--fg);
+}
+.bed-port .bp-label-person {
+  display: none;
+}
+@media (min-width: 48rem) {
+  .bed-scale {
+    display: none;
+  }
+}
+.bed-draw {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.bed-land {
+  display: none;
+  position: relative;
+  width: min(100%, calc((100svh - 17.5rem) * 2.0758));
+  min-width: min(100%, 30rem);
+}
+.bed-port {
+  position: relative;
+  width: min(100%, 22rem, calc((100svh - 12.5rem) * 0.4818));
+}
+@media (min-width: 48rem) {
+  .bed-land {
+    display: block;
+  }
+  .bed-port {
+    display: none;
+  }
+}
+
+/* The pins: numbered balloons on the drawing and a hairline to what they point at; the legend names them */
+.bed-pins {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.bed-leaders {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.bed-leader {
+  stroke: var(--edge);
+  stroke-width: 1px;
+  vector-effect: non-scaling-stroke;
+}
+.bed-pin,
+.bed-no {
+  display: grid;
+  flex: none;
+  width: 1.5rem;
+  height: 1.5rem;
+  place-items: center;
+  border: 1px solid var(--edge);
+  border-radius: 9999px;
+  background: var(--surface);
+  color: var(--edge);
+  line-height: 1;
+  letter-spacing: 0;
+}
+.bed-pin {
+  position: absolute;
+  transform: translate(-50%, -50%);
+}
+.bed-legend {
+  display: none;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1.5rem 2rem;
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+}
+.bed-legend li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 0.75rem;
+  align-content: start;
+}
+.bed-legend .bed-no {
+  grid-row: span 2;
+}
+@media (min-width: 48rem) {
+  .bed-legend {
+    display: grid;
+  }
+}
+@media (min-width: 64rem) {
+  .bed-legend {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+  }
+}
+
+/* The film (when the slot has one): the bed's rectangle inside the drawing, from lg; below lg, and without motion, it follows the scene */
+.bed-film {
+  display: none;
+  position: absolute;
+  left: 5.8394%;
+  top: 12.1212%;
+  width: 88.3212%;
+  height: 63.6364%;
+  overflow: hidden;
+}
+
+@keyframes bed-fade {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes bed-person {
+  from {
+    translate: 5.2cqw 0;
+  }
+}
+
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .bed {
+      height: 160svh;
+      view-timeline: --bed block;
+      view-timeline-inset: 0;
+    }
+    .bed-stage {
+      position: sticky;
+      top: 0;
+      display: grid;
+      grid-template-rows: auto minmax(0, 1fr) auto;
+      height: 100svh;
+      padding-block: calc(var(--header-h) + 0.5rem) 1.25rem;
+    }
+    .bed-legend {
+      margin-top: 0;
+    }
+    @media (min-width: 48rem) {
+      .bed {
+        height: 240svh;
+      }
+    }
+    @media (min-width: 64rem) {
+      .bed-film {
+        display: block;
+        animation: bed-fade linear both;
+        animation-timeline: --bed;
+        animation-range: contain 80% contain 100%;
+      }
+      .bed-after {
+        display: none;
+      }
+    }
+
+    /* 0–20 %: you stand next to the person, and the drawing pulls back until the whole bed fits */
+    .bed .bp-zoom {
+      animation: zoom-out linear both;
+      animation-timeline: --bed;
+      animation-range: contain 0% contain 20%;
+    }
+    .bed .bp-label-person {
+      animation: bed-person linear both;
+      animation-timeline: --bed;
+      animation-range: contain 0% contain 20%;
+    }
+    @media (max-width: 47.99rem) {
+      .bed .bp-label-person {
+        animation: none;
+      }
+    }
+    .bed-title {
+      animation: bed-fade linear both;
+      animation-timeline: --bed;
+      animation-range: contain 14% contain 26%;
+    }
+
+    /* 20–45 %: the 8 vacuum zones light up one after another, and the two dimension lines are drawn */
+    .bed .bp-zone {
+      animation: zones linear both;
+      animation-timeline: --bed;
+      animation-range-start: contain calc(20% + var(--i) * 2.6%);
+      animation-range-end: contain calc(26% + var(--i) * 2.6%);
+    }
+    .bed .bp-dims {
+      animation: wipe-clip linear both;
+      animation-timeline: --bed;
+      animation-range: contain 20% contain 40%;
+    }
+    .bed .bp-dims .bp-wipe-in {
+      animation: wipe-content linear both;
+      animation-timeline: --bed;
+      animation-range: contain 20% contain 40%;
+    }
+    .bed .bp-label-len,
+    .bed .bp-label-wid,
+    .bed .bp-label-schematic {
+      animation: bed-fade linear both;
+      animation-timeline: --bed;
+      animation-range: contain 24% contain 38%;
+    }
+
+    /* 45–80 %: the gantry crosses the bed, and the demo job appears behind the spindle */
+    .bed .bp-gantry {
+      animation: sweep linear both;
+      animation-timeline: --bed;
+      animation-range: contain 45% contain 80%;
+    }
+    .bed .bp-path {
+      animation: wipe-clip linear both;
+      animation-timeline: --bed;
+      animation-range: contain 45% contain 80%;
+    }
+    .bed .bp-path .bp-wipe-in {
+      animation: wipe-content linear both;
+      animation-timeline: --bed;
+      animation-range: contain 45% contain 80%;
+    }
+
+    /* 80–100 %: the pins appear one after another, and the legend names them */
+    .bed-pin,
+    .bed-leader,
+    .bed-legend li {
+      animation: bed-fade linear both;
+      animation-timeline: --bed;
+      animation-range-start: contain calc(80% + var(--i) * 3%);
+      animation-range-end: contain calc(88% + var(--i) * 3%);
+    }
+  }
+}
+
+/* ------------------------------------------------------------------ what we do: the operations */
+
+.ops {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  border-top: 1px solid var(--line);
+}
+.ops-row {
+  display: grid;
+  grid-template-columns: 4rem minmax(0, 1fr);
+  align-items: center;
+  column-gap: 1.25rem;
+  row-gap: 0.5rem;
+  min-height: 5rem;
+  padding-block: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+/* below md the name sits beside the pictogram and the sentence under both, with the whole width of the row */
+.ops-text {
+  display: contents;
+}
+.ops-text > p {
+  grid-column: 1 / -1;
+  margin-top: 0;
+}
+@media (min-width: 48rem) {
+  .ops-text {
+    display: block;
+  }
+  .ops-text > p {
+    margin-top: 0.25rem;
+  }
+}
+@media (min-width: 64rem) {
+  .ops {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-rows: repeat(4, auto);
+    grid-auto-flow: column;
+    column-gap: 2rem;
+    border-top: 0;
+  }
+  .ops-row {
+    min-height: 5.5rem;
+    column-gap: 1.5rem;
+    border-top: 1px solid var(--line);
+    border-bottom: 0;
+  }
+  /* seven rows in two columns: the last of each column closes it */
+  .ops-row:nth-child(4),
+  .ops-row:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+}
+
+/* The pictograms: the material in the text colour, the tool's work in the accent, 1px lines that do not scale */
+.pict {
+  flex: none;
+  width: 64px;
+  height: 40px;
+  color: var(--fg-muted);
+}
+.pict * {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1px;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+  vector-effect: non-scaling-stroke;
+}
+.pict .pict-tool {
+  stroke: var(--accent);
+}
+.pict .pict-dash {
+  stroke-dasharray: 3 3;
+}
+
+/* ------------------------------------------------------------------ materials */
+
+.mats {
+  border-top: 1px solid var(--line-strong);
+}
+.mats-row {
+  display: grid;
+  gap: 0.75rem;
+  padding-block: 1rem;
+  border-bottom: 1px solid var(--line);
+}
+.mats-stock .text-link {
+  min-width: 2.75rem;
+}
+.mats-gauge {
+  margin-top: 0.25rem;
+}
+@media (min-width: 64rem) {
+  .mats-row {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 2rem;
+    align-items: center;
+    min-height: 4.25rem;
+  }
+  .mats-name {
+    grid-column: 1 / span 4;
+  }
+  .mats-stock {
+    grid-column: 5 / span 5;
+  }
+  .mats-gauge {
+    grid-column: 10 / span 3;
+    margin-top: 0;
+  }
+}
+
+/* ------------------------------------------------------------------ who it is for */
+
+.aud-row {
+  padding-block: 1.5rem;
+  border-top: 1px solid var(--line);
+}
+.aud-row:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+@media (min-width: 64rem) {
+  .aud-row:first-child {
+    border-top: 1px solid var(--line);
+    padding-top: 1.5rem;
+  }
+  .aud-row:last-child {
+    border-bottom: 1px solid var(--line);
+  }
+}
+.chip {
+  display: inline-flex;
+  align-items: center;
+  min-height: 2rem;
+  padding-inline: 0.75rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  color: var(--fg);
+}
+
+/* ------------------------------------------------------------------ how ordering works: four steps on one edge line */
+
+.steps {
+  position: relative;
+  display: grid;
+  gap: 2.5rem;
+  padding-left: 2.25rem;
+}
+.steps::before {
+  content: "";
+  position: absolute;
+  left: 0.3125rem;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 2px;
+  background: linear-gradient(180deg, var(--edge-deep), var(--edge) 45%, var(--edge) 55%, var(--edge-deep));
+}
+.step {
+  position: relative;
+}
+.step::before {
+  content: "";
+  position: absolute;
+  left: -2.25rem;
+  top: 0.125rem;
+  width: 0.75rem;
+  height: 0.75rem;
+  border: 1px solid var(--edge-deep);
+  border-radius: 9999px;
+  background: var(--surface);
+}
+.step-no {
+  display: block;
+  margin-bottom: 0.5rem;
+}
+@media (min-width: 64rem) {
+  .steps {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 2rem;
+    padding: 2.5rem 0 0;
+  }
+  .steps::before {
+    inset: 0.3125rem 0 auto 0;
+    width: auto;
+    height: 2px;
+    background: var(--edge-gradient);
+  }
+  .step::before {
+    left: 0;
+    top: -2.5rem;
+  }
+}
+
+/* ------------------------------------------------------------------ the estimator */
+
+/* Until the form is fetched the section holds the height of the form in its first state, so nothing below it moves when it arrives */
+.est-gate[data-alive]:not([data-on]) {
+  min-height: 96rem;
+}
+@media (min-width: 64rem) {
+  .est-gate[data-alive]:not([data-on]) {
+    min-height: 49rem;
+  }
+}
+.est-layout {
+  display: grid;
+  gap: 3rem;
+}
+@media (min-width: 64rem) {
+  .est-layout {
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: 2rem;
+    align-items: start;
+  }
+  .est-main {
+    grid-column: 1 / span 7;
+  }
+  .est-panel {
+    grid-column: 8 / span 5;
+    position: sticky;
+    top: calc(var(--header-h) + 1.5rem);
+  }
+}
+.est-step {
+  min-width: 0;
+  margin: 0 0 2.5rem;
+  padding: 0;
+  border: 0;
+}
+.est-legend {
+  display: block;
+  width: 100%;
+  margin-bottom: 1rem;
+  padding: 0;
+}
+.est-legend > * + * {
+  margin-left: 0.75rem;
+}
+.est-no {
+  display: inline-grid;
+  width: 1.75rem;
+  height: 1.75rem;
+  place-items: center;
+  vertical-align: 0.15em;
+  border: 1px solid var(--line-strong);
+  border-radius: 9999px;
+  color: var(--accent);
+}
+
+.est-input {
+  width: 100%;
+  min-height: 3rem;
+  padding: 0.5rem 0.875rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  background: var(--snow);
+  color: var(--fg);
+  /* 16px in every input, so iOS does not zoom */
+  font-family: var(--font-mono);
+  font-size: 1rem;
+  line-height: 1.3;
+  font-variant-numeric: tabular-nums;
+}
+.est-input[aria-invalid="true"] {
+  border-color: var(--signal-ink);
+}
+.est-select {
+  appearance: none;
+  padding-right: 2.75rem;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8' fill='none' stroke='%23281a6a' stroke-width='1.5'%3E%3Cpath d='m1 1.5 5 5 5-5'/%3E%3C/svg%3E");
+  background-position: right 1rem center;
+  background-repeat: no-repeat;
+  cursor: pointer;
+}
+.est-note {
+  min-height: 6.5rem;
+  resize: vertical;
+}
+.est-note-help {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+.est-f {
+  display: grid;
+  gap: 0.375rem;
+  min-width: 0;
+}
+
+.est-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.est-chip {
+  display: inline-flex;
+  min-width: 3rem;
+  min-height: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  background: var(--snow);
+  color: var(--fg);
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s;
+}
+.est-chip:hover {
+  border-color: var(--accent);
+}
+.est-chip:has(input:checked) {
+  border-color: var(--fg);
+  background: var(--fg);
+  color: var(--surface);
+}
+.est-chip:has(input:focus-visible) {
+  outline: 2px solid var(--accent);
+  outline-offset: 3px;
+}
+
+/* A piece: a small card on a phone (the three inputs on one line, the verdict under them, remove at the top right) */
+.est-head {
+  display: none;
+}
+.est-rows {
+  display: grid;
+  gap: 0.75rem;
+}
+.est-row {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.75rem;
+  padding: 1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 2px;
+  background: color-mix(in oklab, var(--snow) 55%, var(--surface));
+}
+.est-row[data-active] {
+  border-color: var(--accent);
+}
+.est-n,
+.est-state {
+  grid-column: 1 / -1;
+}
+.est-n {
+  padding-right: 3rem;
+  color: var(--fg);
+}
+.est-n-num {
+  display: none;
+}
+.est-rm {
+  position: absolute;
+  top: 0.25rem;
+  right: 0.25rem;
+  display: grid;
+  width: 2.75rem;
+  height: 2.75rem;
+  place-items: center;
+  color: var(--fg);
+  border-radius: 9999px;
+  transition: background-color 0.3s;
+}
+.est-rm:hover {
+  background: var(--surface-2);
+}
+.est-state {
+  min-height: 1.4em;
+}
+.est-status {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 1rem;
+  line-height: 1.4;
+  color: var(--fg);
+}
+.est-status svg {
+  margin-top: 0.2em;
+}
+.est-status[data-fit="fits"] svg,
+.est-status[data-fit="rotated"] svg {
+  color: var(--accent);
+}
+.est-status[data-fit="out"] {
+  color: var(--signal-ink);
+}
+.est-help {
+  display: block;
+  color: var(--fg-muted);
+}
+@media (min-width: 64rem) {
+  /* a table-like grid: # · width · length · quantity · verdict · remove, with the column titles above it */
+  .est-head,
+  .est-row {
+    display: grid;
+    grid-template-columns: 2.5rem minmax(0, 9rem) minmax(0, 9rem) minmax(0, 6rem) minmax(0, 1fr) 2.75rem;
+    column-gap: 1rem;
+  }
+  .est-head {
+    padding: 0 0 0.5rem;
+  }
+  .est-row {
+    align-items: start;
+    padding: 0.75rem 0;
+    border: 0;
+    border-top: 1px solid var(--line);
+    background: none;
+  }
+  .est-rows {
+    gap: 0;
+  }
+  .est-row[data-active] {
+    box-shadow: inset 2px 0 0 var(--accent);
+    padding-left: 0.5rem;
+    margin-left: -0.5rem;
+  }
+  .est-n {
+    grid-column: 1;
+    padding: 0.875rem 0 0;
+  }
+  .est-n-word {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .est-n-num {
+    display: block;
+  }
+  .est-state {
+    grid-column: auto;
+    padding-top: 0.75rem;
+  }
+  .est-rm {
+    position: static;
+    margin-top: 0.125rem;
+  }
+  .est-lab {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+}
+
+/* The live summary: a solid panel, the piece to scale, the totals, the buttons */
+.est-panel {
+  display: grid;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+}
+@media (min-width: 48rem) {
+  .est-panel {
+    padding: 1.75rem;
+  }
+}
+.est-total {
+  padding-top: 1rem;
+  border-top: 1px solid var(--line-strong);
+  color: var(--fg);
+}
+.est-send {
+  display: grid;
+  gap: 0.75rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--line-strong);
+}
+.est-btn {
+  display: inline-flex;
+  min-height: 3rem;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding-inline: 1.5rem;
+  border: 1px solid transparent;
+  border-radius: 9999px;
+  font-weight: 600;
+  text-align: center;
+  transition:
+    background-color 0.3s,
+    border-color 0.3s,
+    color 0.3s;
+}
+.est-btn-solid {
+  background: var(--fg);
+  color: var(--surface);
+}
+.est-btn-solid:hover {
+  background: var(--accent);
+}
+.est-btn-line {
+  border-color: var(--line-strong);
+  color: var(--fg);
+}
+.est-btn-line:hover {
+  border-color: var(--fg);
+}
+/* Disabled: an outline in words you can read (a faded fill would fail contrast), with the reason beside it */
+.est-btn:disabled {
+  border: 1px dashed var(--line-strong);
+  background: transparent;
+  color: var(--fg-muted);
+  cursor: not-allowed;
+}
+
+/* The CNC hero has no photograph yet: its title follows the breadcrumbs closely, so the dimension line is in the first screen */
+.hero-cine[data-theme="deep"][data-media="none"] .hero-cine-body {
+  margin-top: 1rem;
+}
+
+/* A link inside a sentence: underlined, without the 44px box of `.text-link` (which would open the line spacing of the paragraph) */
+.inline-link {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+  text-decoration-color: color-mix(in oklab, currentColor 45%, transparent);
+  transition: text-decoration-color 0.3s;
+}
+.inline-link:hover,
+.inline-link:focus-visible {
+  text-decoration-color: currentColor;
+}
+
+/*
+ * The hatch of a piece that sticks out of the field (MachineBlueprint): the kit keeps every stroke of a drawing at 1px
+ * (`vector-effect: non-scaling-stroke`), which turns the 14-unit stripes of its pattern into a solid block. Inside the pattern they scale.
+ */
+.bp pattern * {
+  vector-effect: none;
+}
