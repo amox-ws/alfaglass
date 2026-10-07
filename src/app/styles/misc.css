@@ -95,9 +95,25 @@
     animation: glint-edge 1.2s var(--ease-glint) 1 both;
   }
 }
+/* A logo in an article: a plate as wide as the logo (plus its frame), never wider than the column; its white ground melts into the plate */
+.article-logo {
+  display: block;
+  width: 100%;
+  padding: 1.5rem;
+}
+.article-logo img {
+  display: block;
+  width: 100%;
+  height: auto;
+  mix-blend-mode: multiply;
+}
 /* A narrow column of plates in an article: two across on a phone and a tablet, one in columns 9–12 */
 .article-media .gallery-plates {
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+/* a single photograph takes the whole column */
+.article-media .gallery-plates:has(> li:only-child) {
+  grid-template-columns: minmax(0, 1fr);
 }
 @media (min-width: 64rem) {
   .article-media .gallery-plates {

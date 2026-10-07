@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { Cta } from "@/components/Cta";
 import { MediaGallery } from "@/components/kit/MediaGallery";
@@ -27,6 +28,21 @@ function coverOf(images: string[]) {
     return size !== null && size.w >= 640;
   });
   return photo ?? images[0];
+}
+
+/** A picture narrower than this is a logo: it sits on its own plate at its own size (never larger than its file) and does not open the lightbox. */
+const LOGO_BELOW = 640;
+/** The padding of that plate (1.5rem each side) and its hairline, in px: the plate is as wide as the logo plus this, at most. */
+const LOGO_PLATE_FRAME = 2 * 24 + 2;
+
+function ArticleLogo({ src, alt }: { src: string; alt: string }) {
+  const size = mediaSize(src);
+  if (!size) return null;
+  return (
+    <div className="specimen-plate article-logo" style={{ maxWidth: size.w + LOGO_PLATE_FRAME }}>
+      <Image src={src} alt={alt} width={size.w} height={size.h} sizes={`${size.w}px`} />
+    </div>
+  );
 }
 
 /**
@@ -102,7 +118,8 @@ function Neighbour({ lang, index, dir }: { lang: Lang; index: number; dir: "prev
 
 /**
  * An article: crumbs, the mono date, the title (`t-h1`, three lines at most), the text at the lead size in columns 1–8 (68ch) and its
- * pictures on specimen plates in columns 9–12 (a logo is never larger than its file), opening the lightbox. The way back to the list
+ * pictures in columns 9–12: a logo on a plate of its own at its own size (never larger than its file), the photographs on specimen plates that
+ * open the lightbox. The way back to the list
  * follows, with the neighbouring articles when there are any.
  */
 export function ArticleView({ lang, index }: { lang: Lang; index: number }) {
@@ -115,6 +132,9 @@ export function ArticleView({ lang, index }: { lang: Lang; index: number }) {
   const at = byDate.indexOf(index);
   const older = at > 0 ? byDate[at - 1] : undefined;
   const newer = at < byDate.length - 1 ? byDate[at + 1] : undefined;
+  const pictures = n.images.map((src, i) => ({ src, alt: d.news.imageAlt(n.title, i + 1), logo: (mediaSize(src)?.w ?? Infinity) < LOGO_BELOW }));
+  const logos = pictures.filter((p) => p.logo);
+  const photos = pictures.filter((p) => !p.logo);
   return (
     <>
       <section data-theme="frost" className="page-hero-tight relative overflow-hidden bg-surface pt-[calc(var(--header-h)+3rem)] md:pt-[calc(var(--header-h)+5rem)]">
@@ -138,12 +158,14 @@ export function ArticleView({ lang, index }: { lang: Lang; index: number }) {
             <Prose html={n.html} size="lead" className="[&_li]:text-fg" />
           </Reveal>
           <Reveal delay={0.08} className="article-media lg:col-span-4">
-            <MediaGallery
-              layout="plates"
-              lang={lang}
-              label={d.news.images}
-              items={n.images.map((src, i) => ({ src, alt: d.news.imageAlt(n.title, i + 1) }))}
-            />
+            {logos.map((p) => (
+              <ArticleLogo key={p.src} src={p.src} alt={p.alt} />
+            ))}
+            {photos.length > 0 && (
+              <div className={logos.length > 0 ? "mt-8" : ""}>
+                <MediaGallery layout="plates" lang={lang} label={d.news.images} items={photos} />
+              </div>
+            )}
           </Reveal>
         </div>
         <div className="shell">
