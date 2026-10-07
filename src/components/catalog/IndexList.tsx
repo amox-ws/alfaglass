@@ -62,14 +62,14 @@ export function IndexList({ lang, rows }: { lang: Lang; rows: IndexRow[] }) {
             onFocus={() => setActive(i)}
             className="group grid grid-cols-[2.5rem_1fr_auto] items-center gap-4 py-5 md:grid-cols-[4rem_minmax(0,1.2fr)_minmax(0,1fr)_6rem_3rem] md:gap-8 md:py-7"
           >
-            <span className={`tabular text-sm ${muted}`}>{String(i + 1).padStart(2, "0")}</span>
+            <span className={`t-label tabular ${muted}`}>{String(i + 1).padStart(2, "0")}</span>
             <span
               className={`t-h3 transition-[transform,color] duration-500 group-hover:translate-x-2 ${hover}`}
               style={{ transitionTimingFunction: "var(--ease-out)" }}
             >
               {row.title}
             </span>
-            <span className={`hidden text-[0.95rem] leading-snug md:line-clamp-2 ${muted}`}>{row.summary}</span>
+            <span className={`t-small hidden md:line-clamp-2 ${muted}`}>{row.summary}</span>
             <span className={`t-label hidden text-right md:block tabular ${muted}`}>
               {row.count !== undefined ? d.count(row.count) : ""}
             </span>

@@ -30,12 +30,12 @@ export function ProductGrid({ lang, items }: { lang: Lang; items: Product[] }) {
               </span>
             </div>
             <div className="mt-5 flex gap-4">
-              <span className="tabular pt-1 text-sm text-fg-muted">{String(i + 1).padStart(2, "0")}</span>
+              <span className="t-label tabular pt-1 text-fg-muted">{String(i + 1).padStart(2, "0")}</span>
               <div>
-                <h3 className="font-display text-[1.65rem] font-bold uppercase leading-none transition-colors group-hover:text-accent">
+                <h3 className="t-h3 transition-colors group-hover:text-accent">
                   {p.title}
                 </h3>
-                {p.summary && <p className="mt-3 line-clamp-3 text-[0.95rem] leading-relaxed text-fg-muted">{p.summary}</p>}
+                {p.summary && <p className="t-small mt-3 line-clamp-3 text-fg-muted">{p.summary}</p>}
               </div>
             </div>
           </Link>

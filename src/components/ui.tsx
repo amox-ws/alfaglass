@@ -1,77 +1,13 @@
-"use client";
-
 import Link from "next/link";
-import { motion, useInView } from "motion/react";
-import { useRef } from "react";
+import { MaskedLines, Reveal } from "@/components/reveal";
+import { t, type Lang } from "@/lib/i18n";
 
-export const ease = [0.22, 1, 0.36, 1] as const;
-
-/** Fade + rise when scrolled into view. */
-export function Reveal({
-  children,
-  delay = 0,
-  y = 28,
-  className,
-  as = "div",
-}: {
-  children: React.ReactNode;
-  delay?: number;
-  y?: number;
-  className?: string;
-  as?: "div" | "li" | "p" | "span" | "section";
-}) {
-  const Comp = motion[as];
-  return (
-    <Comp
-      initial={{ opacity: 0, y }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: "-8% 0px" }}
-      transition={{ duration: 1, ease, delay }}
-      className={className}
-    >
-      {children}
-    </Comp>
-  );
-}
-
-/** Headline whose lines rise out of a mask, one after another. */
-export function MaskedLines({
-  lines,
-  className,
-  as: Tag = "h2",
-  delay = 0,
-  id,
-}: {
-  lines: string[];
-  className?: string;
-  as?: "h1" | "h2" | "h3" | "p";
-  delay?: number;
-  id?: string;
-}) {
-  const ref = useRef<HTMLHeadingElement>(null);
-  const inView = useInView(ref, { once: true, margin: "-10% 0px" });
-  return (
-    <Tag ref={ref} id={id} className={className}>
-      {lines.map((line, i) => (
-        <span key={i} className="block overflow-hidden pb-[0.06em]">
-          <motion.span
-            className="block"
-            initial={{ y: "105%" }}
-            animate={inView ? { y: "0%" } : undefined}
-            transition={{ duration: 1.1, ease, delay: delay + i * 0.09 }}
-          >
-            {line}
-          </motion.span>
-        </span>
-      ))}
-    </Tag>
-  );
-}
+export { Reveal, MaskedLines, ease } from "@/components/reveal";
 
 export function Eyebrow({ index, children }: { index?: string; children: React.ReactNode }) {
   return (
     <p className="t-label flex items-center gap-3 text-fg-muted">
-      {index && <span className="text-accent">{index}</span>}
+      {index && <span className="tabular text-accent">{index}</span>}
       <span aria-hidden className="h-px w-8 bg-line-strong" />
       {children}
     </p>
@@ -97,5 +33,76 @@ export function ArrowLink({
       </span>
       <span className="link-underline">{children}</span>
     </Link>
+  );
+}
+
+const TITLE_SIZE = { display: "t-display", h1: "t-h1", h2: "t-h2" } as const;
+
+/**
+ * The one section header (grid pattern P1): eyebrow with index and title on the left (cols 1–7),
+ * running text and a link on the right (cols 9–12, bottom-aligned). Below lg the columns stack, because a
+ * quarter of the page is too narrow for running text at tablet widths.
+ */
+export function SectionHeader({
+  index,
+  eyebrow,
+  title,
+  as = "h2",
+  id,
+  size = "display",
+  intro,
+  action,
+  className = "",
+}: {
+  index?: string;
+  eyebrow?: React.ReactNode;
+  /** One string per line: each line rises out of its own mask. */
+  title: string | string[];
+  as?: "h1" | "h2" | "h3";
+  id?: string;
+  size?: keyof typeof TITLE_SIZE;
+  intro?: React.ReactNode;
+  action?: React.ReactNode;
+  className?: string;
+}) {
+  const lines = Array.isArray(title) ? title : [title];
+  return (
+    <div className={`grid gap-6 lg:grid-cols-12 lg:items-end lg:gap-8 ${className}`}>
+      <div className="lg:col-span-7">
+        {eyebrow && <Eyebrow index={index}>{eyebrow}</Eyebrow>}
+        <MaskedLines as={as} id={id} lines={lines} className={`${TITLE_SIZE[size]} ${eyebrow ? "mt-5" : ""}`} />
+      </div>
+      {(intro || action) && (
+        <div className="lg:col-span-4 lg:col-start-9">
+          {intro && (
+            <Reveal>
+              <p className="t-body max-w-[44ch] text-fg-muted">{intro}</p>
+            </Reveal>
+          )}
+          {action && <div className={intro ? "mt-10" : ""}>{action}</div>}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/**
+ * The etched manufacturer's stamp found in the corner of a tempered pane,
+ * reinterpreted as the company's own mark of origin.
+ */
+export function Stamp({ lang, className = "" }: { lang: Lang; className?: string }) {
+  const d = t(lang);
+  return (
+    <div
+      role="group"
+      aria-label={d.home.stampLabel}
+      className={`t-label etched hidden select-none items-stretch rounded-[0.4rem] border border-line-strong leading-none md:flex ${className}`}
+    >
+      {d.stamp.map((cell, i) => (
+        <span key={i} className={`flex items-center px-3 py-2 tabular ${i < d.stamp.length - 1 ? "border-r border-line-strong" : ""}`}>
+          {cell}
+        </span>
+      ))}
+    </div>
   );
 }

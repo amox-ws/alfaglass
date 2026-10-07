@@ -1,4 +1,12 @@
 import { NextResponse, type NextRequest } from "next/server";
+import { LANG_HEADER, type Lang } from "@/lib/i18n";
+
+/** The incoming request plus the header that names its language section. */
+function inLanguage(request: NextRequest, lang: Lang) {
+  const headers = new Headers(request.headers);
+  headers.set(LANG_HEADER, lang);
+  return { headers };
+}
 
 /**
  * Greek is the default language and lives at the root ("/etaireia"); English lives under "/en".
@@ -8,7 +16,7 @@ import { NextResponse, type NextRequest } from "next/server";
 export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  if (pathname === "/en" || pathname.startsWith("/en/")) return NextResponse.next();
+  if (pathname === "/en" || pathname.startsWith("/en/")) return NextResponse.next({ request: inLanguage(request, "en") });
 
   if (pathname === "/el" || pathname.startsWith("/el/")) {
     const url = request.nextUrl.clone();
@@ -18,7 +26,7 @@ export function proxy(request: NextRequest) {
 
   const url = request.nextUrl.clone();
   url.pathname = `/el${pathname === "/" ? "" : pathname}`;
-  return NextResponse.rewrite(url);
+  return NextResponse.rewrite(url, { request: inLanguage(request, "el") });
 }
 
 export const config = {

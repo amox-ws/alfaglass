@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { MetaList, PageHero, Prose } from "@/components/page";
 import { Eyebrow, MaskedLines, Reveal } from "@/components/ui";
-import { EnquiryBand } from "@/components/catalog/views";
+import { Cta } from "@/components/Cta";
 import { cms, imagery } from "@/lib/content";
 import { t, type Lang } from "@/lib/i18n";
 
@@ -17,6 +17,7 @@ export function CompanyView({ lang }: { lang: Lang }) {
         title={d.nav.theCompany}
         lead={dc.lead}
         image={imagery.buildingStorm}
+        imageAlt={dc.buildingAlt}
         meta={
           <MetaList
             items={[
@@ -128,7 +129,7 @@ export function CompanyView({ lang }: { lang: Lang }) {
           </ul>
         </div>
       </section>
-      <EnquiryBand lang={lang} />
+      <Cta lang={lang} />
     </>
   );
 }

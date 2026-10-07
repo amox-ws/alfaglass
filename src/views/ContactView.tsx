@@ -14,10 +14,10 @@ export function ContactView({ lang }: { lang: Lang }) {
     { label: dc.address, value: d.contact.address, note: d.contact.addressNote, href: contact.mapsHref },
   ];
   return (
-    <section data-theme="frost" className="bg-surface pb-[clamp(5rem,11vw,11rem)] pt-[calc(var(--header-h)+3rem)] md:pt-[calc(var(--header-h)+5rem)]">
+    <section data-theme="frost" className="bg-surface pb-section pt-[calc(var(--header-h)+3rem)] md:pt-[calc(var(--header-h)+5rem)]">
       <div className="shell">
         <Breadcrumbs lang={lang} items={[{ label: d.nav.contact }]} />
-        <MaskedLines as="h1" lines={dc.title} className="t-mega mt-10 md:mt-14" />
+        <MaskedLines as="h1" eager lines={dc.title} className="t-mega mt-5" />
 
         <div className="mt-16 grid gap-12 md:mt-24 md:grid-cols-12">
           <div className="border-t border-line md:col-span-6">

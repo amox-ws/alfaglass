@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLink, Eyebrow, MaskedLines, Reveal } from "@/components/ui";
+import { ArrowLink, Reveal, SectionHeader } from "@/components/ui";
 import { t, type Lang } from "@/lib/i18n";
 
 type Item = { href: string; title: string; image: string | null; count: number; summary: string };
@@ -18,21 +18,9 @@ export function Related({ lang, items, allHref }: { lang: Lang; items: Item[]; a
   return (
     <section data-theme="frost" aria-labelledby="related-title" className="bg-surface section-y">
       <div className="shell">
-        <div className="grid gap-8 md:grid-cols-12 md:items-end">
-          <div className="md:col-span-8">
-            <Eyebrow index="06">
-              {h.relatedEyebrow}
-            </Eyebrow>
-            <MaskedLines as="h2" id="related-title" lines={h.relatedTitle} className="t-display mt-6" />
-          </div>
-          <Reveal className="md:col-span-4">
-            <p className="text-fg-muted">
-              {h.relatedText}
-            </p>
-          </Reveal>
-        </div>
+        <SectionHeader index="06" eyebrow={h.relatedEyebrow} id="related-title" title={h.relatedTitle} intro={h.relatedText} />
 
-        <div className="mt-14 grid gap-4 md:mt-20 md:grid-cols-12 md:gap-5">
+        <div className="mt-16 grid gap-4 md:mt-24 md:grid-cols-12 md:gap-5">
           {items.map((it, i) => (
             <Reveal key={it.href} delay={i * 0.06} className={`${spans[i % spans.length]} relative`}>
               <Link href={it.href} className="group absolute inset-0 flex flex-col overflow-hidden rounded-sm bg-surface-2">
@@ -53,7 +41,7 @@ export function Related({ lang, items, allHref }: { lang: Lang; items: Item[]; a
                     <p className="t-label tabular text-fg-muted">
                       {d.count(it.count)}
                     </p>
-                    <h3 className="t-h3 mt-2 max-w-[22ch] !text-[clamp(1.35rem,1.9vw,2rem)]">{it.title}</h3>
+                    <h3 className="t-h3 mt-2 max-w-[22ch]">{it.title}</h3>
                   </div>
                   <span
                     aria-hidden

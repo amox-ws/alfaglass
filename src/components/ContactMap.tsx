@@ -18,7 +18,7 @@ export function ContactMap({ lang }: { lang: Lang }) {
         href={contact.mapsHref}
         target="_blank"
         rel="noreferrer"
-        className="glass glass-thin glass-sheen absolute bottom-4 left-4 rounded-full px-5 py-2.5 text-sm font-semibold text-fg"
+        className="t-small glass glass-thin glass-sheen absolute bottom-4 left-4 flex min-h-11 items-center rounded-full px-5 font-semibold text-fg"
       >
         {d.common.openMaps}
       </a>

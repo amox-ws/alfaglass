@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { Eyebrow, Reveal } from "@/components/ui";
+import { Eyebrow, Reveal, Stamp } from "@/components/ui";
 import Link from "next/link";
 import { t, type Lang } from "@/lib/i18n";
 
@@ -16,7 +16,7 @@ export function Manifesto({ lang, companyHref }: { lang: Lang; companyHref: stri
       <div className="shell">
         <div className="mb-14 flex items-center justify-between gap-6 md:mb-20">
           <Eyebrow index="01">{h.aboutEyebrow}</Eyebrow>
-          <Stamp label={h.stampLabel} />
+          <Stamp lang={lang} />
         </div>
 
         <h2 id="manifesto-title" className="sr-only">
@@ -41,30 +41,12 @@ export function Manifesto({ lang, companyHref }: { lang: Lang; companyHref: stri
             </p>
           </Reveal>
           <Reveal delay={0.1} className="flex items-end md:col-span-2 md:col-start-11 md:justify-end">
-            <Link href={companyHref} className="link-underline t-label text-fg">
+            <Link href={companyHref} className="text-link t-label text-fg">
               {h.companyLink}
             </Link>
           </Reveal>
         </div>
       </div>
     </section>
-  );
-}
-
-/**
- * The etched manufacturer's stamp found in the corner of a tempered pane,
- * reinterpreted as the company's own mark of origin.
- */
-export function Stamp({ label, className = "" }: { label: string; className?: string }) {
-  return (
-    <div
-      className={`hidden select-none items-stretch rounded-[0.4rem] border border-line-strong text-[0.66rem] font-semibold uppercase leading-none tracking-[0.18em] etched sm:flex ${className}`}
-      aria-label={label}
-    >
-      <span className="flex items-center border-r border-line-strong px-3 py-2">Alfa Glass</span>
-      <span className="flex items-center border-r border-line-strong px-3 py-2 tabular">Est. 1999</span>
-      <span className="flex items-center border-r border-line-strong px-3 py-2 tabular">13.000 m²</span>
-      <span className="flex items-center px-3 py-2">GR · Aspropyrgos</span>
-    </div>
   );
 }

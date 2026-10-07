@@ -2,8 +2,20 @@ export const LANGS = ["el", "en"] as const;
 export type Lang = (typeof LANGS)[number];
 export const DEFAULT_LANG: Lang = "el";
 
+/** Request header set by the proxy: which language section an address belongs to (read where no layout can tell, the 404). */
+export const LANG_HEADER = "x-site-lang";
+
 export function isLang(v: string): v is Lang {
   return (LANGS as readonly string[]).includes(v);
+}
+
+/**
+ * The address a visitor sees. Greek pages live at "/etaireia" but are rendered as "/el/etaireia" (see proxy.ts),
+ * and the client router reports the internal path, so "/el" has to be taken off before comparing it with a route.
+ */
+export function publicPath(pathname: string) {
+  const path = pathname === "/el" || pathname.startsWith("/el/") ? pathname.slice(3) || "/" : pathname;
+  return path.length > 1 && path.endsWith("/") ? path.slice(0, -1) : path;
 }
 
 const el = {
@@ -88,8 +100,11 @@ const el = {
     headline: "Ασπρόπυργος, έξοδος 4 Αττικής Οδού.",
     headOffice: "Έδρα",
     rights: "Όλα τα δικαιώματα διατηρούνται.",
+    credit: "Σχεδιασμός & ανάπτυξη:",
     espaAlt: "ΕΣΠΑ 2014-2020, Ευρωπαϊκή Ένωση",
   },
+  /** The cells of the etched stamp (shown in capitals) */
+  stamp: ["Alfa Glass", "Από το 1999", "13.000 τ.μ.", "Ασπρόπυργος"],
   enquiry: {
     eyebrow: "Τα πάντα για το γυαλί",
     productEyebrow: "Διαθεσιμότητα & τιμές",
@@ -293,8 +308,10 @@ const en: Dict = {
     headline: "Aspropyrgos, exit 4 of Attiki Odos.",
     headOffice: "Head office",
     rights: "All rights reserved.",
+    credit: "Powered by",
     espaAlt: "NSRF 2014-2020, European Union",
   },
+  stamp: ["Alfa Glass", "Est. 1999", "13.000 m²", "GR · Aspropyrgos"],
   enquiry: {
     eyebrow: "Everything in glass",
     productEyebrow: "Availability & pricing",

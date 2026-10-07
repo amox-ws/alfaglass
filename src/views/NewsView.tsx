@@ -2,8 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { PageHero, Prose } from "@/components/page";
 import { ArrowLink, Reveal } from "@/components/ui";
-import { EnquiryBand } from "@/components/catalog/views";
-import { cms, formatDate, stripHtml } from "@/lib/content";
+import { Cta } from "@/components/Cta";
+import { cms, excerpt, formatDate, stripHtml } from "@/lib/content";
 import { t, type Lang } from "@/lib/i18n";
 import { hrefFor } from "@/lib/routes";
 
@@ -31,7 +31,7 @@ export function NewsView({ lang }: { lang: Lang }) {
                   <div className="md:col-span-7 md:col-start-6">
                     <p className="t-label tabular text-accent">{formatDate(n.date, d.locale)}</p>
                     <h2 className="t-h2 mt-4 transition-colors group-hover:text-accent">{n.title}</h2>
-                    <p className="mt-5 max-w-[52ch] text-fg-muted">{stripHtml(n.html).slice(0, 160)}…</p>
+                    <p className="mt-5 max-w-[52ch] text-fg-muted">{excerpt(stripHtml(n.html), 160)}</p>
                   </div>
                 </Link>
               </Reveal>
@@ -39,7 +39,7 @@ export function NewsView({ lang }: { lang: Lang }) {
           </ul>
         </div>
       </section>
-      <EnquiryBand lang={lang} />
+      <Cta lang={lang} />
     </>
   );
 }
@@ -73,7 +73,7 @@ export function ArticleView({ lang, index }: { lang: Lang; index: number }) {
           </div>
         </div>
       </article>
-      <EnquiryBand lang={lang} />
+      <Cta lang={lang} />
     </>
   );
 }

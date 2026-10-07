@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { MetaList, PageHero, Prose } from "@/components/page";
 import { Eyebrow, MaskedLines, Reveal } from "@/components/ui";
-import { EnquiryBand } from "@/components/catalog/views";
+import { Cta } from "@/components/Cta";
 import { cms, contact, imagery } from "@/lib/content";
 import { t, type Lang } from "@/lib/i18n";
 
@@ -28,7 +28,7 @@ export function FacilitiesView({ lang }: { lang: Lang }) {
         }
       />
 
-      <section data-theme="frost" className="bg-surface pb-[clamp(5rem,11vw,11rem)]">
+      <section data-theme="frost" className="bg-surface pb-section">
         <div className="shell">
           <div className="grid gap-12 md:grid-cols-12">
             <div className="md:col-span-5">
@@ -42,7 +42,7 @@ export function FacilitiesView({ lang }: { lang: Lang }) {
         </div>
       </section>
 
-      <section data-theme="frost" className="bg-surface pb-[clamp(5rem,11vw,11rem)]">
+      <section data-theme="frost" className="bg-surface pb-section">
         <div className="shell grid gap-4 md:grid-cols-12">
           <Reveal className="relative aspect-[4/3] overflow-hidden rounded-sm md:col-span-7">
             <Image src={imagery.building} alt={df.facadeAlt} fill sizes="(min-width: 768px) 58vw, 100vw" className="object-cover" />
@@ -83,7 +83,7 @@ export function FacilitiesView({ lang }: { lang: Lang }) {
           </div>
         </div>
       </section>
-      <EnquiryBand lang={lang} />
+      <Cta lang={lang} />
     </>
   );
 }

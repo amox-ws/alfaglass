@@ -1,21 +1,12 @@
 import Link from "next/link";
-import { Eyebrow, Reveal } from "@/components/ui";
+import { Eyebrow, MaskedLines, Reveal } from "@/components/ui";
+import { Cta } from "@/components/Cta";
 import { MetaList, PageHero, Prose, Breadcrumbs, headlineLines } from "@/components/page";
 import { IndexList } from "./IndexList";
 import { ProductGrid } from "./ProductGrid";
 import { ProductGallery } from "./ProductGallery";
-import { MaskedLines } from "@/components/ui";
-import { cms, contact, stripHtml, type Category, type Group, type Product } from "@/lib/content";
+import { cms, contact, excerpt, productCopy, stripHtml, type Category, type Group, type Product } from "@/lib/content";
 import { t, type Lang } from "@/lib/i18n";
-
-/** First sentence(s) of a long text, cut at a sentence boundary. */
-export function excerpt(text: string, max = 240) {
-  const t = text.replace(/\s+/g, " ").trim();
-  if (t.length <= max) return t;
-  const cut = t.slice(0, max);
-  const dot = Math.max(cut.lastIndexOf(". "), cut.lastIndexOf("! "));
-  return dot > 80 ? cut.slice(0, dot + 1) : cut.replace(/\s+\S*$/, "") + "…";
-}
 
 function splitIntro(html: string) {
   const paras = html.match(/<p>[\s\S]*?<\/p>/g) ?? [];
@@ -42,6 +33,7 @@ export function GroupView({ lang, group }: { lang: Lang; group: Group }) {
         title={group.title}
         lead={excerpt(lead, 260)}
         image={group.image ?? cats[0]?.image}
+        compact
         meta={
           <MetaList
             items={[
@@ -87,7 +79,7 @@ export function GroupView({ lang, group }: { lang: Lang; group: Group }) {
           )}
         </div>
       </section>
-      <EnquiryBand lang={lang} />
+      <Cta lang={lang} />
     </>
   );
 }
@@ -113,6 +105,7 @@ export function CategoryView({ lang, category }: { lang: Lang; category: Categor
         title={category.title}
         lead={lead}
         image={category.image}
+        compact
         meta={
           <MetaList
             items={[
@@ -151,7 +144,7 @@ export function CategoryView({ lang, category }: { lang: Lang; category: Categor
           <div className="shell">
             <div className="mb-12 flex items-end justify-between gap-6">
               <MaskedLines as="h2" lines={[d.common.otherCategories]} className="t-h2" />
-              <Link href={c.groupHref(group)} className="link-underline t-label hidden text-fg-muted sm:block">
+              <Link href={c.groupHref(group)} className="text-link t-label hidden text-fg-muted sm:inline-flex">
                 {d.common.allCategories}
               </Link>
             </div>
@@ -168,7 +161,7 @@ export function CategoryView({ lang, category }: { lang: Lang; category: Categor
           </div>
         </section>
       )}
-      <EnquiryBand lang={lang} />
+      <Cta lang={lang} subject={category.title} />
     </>
   );
 }
@@ -196,8 +189,9 @@ export function ProductView({ lang, product }: { lang: Lang; product: Product })
       ? [{ src: product.image, caption: null }]
       : [];
 
+  const copy = productCopy(product);
   const sections = [
-    ...(product.body && stripHtml(product.body).length > 20 ? [{ id: "description", title: d.common.description, html: product.body }] : []),
+    ...(stripHtml(copy.description).length > 20 ? [{ id: "description", title: d.common.description, html: copy.description }] : []),
     ...product.tabs
       .filter((tab) => stripHtml(tab.html) && stripHtml(tab.html) !== stripHtml(product.body))
       .map((tab, i) => ({ id: `tab-${i}`, title: tab.title, html: tab.html })),
@@ -220,10 +214,10 @@ export function ProductView({ lang, product }: { lang: Lang; product: Product })
           <div className="lg:col-span-5">
             <Breadcrumbs lang={lang} items={crumbs} />
             <p className="t-label mt-10 text-accent md:mt-14">{flat ? group.title : category.title}</p>
-            <MaskedLines as="h1" lines={headlineLines(product.title, 16)} className="t-h1 mt-4" />
-            {product.summary && (
+            <MaskedLines as="h1" eager lines={headlineLines(product.title, 16)} className="t-h1 mt-4" />
+            {copy.summary && (
               <Reveal delay={0.15}>
-                <p className="mt-8 text-lg leading-relaxed text-fg-muted">{excerpt(product.summary, 320)}</p>
+                <p className="t-lead mt-6 text-fg-muted">{copy.summary}</p>
               </Reveal>
             )}
             <Reveal delay={0.25} className="mt-10 flex flex-wrap gap-3">
@@ -256,7 +250,7 @@ export function ProductView({ lang, product }: { lang: Lang; product: Product })
                 {sections.map((s, i) => (
                   <li key={s.id}>
                     <a href={`#${s.id}`} className="-ml-px flex gap-3 border-l border-transparent py-1.5 pl-5 text-fg-muted transition-colors hover:border-accent hover:text-fg">
-                      <span className="tabular text-sm">{String(i + 1).padStart(2, "0")}</span>
+                      <span className="t-label tabular">{String(i + 1).padStart(2, "0")}</span>
                       {s.title}
                     </a>
                   </li>
@@ -268,7 +262,7 @@ export function ProductView({ lang, product }: { lang: Lang; product: Product })
                 <Reveal key={s.id}>
                   <article id={s.id} className="scroll-mt-28">
                     <div className="mb-8 flex items-baseline gap-4 border-b border-line pb-5">
-                      <span className="tabular text-sm text-accent">{String(i + 1).padStart(2, "0")}</span>
+                      <span className="t-label tabular text-accent">{String(i + 1).padStart(2, "0")}</span>
                       <h2 className="t-h3">{s.title}</h2>
                     </div>
                     <Prose
@@ -284,12 +278,12 @@ export function ProductView({ lang, product }: { lang: Lang; product: Product })
       )}
 
       {related.length > 0 && (
-        <section data-theme="frost" className={`bg-surface ${sections.length ? "pb-[clamp(5rem,11vw,11rem)]" : "section-y"}`}>
+        <section data-theme="frost" className={`bg-surface ${sections.length ? "pb-section" : "section-y"}`}>
           <div className="shell">
             <div className="mb-12 flex items-baseline justify-between border-t border-line pt-8">
               <h2 className="t-h2">{d.common.relatedProducts}</h2>
               {next && next.slug !== product.slug && (
-                <Link href={c.productHref(next)} className="link-underline t-label hidden text-fg sm:block">
+                <Link href={c.productHref(next)} className="text-link t-label hidden text-fg sm:inline-flex">
                   {d.common.next}: {next.title} →
                 </Link>
               )}
@@ -298,40 +292,7 @@ export function ProductView({ lang, product }: { lang: Lang; product: Product })
           </div>
         </section>
       )}
-      <EnquiryBand lang={lang} product={product.title} />
+      <Cta lang={lang} subject={product.title} />
     </>
   );
 }
-
-/* ------------------------------------------------------------------ enquiry band */
-
-export function EnquiryBand({ lang, product }: { lang: Lang; product?: string }) {
-  const d = t(lang);
-  return (
-    <section data-theme="azure" className="relative overflow-hidden bg-surface">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0"
-        style={{
-          background:
-            "repeating-linear-gradient(90deg, transparent 0 46px, oklch(1 0 0 / 0.28) 46px 47px, transparent 47px 92px), linear-gradient(160deg, transparent 40%, oklch(0.7 0.1 240 / 0.5))",
-        }}
-      />
-      <div className="shell relative flex flex-col gap-8 py-14 md:flex-row md:items-center md:justify-between md:py-20">
-        <div>
-          <p className="t-label text-fg/75">{product ? d.enquiry.productEyebrow : d.enquiry.eyebrow}</p>
-          <p className="t-h2 mt-4 max-w-[20ch]">{product ? d.enquiry.productTitle : d.enquiry.title}</p>
-        </div>
-        <div className="glass relative flex flex-col gap-3 rounded-[1.25rem] px-6 py-5 md:items-end md:px-8 md:py-6">
-          <a href={contact.phoneHref} className="font-display text-[clamp(2.25rem,4.5vw,4rem)] font-bold leading-none tabular">
-            {d.contact.phone}
-          </a>
-          <a href={`mailto:${contact.email}`} className="link-underline w-fit text-fg/85">
-            {contact.email}
-          </a>
-        </div>
-      </div>
-    </section>
-  );
-}
-

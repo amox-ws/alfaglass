@@ -77,13 +77,9 @@ const stores: Record<Lang, Store> = {
   },
 };
 
-/** Language-independent contact data. Localized labels live in i18n. */
-export const contact = {
-  phoneHref: "tel:+302105593900",
-  mobileHref: "tel:+306974660774",
-  email: "sales@alfaglass.gr",
-  mapsHref: "https://www.google.com/maps/search/?api=1&query=ALFA+GLASS+Ασπρόπυργος",
-};
+export const SITE_URL = "https://alfaglass.gr";
+
+export { contact } from "./contact";
 
 /** Hand-picked imagery from the legacy media library. */
 export const imagery = {
@@ -145,4 +141,66 @@ export function formatDate(iso: string, locale: string) {
 
 export function stripHtml(html: string) {
   return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+}
+
+/**
+ * The start of a text, cut at a word boundary and ended with "…", never in the middle of a word.
+ * A text that fits is returned as it is; a longer one ends at a sentence when one ends after the first 80 characters
+ * (a full stop after a word of at least four letters, so "π.χ." and "κλπ." do not count).
+ */
+export function excerpt(text: string, max = 240) {
+  const t = text.replace(/\s+/g, " ").trim();
+  if (t.length <= max) return t;
+  const cut = t.slice(0, max);
+  let sentence = 0;
+  for (const m of cut.matchAll(/([\p{L}\p{N}]+)[.!](?=\s|$)/gu)) if (m[1].length >= 4) sentence = m.index + m[0].length;
+  if (sentence > 80) return cut.slice(0, sentence);
+  const words = /\s/.test(t[max]) ? cut : cut.replace(/\s+\S*$/, "");
+  return words.replace(/[\s,;:·–-]+$/, "") + "…";
+}
+
+const ENTITIES: Record<string, string> = { "&amp;": "&", "&gt;": ">", "&lt;": "<", "&quot;": '"', "&#39;": "'", "&nbsp;": " " };
+
+/**
+ * `html` without the text `lead` at its start (tags are kept), or `html` itself when it does not start with that text.
+ * Product pages show the summary in the hero; the description must not repeat it.
+ */
+function dropLeadingText(html: string, lead: string) {
+  const target = lead.replace(/\s+/g, " ").trim();
+  if (!target) return html;
+  let kept = "";
+  let i = 0;
+  let ti = 0;
+  while (ti < target.length) {
+    const ch = html[i];
+    if (ch === undefined) return html;
+    if (ch === "<") {
+      const end = html.indexOf(">", i);
+      if (end < 0) return html;
+      kept += html.slice(i, end + 1);
+      i = end + 1;
+    } else if (/\s/.test(ch)) {
+      while (i < html.length && /\s/.test(html[i])) i++;
+      if (target[ti] !== " ") return html;
+      ti++;
+    } else {
+      const entity = ch === "&" ? /^&(#39|[a-z]+);/i.exec(html.slice(i, i + 8))?.[0] : undefined;
+      const text = entity ? (ENTITIES[entity] ?? entity) : ch;
+      if (target.startsWith(text, ti)) {
+        ti += text.length;
+        i += entity ? entity.length : 1;
+      } else return html;
+    }
+  }
+  const rest = (kept + html.slice(i))
+    .replace(/(<p[^>]*>)\s*(<br\s*\/?>\s*)*/i, "$1")
+    .replace(/^\s*<p[^>]*>\s*<\/p>\s*/i, "")
+    .trim();
+  return stripHtml(rest) ? rest : "";
+}
+
+/** A product's hero summary and its description, with the summary not repeated in the description. */
+export function productCopy(product: Product, max = 320) {
+  const summary = excerpt(product.summary, max);
+  return { summary, description: dropLeadingText(product.body, summary.replace(/…$/, "")) };
 }

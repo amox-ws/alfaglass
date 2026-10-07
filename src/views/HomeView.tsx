@@ -7,9 +7,9 @@ import { Facilities } from "@/components/home/Facilities";
 import { Plastics } from "@/components/home/Plastics";
 import { History } from "@/components/home/History";
 import { Related } from "@/components/home/Related";
-import { Cta } from "@/components/home/Cta";
+import { Cta } from "@/components/Cta";
 import { Reveal } from "@/components/ui";
-import { cms, formatDate, imagery, stripHtml } from "@/lib/content";
+import { cms, excerpt, formatDate, imagery, stripHtml } from "@/lib/content";
 import { t, type Lang } from "@/lib/i18n";
 import { hrefFor } from "@/lib/routes";
 
@@ -58,13 +58,13 @@ export function HomeView({ lang }: { lang: Lang }) {
       />
 
       {/* Latest news */}
-      <section data-theme="frost" aria-labelledby="news-title" className="bg-surface pb-[clamp(5rem,11vw,11rem)]">
+      <section data-theme="frost" aria-labelledby="news-title" className="bg-surface pb-section">
         <div className="shell">
           <div className="flex items-baseline justify-between border-t border-line pt-8">
             <h2 id="news-title" className="t-label text-fg-muted">
               {d.home.newsTitle}
             </h2>
-            <Link href={hrefFor(lang, { kind: "news" })} className="link-underline t-label">
+            <Link href={hrefFor(lang, { kind: "news" })} className="text-link t-label">
               {d.common.allNews} →
             </Link>
           </div>
@@ -83,14 +83,14 @@ export function HomeView({ lang }: { lang: Lang }) {
               <div className="md:col-span-6 md:col-start-7">
                 <p className="t-label tabular text-accent">{formatDate(article.date, d.locale)}</p>
                 <h3 className="t-h2 mt-4 transition-colors group-hover:text-accent">{article.title}</h3>
-                <p className="mt-5 max-w-[46ch] text-fg-muted">{stripHtml(article.html).slice(0, 150)}…</p>
+                <p className="mt-5 max-w-[46ch] text-fg-muted">{excerpt(stripHtml(article.html), 150)}</p>
               </div>
             </Link>
           </Reveal>
         </div>
       </section>
 
-      <Cta lang={lang} />
+      <Cta lang={lang} variant="feature" />
     </>
   );
 }

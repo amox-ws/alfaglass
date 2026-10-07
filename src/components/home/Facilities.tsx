@@ -29,7 +29,7 @@ export function Facilities({
             <Image src={warehouse} alt={h.warehouseAlt} fill sizes="100vw" className="object-cover" />
           </div>
           {/* Shade low in the frame so lettering on the pane stays legible */}
-          <div className="fac-shade bg-gradient-to-t from-deep/75 via-deep/20 to-transparent" />
+          <div className="fac-shade bg-linear-to-t from-deep/92 via-deep/92 via-45% to-transparent to-90%" />
 
           {/* Four frost shutters frame a narrow pane, then slide away to open the view */}
           <div aria-hidden className="fac-shutter" data-side="top" />
@@ -54,12 +54,12 @@ export function Facilities({
             data-theme="deep"
             className="fac-copy shell absolute inset-x-0 bottom-0 pb-[calc(max(0.75rem,2.5vw)+2.5rem)] md:pb-[calc(2.5vw+4rem)]"
           >
-            <div className="grid gap-8 md:grid-cols-12 md:items-end">
-              <h2 id="facilities-title" className="t-display [text-shadow:0_2px_24px_oklch(0.2_0.06_280/0.35)] md:col-span-7">
+            <div className="grid gap-8 lg:grid-cols-12 lg:items-end">
+              <h2 id="facilities-title" className="t-display [text-shadow:0_2px_24px_oklch(0.2_0.06_280/0.35)] lg:col-span-7">
                 {h.facilitiesTitle[0]}
                 <span className="block text-fg-muted">{h.facilitiesTitle[1]}</span>
               </h2>
-              <p className="t-lead text-fg-muted md:col-span-4 md:col-start-9">
+              <p className="t-lead text-fg lg:col-span-4 lg:col-start-9">
                 {h.facilitiesText}
               </p>
             </div>
@@ -69,8 +69,8 @@ export function Facilities({
 
       {/* Logistics */}
       <div className="shell section-y">
-        <div className="grid gap-12 md:grid-cols-12 md:items-center">
-          <Reveal className="relative aspect-[16/10] overflow-hidden rounded-sm md:col-span-7 md:aspect-[16/9]">
+        <div className="grid gap-12 lg:grid-cols-12 lg:items-center">
+          <Reveal className="relative aspect-[16/10] overflow-hidden rounded-sm md:aspect-[16/9] lg:col-span-7">
             <Image
               src={trucks}
               alt={h.trucksAlt}
@@ -79,7 +79,7 @@ export function Facilities({
               className="object-cover"
             />
           </Reveal>
-          <div className="md:col-span-4 md:col-start-9">
+          <div className="lg:col-span-4 lg:col-start-9">
             <MaskedLines as="h3" lines={h.logisticsTitle} className="t-h2" />
             <Reveal delay={0.1}>
               <p className="mt-6 text-fg-muted">

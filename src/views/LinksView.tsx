@@ -1,7 +1,7 @@
 import Image from "next/image";
 import { PageHero } from "@/components/page";
 import { Reveal } from "@/components/ui";
-import { EnquiryBand } from "@/components/catalog/views";
+import { Cta } from "@/components/Cta";
 import { cms } from "@/lib/content";
 import { t, type Lang } from "@/lib/i18n";
 
@@ -41,7 +41,7 @@ export function LinksView({ lang }: { lang: Lang }) {
           </ul>
         </div>
       </section>
-      <EnquiryBand lang={lang} />
+      <Cta lang={lang} />
     </>
   );
 }

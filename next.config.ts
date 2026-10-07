@@ -102,6 +102,9 @@ function legacyRedirects() {
 }
 
 const nextConfig: NextConfig = {
+  // The root layout sits under a dynamic segment ([lang]), so the 404 for addresses that match no page
+  // is the global one (src/app/global-not-found.tsx).
+  experimental: { globalNotFound: true },
   images: {
     formats: ["image/avif", "image/webp"],
     qualities: [75, 85],

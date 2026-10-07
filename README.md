@@ -22,7 +22,8 @@ Greek is the default and lives at the root (`/etaireia`, `/yalopinakes/...`); En
 
 ## Structure
 
-- `src/app/[lang]`: root layout (sets `<html lang>`) and the catch-all page. All pages are statically generated.
+- `src/app/[lang]`: root layout (sets `<html lang>`) and the catch-all page. All pages are statically generated. `src/app/global-not-found.tsx` is the designed 404 (Next's `globalNotFound` option), in the language the proxy names.
+- `src/components`: the shared frame and building blocks: `SiteShell` (header, main, footer), `Header`, `Footer`, `PageHero`, `SectionHeader`, `Cta`, `Reveal` / `MaskedLines` (`reveal.tsx`). Rules and tokens are in `DESIGN.md`.
 - `src/views`: page views (home, company, facilities, news, contact, links, legal).
 - `src/components/home`: home page sections, including the WebGL glass hero (`GlassScene.tsx`, desktop only) and its CSS glass panes (`Hero.tsx`). The scroll scenes (Manifesto, Facilities, History) run on CSS scroll timelines in `src/app/globals.css`; see `DESIGN.md`, "Motion".
 - `src/components/catalog`: catalogue views, product gallery and index lists.
@@ -37,6 +38,6 @@ python3 scripts/build-content.py .legacy          # Greek -> src/content/el (the
 python3 scripts/build-content-en.py .legacy/en    # English -> src/content/en, mirrors the Greek ids
 ```
 
-Requires Python 3 with `beautifulsoup4` and `Pillow`.
+Requires Python 3 with `beautifulsoup4` and `Pillow`. After `public/media` changes, run `node scripts/media-sizes.mjs` to refresh `src/content/media-sizes.json` (natural image sizes, used so no photo is shown larger than its file).
 
 See `PRODUCT.md` for the brief and `DESIGN.md` for the design system.

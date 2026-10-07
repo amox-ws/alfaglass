@@ -57,8 +57,8 @@ export function Plastics({
             <Reveal as="li" key={it.href} delay={i * 0.03} y={14} className="border-b border-line first:border-t">
               <Link href={it.href} className="group flex items-baseline justify-between gap-6 py-4">
                 <span className="flex items-baseline gap-5">
-                  <span className="tabular text-sm text-fg-dim">{String(i + 1).padStart(2, "0")}</span>
-                  <span className="text-xl font-medium transition-colors group-hover:text-accent md:text-2xl">{it.title}</span>
+                  <span className="t-label tabular text-fg-dim">{String(i + 1).padStart(2, "0")}</span>
+                  <span className="t-lead font-medium transition-colors group-hover:text-accent">{it.title}</span>
                 </span>
                 <span aria-hidden className="text-fg-dim transition-transform duration-500 group-hover:translate-x-1 group-hover:text-accent">
                   →
