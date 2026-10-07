@@ -113,3 +113,10 @@ Pass: weighted score ≥ 8.5, no dimension below 7, no failed gate.
 ## QA harness
 
 `scripts/qa/` (Node + the local Chrome over CDP, no extra dependencies). Builds once, starts `next start` on a free port, captures every page of a group at 390 / 768 / 1440 (Greek pages by default; `--lang en|all` from phase 4), runs the gates, writes `qa/runs/<label>/report.json`, `summary.md` and the contact sheets, and exits non-zero on any failed gate. See `scripts/qa/README.md`.
+
+## Revision (7 Oct): creative freedom, faster loop
+
+- **Creative freedom**: the goal is the best website ever made for a factory, not a polish of the current one. A creative director (Opus) writes [`DIRECTION.md`](DIRECTION.md): new structure, sections, layouts, type, colour evolution and motion are all allowed. Fixed: the logo and wordmark, factual content only, Greek first, the performance rules in DESIGN.md and every harness gate. Where DIRECTION.md and SPEC.md disagree on design, DIRECTION.md wins; SPEC.md's functional requirements (B2B tasks, accessibility, header fixes, 404, SEO) still apply.
+- **The critic does not re-run the harness.** It reviews the worker's last run (`summary.md`, contact sheets, crops on demand) after checking that the run was made on the current commit with no uncommitted changes; stale evidence fails the round.
+- **Speed is measured once**, in the final round (`--perf --perf-runs 3`, quiet machine). Lane rounds run gates and regression only.
+- Order: Direction → System (shared design system, one worker, one critic check) → four lanes in parallel worktrees (home · company + facilities · catalogue + product · news + contact + links/legal/404), max two rounds each → merge → final fix + whole-site review.
