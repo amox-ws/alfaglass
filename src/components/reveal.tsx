@@ -2,8 +2,6 @@
 
 import { createElement, Fragment, useEffect, useRef, type CSSProperties, type ReactNode } from "react";
 
-export const ease = [0.22, 1, 0.36, 1] as const;
-
 /* ------------------------------------------------------------------ arming */
 
 let observer: IntersectionObserver | null = null;

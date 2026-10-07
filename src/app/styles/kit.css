@@ -587,6 +587,47 @@
   }
 }
 
+/*
+ * The cursor preview: a photo that follows a mouse. The script writes the pointer's position straight to `.edge-preview` (a transform, no
+ * state and no animation library); the card and its photos settle with transitions on opacity and transform. The row under the pointer is
+ * `data-on`. Reduced motion keeps the fade and drops the movement.
+ */
+.edge-preview {
+  will-change: transform;
+}
+.edge-preview-card {
+  opacity: 0;
+  scale: 0.85;
+  rotate: -4deg;
+  transition:
+    opacity 0.4s var(--ease-out),
+    scale 0.4s var(--ease-out),
+    rotate 0.4s var(--ease-out);
+}
+.edge-preview[data-on] .edge-preview-card {
+  opacity: 1;
+  scale: 1;
+  rotate: 0deg;
+}
+.edge-preview-photo {
+  opacity: 0;
+  scale: 1.08;
+  transition:
+    opacity 0.45s var(--ease-out),
+    scale 0.45s var(--ease-out);
+}
+.edge-preview-photo[data-on] {
+  opacity: 1;
+  scale: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .edge-preview-card,
+  .edge-preview-photo {
+    scale: 1;
+    rotate: 0deg;
+  }
+}
+
 /* ------------------------------------------------------------------ the machine drawing */
 
 /*
@@ -1345,4 +1386,41 @@ body:has(main > [data-hero="dark"]:first-child) .site-header[data-solid="false"]
 }
 .mobile-group[open] .mobile-chevron {
   transform: rotate(180deg);
+}
+
+/* ------------------------------------------------------------------ the nav panels */
+
+/*
+ * The rack and the company menu rise into place and, when closed, settle away before the header unmounts them (`data-leaving`, see
+ * `Presence` in Header.tsx). Opacity, translate and scale only. The rows of the mobile menu rise one after another with `hero-rise`.
+ */
+.menu-panel {
+  animation: panel-in 0.45s var(--ease-out) backwards;
+}
+.menu-panel[data-leaving] {
+  animation: panel-out 0.18s var(--ease-out) forwards;
+  pointer-events: none;
+}
+.menu-panel-small {
+  animation-duration: 0.4s;
+}
+.menu-panel-small[data-leaving] {
+  animation-duration: 0.15s;
+}
+@keyframes panel-in {
+  from {
+    opacity: 0;
+    translate: 0 -10px;
+    scale: 0.985;
+  }
+}
+@keyframes panel-out {
+  to {
+    opacity: 0;
+    translate: 0 -6px;
+    scale: 0.99;
+  }
+}
+.menu-rise {
+  animation: hero-rise 0.6s var(--ease-out) backwards;
 }

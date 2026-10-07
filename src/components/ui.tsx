@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { MaskedLines, Reveal } from "@/components/reveal";
 
-export { Reveal, MaskedLines, ease } from "@/components/reveal";
+export { Reveal, MaskedLines } from "@/components/reveal";
 
 export function Eyebrow({ index, children }: { index?: string; children: React.ReactNode }) {
   return (

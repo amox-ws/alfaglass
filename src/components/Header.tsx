@@ -4,13 +4,10 @@ import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { AnimatePresence, motion } from "motion/react";
 import { Logo } from "./Logo";
 import { Units } from "./kit/Units";
 import { contact } from "@/lib/contact";
 import { publicPath, t, type Lang } from "@/lib/i18n";
-
-const ease = [0.22, 1, 0.36, 1] as const;
 
 type NavLink = { label: string; href: string; match: string[] };
 type NavItem =
@@ -54,6 +51,23 @@ type Panel = "mega" | "menu" | null;
 const SHEET_EXIT_MS = 300;
 /** A panel opens when the pointer has rested on its button this long (hover-intent). */
 const HOVER_INTENT_MS = 150;
+
+/**
+ * A panel of the nav stays mounted while its exit plays (CSS, `data-leaving` on `.menu-panel`) and then unmounts, so a closed panel is
+ * not in the page: the rack alone is a hundred links. The timer is the net under the animation: it never waits for an event that a
+ * hidden nav would not send.
+ */
+function Presence({ open, exitMs, children }: { open: boolean; exitMs: number; children: (leaving: boolean) => ReactNode }) {
+  const [mounted, setMounted] = useState(open);
+  if (open && !mounted) setMounted(true);
+  const leaving = mounted && !open;
+  useEffect(() => {
+    if (!leaving) return;
+    const timer = setTimeout(() => setMounted(false), exitMs);
+    return () => clearTimeout(timer);
+  }, [leaving, exitMs]);
+  return mounted ? children(leaving) : null;
+}
 
 export function Header({ data }: { data: HeaderData }) {
   const { lang, nav, mega } = data;
@@ -248,14 +262,11 @@ export function Header({ data }: { data: HeaderData }) {
 
                     {/* The rack: right after its button, so the keyboard reaches it next */}
                     {item.kind === "mega" && (
-                      <AnimatePresence>
-                        {open && (
-                          <motion.div
+                      <Presence open={open} exitMs={200}>
+                        {(leaving) => (
+                          <div
                             id="mega-menu"
-                            initial={{ opacity: 0, y: -10, scale: 0.985 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: -6, scale: 0.99, transition: { duration: 0.18 } }}
-                            transition={{ type: "spring", bounce: 0, duration: 0.45 }}
+                            data-leaving={leaving ? "" : undefined}
                             style={{
                               left: "var(--capsule-x)",
                               right: "var(--capsule-x)",
@@ -263,7 +274,7 @@ export function Header({ data }: { data: HeaderData }) {
                               maxHeight: "calc(100svh - var(--header-h) - 0.5rem)",
                               transformOrigin: "32% 0%",
                             }}
-                            className="glass glass-thick fixed flex flex-col rounded-[1.4rem]"
+                            className="menu-panel glass glass-thick fixed flex flex-col rounded-[1.4rem]"
                           >
                             <div className="grid min-h-0 grid-cols-[1fr_1fr_1fr_13rem] gap-8 overflow-y-auto p-8 xl:grid-cols-[1fr_1fr_1fr_minmax(18rem,22rem)] xl:gap-10 xl:p-10">
                               {mega.columns.map((group) => (
@@ -313,23 +324,20 @@ export function Header({ data }: { data: HeaderData }) {
                                 {d.contact.phone}
                               </a>
                             </div>
-                          </motion.div>
+                          </div>
                         )}
-                      </AnimatePresence>
+                      </Presence>
                     )}
 
                     {/* The company menu: a small panel, not a mega menu */}
                     {item.kind === "menu" && (
-                      <AnimatePresence>
-                        {open && (
-                          <motion.div
+                      <Presence open={open} exitMs={180}>
+                        {(leaving) => (
+                          <div
                             id="company-menu"
-                            initial={{ opacity: 0, y: -8, scale: 0.985 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: -4, scale: 0.99, transition: { duration: 0.15 } }}
-                            transition={{ type: "spring", bounce: 0, duration: 0.4 }}
+                            data-leaving={leaving ? "" : undefined}
                             style={{ transformOrigin: "20% 0%" }}
-                            className="glass glass-thick absolute left-0 top-full mt-2 w-72 rounded-[1.1rem] p-2"
+                            className="menu-panel menu-panel-small glass glass-thick absolute left-0 top-full mt-2 w-72 rounded-[1.1rem] p-2"
                           >
                             <ul>
                               {item.items.map((it) => (
@@ -340,9 +348,9 @@ export function Header({ data }: { data: HeaderData }) {
                                 </li>
                               ))}
                             </ul>
-                          </motion.div>
+                          </div>
                         )}
-                      </AnimatePresence>
+                      </Presence>
                     )}
                   </li>
                 );
@@ -526,15 +534,9 @@ function MobileMenu({
       <nav aria-label={d.a11y.mobileNav} className="shell pt-6">
         <ul className="border-t border-line">
           {rows.map((row, i) => (
-            <motion.li
-              key={row.key}
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.15 + i * 0.045, duration: 0.6, ease }}
-              className="border-b border-line"
-            >
+            <li key={row.key} style={{ animationDelay: `${0.15 + i * 0.045}s` }} className="menu-rise border-b border-line">
               {row.node(String(i + 1).padStart(2, "0"))}
-            </motion.li>
+            </li>
           ))}
         </ul>
       </nav>

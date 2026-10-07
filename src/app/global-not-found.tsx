@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { headers } from "next/headers";
 import "./globals.css";
 import { NotFoundPage } from "@/components/NotFoundPage";
-import { Providers } from "@/components/Providers";
 import { SiteShell } from "@/components/SiteShell";
 import { fontVariables } from "@/lib/fonts";
 import { LANG_HEADER, type Lang } from "@/lib/i18n";
@@ -21,11 +20,9 @@ export default async function GlobalNotFound() {
   return (
     <html lang={lang} className={fontVariables}>
       <body>
-        <Providers>
-          <SiteShell lang={lang}>
-            <NotFoundPage lang={lang} />
-          </SiteShell>
-        </Providers>
+        <SiteShell lang={lang}>
+          <NotFoundPage lang={lang} />
+        </SiteShell>
       </body>
     </html>
   );

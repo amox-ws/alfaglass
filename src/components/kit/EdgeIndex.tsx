@@ -2,9 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { motion, useMotionValue } from "motion/react";
 import { useEffect, useRef, useState } from "react";
-import { Reveal, ease } from "@/components/reveal";
+import { Reveal } from "@/components/reveal";
 import { t, type Lang } from "@/lib/i18n";
 import { EdgeGauge } from "./EdgeGauge";
 
@@ -71,12 +70,11 @@ export function EdgeIndex({
     io.observe(listRef.current);
     return () => io.disconnect();
   }, []);
-  // Viewport coordinates: the preview is fixed, so it stays under the cursor 1:1, even while the page scrolls.
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
+  // Viewport coordinates: the preview is fixed, so it stays under the cursor 1:1, even while the page scrolls. The position is written
+  // straight to the element (a transform), so following the mouse never renders React.
+  const preview = useRef<HTMLDivElement>(null);
   const track = (e: React.PointerEvent) => {
-    x.set(e.clientX);
-    y.set(e.clientY);
+    if (preview.current) preview.current.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
   };
 
   return (
@@ -121,37 +119,27 @@ export function EdgeIndex({
         );
       })}
 
-      <motion.div
+      <div
+        ref={preview}
         aria-hidden
-        className="pointer-events-none fixed left-0 top-0 z-30 hidden h-[17rem] w-[13rem] -translate-x-1/2 -translate-y-1/2 [@media(hover:hover)_and_(pointer:fine)]:block"
-        style={{ x, y }}
+        data-on={active !== null && rows[active].image ? "" : undefined}
+        className="edge-preview pointer-events-none fixed left-0 top-0 z-30 hidden h-[17rem] w-[13rem] -translate-x-1/2 -translate-y-1/2 [@media(hover:hover)_and_(pointer:fine)]:block"
       >
         {armed && (
-          <motion.div
-            initial={false}
-            animate={active !== null && rows[active].image ? { opacity: 1, scale: 1, rotate: 0 } : { opacity: 0, scale: 0.85, rotate: -4 }}
-            transition={{ duration: 0.4, ease }}
-            className="glass absolute inset-0 rounded-[1.1rem] p-2"
-          >
+          <div className="edge-preview-card glass absolute inset-0 rounded-[1.1rem] p-2">
             <div className="relative size-full overflow-hidden rounded-[0.7rem] bg-surface-2">
               {rows.map(
                 (row, i) =>
                   row.image && (
-                    <motion.div
-                      key={row.href}
-                      initial={false}
-                      animate={{ opacity: active === i ? 1 : 0, scale: active === i ? 1 : 1.08 }}
-                      transition={{ duration: 0.45, ease }}
-                      className="absolute inset-0"
-                    >
+                    <div key={row.href} data-on={active === i ? "" : undefined} className="edge-preview-photo absolute inset-0">
                       <Image src={row.image} alt="" fill sizes="13rem" loading="eager" className="object-cover" />
-                    </motion.div>
+                    </div>
                   ),
               )}
             </div>
-          </motion.div>
+          </div>
         )}
-      </motion.div>
+      </div>
     </ul>
   );
 }

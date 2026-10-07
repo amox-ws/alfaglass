@@ -1,6 +1,6 @@
 # ALFA GLASS website
 
-Redesign of [alfaglass.gr](https://alfaglass.gr): Next.js 16 (App Router), Tailwind CSS 4, Motion and React Three Fiber.
+Redesign of [alfaglass.gr](https://alfaglass.gr): Next.js 16 (App Router), Tailwind CSS 4 and React Three Fiber (the home hero's glass, on capable desktops only).
 
 ## Develop
 

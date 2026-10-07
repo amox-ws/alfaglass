@@ -1,7 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { notFound } from "next/navigation";
 import "../globals.css";
-import { Providers } from "@/components/Providers";
 import { SiteShell } from "@/components/SiteShell";
 import { SITE_URL } from "@/lib/content";
 import { fontVariables } from "@/lib/fonts";
@@ -35,9 +34,7 @@ export default async function RootLayout({ children, params }: LayoutProps<"/[la
   return (
     <html lang={lang} className={fontVariables}>
       <body>
-        <Providers>
-          <SiteShell lang={lang}>{children}</SiteShell>
-        </Providers>
+        <SiteShell lang={lang}>{children}</SiteShell>
       </body>
     </html>
   );
