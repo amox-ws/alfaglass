@@ -44,14 +44,18 @@
 
 /* ------------------------------------------------------------------ the tool wall of the related products */
 
-/* The four families as tall plates: 2 across from md, 4 from xl (the plate is 4:3 while two across, 4:5 while four) */
-.wall {
+/*
+ * The four families as tall plates: 2 across from md, 4 from xl (the plate is 4:3 while two across, 4:5 while four).
+ * Scoped to `.wall.plates-even` (the list in GroupView): the bare `.wall` belongs to the home page's tool wall (home.css: rows on a
+ * phone, 2 across from md, 4 from lg), and a bare `.wall` here would reach it too, as this file comes later in the cascade.
+ */
+.wall.plates-even {
   --wall-r: 4 / 3;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 3.5rem 2rem;
 }
 @media (min-width: 80rem) {
-  .wall {
+  .wall.plates-even {
     --wall-r: 4 / 5;
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
