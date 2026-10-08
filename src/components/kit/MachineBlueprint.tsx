@@ -88,8 +88,8 @@ const BOX = BLUEPRINT_BOX;
 const MINI = 200;
 const MINI_BOX = { u: FRAME.u - MINI, v: FRAME.v - 40 - MINI, w: FRAME.w + 2 * MINI, h: FRAME.h + 80 + 2 * MINI };
 
-/** The person standing at the near side of the machine, to scale: shoulders 520 × 260, head Ø 200. */
-const PERSON = { u: 1000, v: 2800, rx: 260, ry: 130, head: 100 };
+/** The person standing at the near side of the machine, to scale: shoulders 510 × 230, head Ø 200, the hands on the frame. */
+const PERSON = { u: 1000, v: 2800, rx: 255, ry: 115, head: 100, hands: FRAME.v + FRAME.h + 45 };
 
 /** Where the callouts of the service scene hang their leaders (final frame: the gantry has crossed the whole bed). */
 export const BLUEPRINT_ANCHORS = {
@@ -362,13 +362,32 @@ function fittings(o: Orientation) {
   );
 }
 
-/** The person in plan: shoulders an ellipse, the head a circle. */
+/**
+ * The person in plan, as architects draw an operator at a bench: the shoulders a rounded band, the arms reaching forward to the edge
+ * of the machine with the hands on it, the head on top of the shoulders. The shapes are filled with the page's surface, so the head
+ * covers the shoulders and the shoulders cover the arms: it reads as a body seen from above, not as an eye.
+ */
 function person(o: Orientation) {
   const g = geometry(o);
+  const P = (u: number, v: number) => g.pt(u, v);
+  const { u, v } = PERSON;
+  // a band with round ends round the segment (u0, v0)–(u1, v1), r wide on each side: the shoulders and the arms (each end a half circle of 8 steps)
+  const capsule = (u0: number, v0: number, u1: number, v1: number, r: number) => {
+    const t = Math.atan2(v1 - v0, u1 - u0);
+    const half = (cu: number, cv: number, from: number) =>
+      Array.from({ length: 9 }, (_, i) => P(cu + r * Math.cos(from + (i * Math.PI) / 8), cv + r * Math.sin(from + (i * Math.PI) / 8)));
+    return `M${[...half(u1, v1, t - Math.PI / 2), ...half(u0, v0, t + Math.PI / 2)].join("L")}Z`;
+  };
+  // the machine is towards smaller v: the arms reach it, the hands rest on the frame's near edge
+  const arms = [-1, 1].map((s) => capsule(u + s * 215, v - 20, u + s * 178, PERSON.hands + 30, 40)).join("");
   return (
     <>
-      <ellipse className="bp-person" cx={g.x(PERSON.u, PERSON.v)} cy={g.y(PERSON.u, PERSON.v)} rx={g.land ? PERSON.rx : PERSON.ry} ry={g.land ? PERSON.ry : PERSON.rx} />
-      <circle className="bp-person" cx={g.x(PERSON.u, PERSON.v)} cy={g.y(PERSON.u, PERSON.v)} r={PERSON.head} />
+      <path className="bp-person" d={arms} />
+      {[-1, 1].map((s) => (
+        <circle key={s} className="bp-person" cx={g.x(u + s * 178, PERSON.hands)} cy={g.y(u + s * 178, PERSON.hands)} r={46} />
+      ))}
+      <path className="bp-person" d={capsule(u - PERSON.rx + PERSON.ry, v, u + PERSON.rx - PERSON.ry, v, PERSON.ry)} />
+      <circle className="bp-person" cx={g.x(u, v - 10)} cy={g.y(u, v - 10)} r={PERSON.head} />
     </>
   );
 }
