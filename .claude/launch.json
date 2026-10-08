@@ -2,7 +2,6 @@
   "version": "0.0.1",
   "configurations": [
     { "name": "alfaglass", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev"], "port": 3000 },
-    { "name": "alfaglass-prod", "runtimeExecutable": "npm", "runtimeArgs": ["run", "start", "--", "-p", "3001"], "port": 3001 },
-    { "name": "alfaglass-preview", "runtimeExecutable": "npm", "runtimeArgs": ["--prefix", "/private/tmp/claude-501/-Users-harabalos-Desktop-AMOX-websites-alfaglass/8f592294-e748-4335-a6f4-e6be730099fe/scratchpad/lanes/preview", "run", "start", "--", "-p", "3005"], "port": 3005 }
+    { "name": "alfaglass-prod", "runtimeExecutable": "npm", "runtimeArgs": ["run", "start", "--", "-p", "3001"], "port": 3001 }
   ]
 }
