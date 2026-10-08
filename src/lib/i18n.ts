@@ -294,7 +294,7 @@ const el = {
     timeline2025:
       "Η ALFA GLASS αποκτά CNC router με πεδίο εργασίας 2,1 × 6,05 m και ξεκινά την υπηρεσία κοπής και κατεργασίας φύλλων.",
     drawingLabel:
-      "Σχηματική κάτοψη του CNC router: το τραπέζι κενού 2.100 × 6.050 mm με τις 8 ζώνες και τα κανάλια T, το πλαίσιο με τους οδηγούς και τις κρεμαγιέρες, η γέφυρα με την άτρακτο και τις 8 θέσεις εργαλείων, η καμπίνα ελέγχου και ένας άνθρωπος για κλίμακα.",
+      "Σχηματική κάτοψη του CNC router: το τραπέζι κενού 2.100 × 6.050 mm με τις 8 ζώνες και τα κανάλια T, το πλαίσιο με τους οδηγούς και τις κρεμαγιέρες, η γέφυρα με την άτρακτο και τις 8 θέσεις εργαλείων, η καμπίνα ελέγχου και ένας άνθρωπος για κλίμακα. Πάνω στο τραπέζι ένα ολόκληρο φύλλο ακρυλικού, από το οποίο κόβονται τα κομμάτια ενός σταντ προβολής, μια στρογγυλή πινακίδα με χαραγμένη ροζέτα, ένα διάτρητο πάνελ με εξάγωνα και δύο τοξωτά πάνελ.",
     scale: "Άνθρωπος σε κάτοψη, για κλίμακα",
     schematic: "Σχηματικό",
     makerNote: "Τα τεχνικά στοιχεία είναι του κατασκευαστή της μηχανής.",
@@ -810,7 +810,7 @@ const en: Dict = {
     timeline2025:
       "ALFA GLASS acquires a CNC router with a 2.1 × 6.05 m working area and starts a service for cutting and machining sheets.",
     drawingLabel:
-      "Schematic plan view of the CNC router: the 2,100 × 6,050 mm vacuum table with its 8 zones and T-slots, the frame with its rails and racks, the gantry with the spindle and its 8 tool positions, the control cabinet and a person for scale.",
+      "Schematic plan view of the CNC router: the 2,100 × 6,050 mm vacuum table with its 8 zones and T-slots, the frame with its rails and racks, the gantry with the spindle and its 8 tool positions, the control cabinet and a person for scale. On the table lies one whole acrylic sheet, from which the parts of a display stand, a round sign with an engraved rosette, a panel perforated with hexagons and two arched panels are cut.",
     scale: "Person in plan view, for scale",
     schematic: "Schematic",
     makerNote: "The technical data is the machine manufacturer's.",

@@ -101,10 +101,15 @@ export const BLUEPRINT_ANCHORS = {
 } as const;
 export type BlueprintAnchor = keyof typeof BLUEPRINT_ANCHORS;
 
-/** A demo job: no letters, no logos. A façade cassette, a sign panel and a row of six discs. */
-const CASSETTE = { u: 250, v: 250, w: 1500, h: 900, notch: 100, groove: 50 };
-const SIGN = { u: 2250, v: 250, w: 1800, h: 700, r: 60 };
-const DISCS = { u: 800, v: 1650, r: 150, pitch: 560, n: 6 };
+/**
+ * The demo job, no letters and no logos: one whole acrylic sheet on the vacuum table and a nesting of real shop work cut out of it,
+ * packed with a 25 mm web between the parts. From the start of the bed: a display stand (two curved sides with slots, three shelves,
+ * a base strip with a pocket for an edge-lit panel, fifteen drilled stand-off discs), a round sign Ø 1.900 with an engraved rosette, a
+ * screen panel perforated with hexagons that shrink along the bed, and two arched panels with an engraved inner frame.
+ */
+const SHEET = { u: 25, v: 35, w: 6000, h: 2030 };
+/** How far a cut part rises out of the sheet at the end of the scene, in plan: up and to the left, its shadow stays below. */
+const LIFT = 30;
 
 const num = (n: number) => String(Math.round(n * 100) / 100);
 
@@ -124,28 +129,131 @@ function geometry(o: Orientation) {
   return { land, x, y, pt, rect, vb };
 }
 
-/** The cut path of the demo job, as SVG elements in the drawing's coordinates. */
-function cutPath(o: Orientation) {
+type Job = { parts: string; engrave: string; pocket: string };
+
+/** The demo job as three paths in the drawing's coordinates: the parts with their holes (even-odd), the engraving, the pockets. */
+function job(o: Orientation): Job {
   const g = geometry(o);
-  const c = CASSETTE;
-  const n = c.notch;
-  // a cassette blank: 1500 × 900 with 100 mm notches cut out of its four corners
-  const cassette =
-    `M${g.pt(c.u + n, c.v)}L${g.pt(c.u + c.w - n, c.v)}L${g.pt(c.u + c.w - n, c.v + n)}L${g.pt(c.u + c.w, c.v + n)}` +
-    `L${g.pt(c.u + c.w, c.v + c.h - n)}L${g.pt(c.u + c.w - n, c.v + c.h - n)}L${g.pt(c.u + c.w - n, c.v + c.h)}` +
-    `L${g.pt(c.u + n, c.v + c.h)}L${g.pt(c.u + n, c.v + c.h - n)}L${g.pt(c.u, c.v + c.h - n)}L${g.pt(c.u, c.v + n)}L${g.pt(c.u + n, c.v + n)}Z`;
-  // two V-grooves, 50 mm inside the long edges, where the flanges are folded
-  const grooves = [c.v + c.groove, c.v + c.h - c.groove].map((v) => `M${g.pt(c.u + n, v)}L${g.pt(c.u + c.w - n, v)}`).join("");
-  const sign = g.rect(SIGN.u, SIGN.v, SIGN.w, SIGN.h);
-  const discs = Array.from({ length: DISCS.n }, (_, i) => ({ cx: g.x(DISCS.u + i * DISCS.pitch, DISCS.v), cy: g.y(DISCS.u + i * DISCS.pitch, DISCS.v) }));
+  const P = (u: number, v: number) => `${Math.round(g.x(u, v))} ${Math.round(g.y(u, v))}`;
+  const poly = (pts: [number, number][]) => `M${pts.map(([u, v]) => P(u, v)).join("L")}Z`;
+  const K = 0.5523; // a quarter circle as one cubic
+  const circle = (cu: number, cv: number, r: number) =>
+    `M${P(cu + r, cv)}C${P(cu + r, cv + K * r)} ${P(cu + K * r, cv + r)} ${P(cu, cv + r)}` +
+    `C${P(cu - K * r, cv + r)} ${P(cu - r, cv + K * r)} ${P(cu - r, cv)}` +
+    `C${P(cu - r, cv - K * r)} ${P(cu - K * r, cv - r)} ${P(cu, cv - r)}` +
+    `C${P(cu + K * r, cv - r)} ${P(cu + r, cv - K * r)} ${P(cu + r, cv)}Z`;
+  const rounded = (u: number, v: number, w: number, h: number, r: number) =>
+    `M${P(u + r, v)}L${P(u + w - r, v)}C${P(u + w - r + K * r, v)} ${P(u + w, v + r - K * r)} ${P(u + w, v + r)}` +
+    `L${P(u + w, v + h - r)}C${P(u + w, v + h - r + K * r)} ${P(u + w - r + K * r, v + h)} ${P(u + w - r, v + h)}` +
+    `L${P(u + r, v + h)}C${P(u + r - K * r, v + h)} ${P(u, v + h - r + K * r)} ${P(u, v + h - r)}` +
+    `L${P(u, v + r)}C${P(u, v + r - K * r)} ${P(u + r - K * r, v)} ${P(u + r, v)}Z`;
+  const parts: string[] = [];
+  const engrave: string[] = [];
+  const pocket: string[] = [];
+
+  // the display stand: two curved sides (1.450 long, 420 tall at the back, 170 at the front), each with three shelf slots 20 × 80
+  const side = (u0: number, base: number, dir: 1 | -1) => {
+    const at = (a: number, b: number): [number, number] => [u0 + a, base - dir * b];
+    const slots = [300, 725, 1150].flatMap((sl) => [at(sl - 10, 0), at(sl - 10, 80), at(sl + 10, 80), at(sl + 10, 0)]);
+    const [a0, a1] = [at(0, 0), at(1450, 0)];
+    const [c0, c1, c2, c3] = [at(1450, 170), at(1000, 170), at(480, 420), at(0, 420)];
+    return `M${P(...a0)}L${slots.map((q) => P(...q)).join("L")}L${P(...a1)}L${P(...c0)}C${P(...c1)} ${P(...c2)} ${P(...c3)}Z`;
+  };
+  parts.push(side(70, 500, 1), side(70, 530, -1));
+  // three shelves 1.000 × 240, a 20 × 100 notch in each end that locks into the sides' slots
+  for (const v of [980, 1250, 1520]) {
+    const m = v + 120;
+    parts.push(poly([[70, v], [1070, v], [1070, m - 10], [970, m - 10], [970, m + 10], [1070, m + 10], [1070, v + 240], [70, v + 240], [70, m + 10], [170, m + 10], [170, m - 10], [70, m - 10]]));
+  }
+  // fifteen stand-off discs Ø 110 with a Ø 16 hole
+  for (const cu of [1170, 1300, 1430]) for (const cv of [1040, 1180, 1320, 1460, 1600]) parts.push(circle(cu, cv, 55) + circle(cu, cv, 8));
+  // the base strip with the pocket that holds an edge-lit panel
+  parts.push(rounded(70, 1800, 1450, 200, 30));
+  pocket.push(rounded(130, 1885, 1330, 30, 6));
+
+  // the round sign: Ø 1.900, four Ø 28 fixing holes, an engraved ring and rosette, a pocketed centre
+  const S = { u: 2580, v: 1050, r: 950 };
+  const pol = (r: number, deg: number): [number, number] => [S.u + r * Math.cos((deg * Math.PI) / 180), S.v + r * Math.sin((deg * Math.PI) / 180)];
+  parts.push(circle(S.u, S.v, S.r) + [45, 135, 225, 315].map((d) => circle(...pol(915, d), 14)).join(""));
+  engrave.push(circle(S.u, S.v, 880), circle(S.u, S.v, 230));
+  const petal = (deg: number, r0: number, r1: number, spread: number) =>
+    `M${P(...pol(r0, deg))}C${P(...pol(r0 + (r1 - r0) * 0.35, deg - spread))} ${P(...pol(r0 + (r1 - r0) * 0.85, deg - spread * 0.7))} ${P(...pol(r1, deg))}` +
+    `C${P(...pol(r0 + (r1 - r0) * 0.85, deg + spread * 0.7))} ${P(...pol(r0 + (r1 - r0) * 0.35, deg + spread))} ${P(...pol(r0, deg))}Z`;
+  for (let i = 0; i < 12; i++) engrave.push(petal(i * 30, 240, 820, 13), petal(i * 30 + 15, 240, 540, 9));
+  pocket.push(circle(S.u, S.v, 170));
+
+  // the screen panel 1.500 × 1.940, perforated with hexagons that shrink along the bed (Ø 156 to Ø 44)
+  const H = { u: 3580, v: 80, w: 1500, h: 1940 };
+  let screen = rounded(H.u, H.v, H.w, H.h, 80);
+  const pitch = 165;
+  const row = (pitch * Math.sqrt(3)) / 2;
+  for (let j = 0; H.v + 150 + j * row <= H.v + H.h - 150; j++) {
+    const cv = H.v + 150 + j * row;
+    for (let cu = H.u + 150 + (j % 2) * (pitch / 2); cu <= H.u + H.w - 150; cu += pitch) {
+      const t = (cu - H.u - 150) / (H.w - 300);
+      const r = (78 - 56 * t) * (0.88 + 0.12 * Math.cos(((cv - 1050) / 970) * Math.PI));
+      screen += poly(Array.from({ length: 6 }, (_, k) => [cu + r * Math.cos((k * Math.PI) / 3), cv + r * Math.sin((k * Math.PI) / 3)] as [number, number]));
+    }
+  }
+  parts.push(screen);
+
+  // two arched panels 860 × 940, their tips towards the end of the bed, an engraved frame 70 mm inside
+  const arch = (ub: number, ut: number, va: number, vb: number) => {
+    const vc = (va + vb) / 2;
+    const r = (vb - va) / 2;
+    const us = ut - r;
+    return (
+      `M${P(ub, va)}L${P(us, va)}C${P(us + K * r, va)} ${P(ut, vc - K * r)} ${P(ut, vc)}` +
+      `C${P(ut, vc + K * r)} ${P(us + K * r, vb)} ${P(us, vb)}L${P(ub, vb)}Z`
+    );
+  };
+  for (const [va, vb] of [[80, 1020], [1080, 2020]]) {
+    parts.push(arch(5130, 5990, va, vb));
+    engrave.push(arch(5200, 5920, va + 70, vb - 70));
+  }
+
+  return { parts: parts.join(""), engrave: engrave.join(""), pocket: pocket.join("") };
+}
+
+/** The cut path: what the spindle leaves in the sheet. */
+function cutPath(j: Job) {
   return (
     <>
-      <path className="bp-cut" d={cassette} />
-      <path className="bp-cut bp-groove" d={grooves} />
-      <rect className="bp-cut" {...sign} rx={SIGN.r} />
-      {discs.map((d, i) => (
-        <circle key={i} className="bp-cut" cx={d.cx} cy={d.cy} r={DISCS.r} />
-      ))}
+      <path className="bp-pocket" d={j.pocket} />
+      <path className="bp-engrave" d={j.engrave} />
+      <path className="bp-cut" d={j.parts} />
+    </>
+  );
+}
+
+/** The cut parts risen out of the sheet: their shadow where they were, the parts themselves moved up and to the left. */
+function lifted(j: Job, layer: "shadow" | "part") {
+  if (layer === "shadow") return <path className="bp-shadow" fillRule="evenodd" d={j.parts} />;
+  return (
+    <g transform={`translate(${-LIFT} ${-LIFT})`}>
+      <path className="bp-part" fillRule="evenodd" d={j.parts} />
+      <path className="bp-pocket" d={j.pocket} />
+      <path className="bp-engrave" d={j.engrave} />
+    </g>
+  );
+}
+
+/** The acrylic sheet on the table: a tint, a sheen across it and a bright edge. */
+function sheet(o: Orientation, id: string) {
+  const g = geometry(o);
+  const r = g.rect(SHEET.u, SHEET.v, SHEET.w, SHEET.h);
+  return (
+    <>
+      <defs>
+        <linearGradient id={`${id}-sheen`} x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="var(--bp-sheen)" stopOpacity="0.16" />
+          <stop offset="0.45" stopColor="var(--bp-sheen)" stopOpacity="0.03" />
+          <stop offset="0.62" stopColor="var(--bp-sheen)" stopOpacity="0.1" />
+          <stop offset="1" stopColor="var(--bp-sheen)" stopOpacity="0.02" />
+        </linearGradient>
+      </defs>
+      <rect className="bp-sheet" {...r} />
+      <rect fill={`url(#${id}-sheen)`} className="bp-sheen" {...r} />
     </>
   );
 }
@@ -380,6 +488,8 @@ export function MachineBlueprint({
     aspectRatio: `${num(ratio)}`,
     "--bp-rest": gantryAt,
     "--bp-gw": `${num((GANTRY_LEN / TRACK.w) * 100)}%`,
+    // the lift, as a share of the cut path's track (the bed's length by the drawing's height)
+    "--bp-lift": land ? `${num((LIFT / LEN) * 100)}% ${num((LIFT / box.h) * 100)}%` : `${num((LIFT / box.h) * 100)}% ${num((LIFT / LEN) * 100)}%`,
     "--bp-fx": ((land ? PERSON.u : PERSON.v) - (land ? box.u : box.v)) / (land ? box.w : box.h),
     "--bp-fy": ((land ? PERSON.v : PERSON.u) - (land ? box.v : box.u)) / (land ? box.h : box.w),
   } as CSSProperties;
@@ -409,6 +519,7 @@ export function MachineBlueprint({
 
   // the tracks' own boxes: the gantry's from where its back stands at the start, the cut path's exactly the bed
   const trackBox = (u: number, w: number) => (land ? `${u} ${box.v} ${w} ${box.h}` : `${box.v} ${u} ${box.h} ${w}`);
+  const j = job(o);
   const trackStyle = (a: { at: string; len: string }) => ({ "--trk-at": a.at, "--trk-len": a.len }) as CSSProperties;
   const A = BLUEPRINT_ANCHORS;
   const place = (u: number, v: number) => {
@@ -425,6 +536,7 @@ export function MachineBlueprint({
           {fittings(o)}
           {table(o, id)}
           {bedRect}
+          {sheet(o, id)}
           {person(o)}
           {p?.el}
         </svg>
@@ -441,9 +553,21 @@ export function MachineBlueprint({
         <div className="bp-track bp-wipe bp-path" style={trackStyle(pt)} aria-hidden>
           <div className="bp-wipe-in">
             <svg className="bp-layer" viewBox={trackBox(0, LEN)}>
-              {cutPath(o)}
+              {cutPath(j)}
             </svg>
           </div>
+        </div>
+
+        {/* When the gantry has passed, the parts rise out of the sheet: two layers, opacity and translate only */}
+        <div className="bp-track bp-lift-shadow" style={trackStyle(pt)} aria-hidden>
+          <svg className="bp-layer" viewBox={trackBox(0, LEN)}>
+            {lifted(j, "shadow")}
+          </svg>
+        </div>
+        <div className="bp-track bp-lift" style={trackStyle(pt)} aria-hidden>
+          <svg className="bp-layer" viewBox={trackBox(0, LEN)}>
+            {lifted(j, "part")}
+          </svg>
         </div>
 
         {/* The track clips the gantry layer: a layer as long as the track that travels by (100% - the gantry) must not widen the page */}

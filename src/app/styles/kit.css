@@ -645,6 +645,10 @@
   --bp-body: oklch(0.97 0.006 255 / 0.05);
   --bp-table: color-mix(in oklab, var(--surface) 78%, black);
   --bp-solid: color-mix(in oklab, var(--surface) 86%, white);
+  /* The acrylic sheet: a cool tint of the edge colour, a white sheen; a risen part is the sheet's colour made opaque */
+  --bp-sheet: color-mix(in oklab, var(--edge) 9%, transparent);
+  --bp-sheen: white;
+  --bp-part: color-mix(in oklab, var(--edge) 16%, var(--bp-table));
   /* How long the gantry is of its track: set by the component (690 of the 6.740 mm it travels in) */
   --bp-gw: 10.2374%;
   /* How much larger the drawing is laid out than it ends up (zoom-out): 1 = not at all. Lanes set 2.6 (1.8 below md), see .bp-zoomable */
@@ -661,6 +665,8 @@
   --bp-body: color-mix(in oklab, var(--fg) 3%, transparent);
   --bp-table: color-mix(in oklab, var(--surface) 90%, var(--fg));
   --bp-solid: var(--surface);
+  --bp-sheet: color-mix(in oklab, var(--edge-deep) 8%, transparent);
+  --bp-part: color-mix(in oklab, var(--edge-deep) 12%, var(--surface));
 }
 .bp[data-o="portrait"] {
   --wipe-from: 0 -100%;
@@ -781,9 +787,35 @@
   stroke: var(--bp-cut);
   stroke-width: 1.5px;
 }
-.bp-groove {
+/* Engraving: a thinner, softer line than a cut. A pocket: a filled area, no outline */
+.bp-engrave {
+  fill: none;
+  stroke: var(--bp-cut);
+  stroke-width: 0.75px;
+  opacity: 0.75;
+}
+.bp-pocket {
+  fill: color-mix(in oklab, var(--bp-cut) 35%, transparent);
+  stroke: none;
+}
+.bp-sheet {
+  fill: var(--bp-sheet);
+  stroke: color-mix(in oklab, var(--bp-cut) 70%, transparent);
   stroke-width: 1px;
-  stroke-dasharray: 6 4;
+}
+.bp-sheen {
+  stroke: none;
+}
+/* A part risen out of the sheet, and the shadow it leaves where it was cut */
+.bp-part {
+  fill: var(--bp-part);
+  stroke: var(--bp-cut);
+  stroke-width: 1.5px;
+}
+.bp-shadow {
+  fill: black;
+  stroke: none;
+  opacity: 0.35;
 }
 .bp-beam,
 .bp-leg {
@@ -844,6 +876,10 @@
 .bp[data-o="portrait"] .bp-track {
   inset: var(--trk-at) 0 auto 0;
   height: var(--trk-len);
+}
+/* The lift layers' base rule is the finished job: the parts have risen (the lanes attach `lift` and `lift-shadow`) */
+.bp-lift {
+  translate: 0 0;
 }
 /* The track clips what travels inside it, so the moving layer never sticks out of the drawing */
 .bp-gantry-box {

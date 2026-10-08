@@ -305,6 +305,18 @@
       animation-range: contain 45% contain 80%;
     }
 
+    /* 80–92 %: the cut parts rise out of the sheet */
+    .bed .bp-lift {
+      animation: lift linear both;
+      animation-timeline: --bed;
+      animation-range: contain 80% contain 92%;
+    }
+    .bed .bp-lift-shadow {
+      animation: lift-shadow linear both;
+      animation-timeline: --bed;
+      animation-range: contain 80% contain 92%;
+    }
+
     /* 80–100 %: the pins appear one after another, and the legend names them */
     .bed-pin,
     .bed-leader,

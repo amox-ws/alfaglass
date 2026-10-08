@@ -475,6 +475,20 @@
     translate: var(--wipe-inv, 100% 0);
   }
 }
+/* The parts rise out of the sheet once the gantry has passed (its sweep ends at 55 of the lift's 70) */
+@keyframes mach-lift {
+  0%,
+  80% {
+    opacity: 0;
+    translate: var(--bp-lift, 0 0);
+  }
+}
+@keyframes mach-lift-shadow {
+  0%,
+  80% {
+    opacity: 0;
+  }
+}
 .mach-facts li {
   padding-block: 0.875rem;
   border-top: 1px solid var(--line);
@@ -789,6 +803,16 @@
       animation: mach-wipe-content linear forwards;
       animation-timeline: --mach;
       animation-range: entry 0% cover 55%;
+    }
+    .mach-drawing .bp-lift {
+      animation: mach-lift linear forwards;
+      animation-timeline: --mach;
+      animation-range: entry 0% cover 70%;
+    }
+    .mach-drawing .bp-lift-shadow {
+      animation: mach-lift-shadow linear forwards;
+      animation-timeline: --mach;
+      animation-range: entry 0% cover 70%;
     }
 
     .hist-track {

@@ -26,10 +26,10 @@ const pct = (value: number, from: number, size: number) => `${(((value - from) /
 
 /** Where each pin hangs (mm, along and across the bed) and what it points at: callouts in the dictionary come in this order. */
 const PINS: { at: { u: number; v: number }; to?: { u: number; v: number } }[] = [
-  { at: { u: 2646, v: 1350 } }, // the vacuum table: on a zone, between the sign panel and the discs
+  { at: { u: -330, v: 1050 }, to: { u: 0, v: 1050 } }, // the vacuum table: beside the start of the bed, at its edge
   { at: { u: 5050, v: -240 }, to: { u: 5510, v: -240 } }, // the gantry: on the rail, beside the leg
   { at: { u: 5050, v: 850 }, to: { u: 5950, v: 850 } }, // the spindle: across the beam to the carriage
-  { at: { u: 1000, v: 700 } }, // the accuracy: inside the cassette that is cut
+  { at: { u: 2580, v: 1050 } }, // the accuracy: on the engraved rosette of the round sign
   { at: { u: 6479, v: 2780 }, to: { u: 6279, v: 2502.5 } }, // the machine: at the corner of the frame
 ];
 
@@ -52,7 +52,7 @@ export function BedScene({ lang }: { lang: Lang }) {
 
           <div className="shell bed-draw">
             <div className="bed-land">
-              <MachineBlueprint lang={lang} variant="full" className="bp-zoomable" />
+              <MachineBlueprint lang={lang} variant="full" id="bp-land" className="bp-zoomable" />
               {film && (
                 <div className="bed-film">
                   <MediaSlot slot={slots.machineFilm} ratio="2.88 / 1" fill lang={lang} alt={s.filmLabel} />
@@ -72,7 +72,7 @@ export function BedScene({ lang }: { lang: Lang }) {
               </div>
             </div>
             <div className="bed-port">
-              <MachineBlueprint lang={lang} variant="full" orientation="portrait" className="bp-zoomable" />
+              <MachineBlueprint lang={lang} variant="full" orientation="portrait" id="bp-port" className="bp-zoomable" />
             </div>
           </div>
 

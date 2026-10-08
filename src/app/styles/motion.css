@@ -185,6 +185,7 @@
  *            its child from var(--wipe-inv) to 0 on the same timeline. The two variables are per orientation (kit.css).
  *   zones    the 8 vacuum-zone fills fade in one after another (give each its own animation-range, 6% of the scene apart: `--i`)
  *   zoom-out the drawing is laid out at its start size and scaled down to its real size, so the raster is crisp at both ends
+ *   lift     the cut parts rise out of the sheet: the parts' layer comes in from where they were cut (`--bp-lift`), their shadow fades in
  * Attach them in a lane stylesheet, e.g.
  *   .bed-scene .bp-gantry { animation: sweep linear both; animation-timeline: --bed; animation-range: contain 45% contain 80%; }
  */
@@ -204,6 +205,17 @@
   }
 }
 @keyframes zones {
+  from {
+    opacity: 0;
+  }
+}
+@keyframes lift {
+  from {
+    opacity: 0;
+    translate: var(--bp-lift, 0 0);
+  }
+}
+@keyframes lift-shadow {
   from {
     opacity: 0;
   }
