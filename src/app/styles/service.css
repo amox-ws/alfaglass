@@ -104,12 +104,12 @@
 .bed-land {
   display: none;
   position: relative;
-  width: min(100%, calc((100svh - 17.5rem) * 2.0758));
+  width: min(100%, calc((100svh - 17.5rem) * 2.136));
   min-width: min(100%, 30rem);
 }
 .bed-port {
   position: relative;
-  width: min(100%, 22rem, calc((100svh - 12.5rem) * 0.4818));
+  width: min(100%, 22rem, calc((100svh - 12.5rem) * 0.4682));
 }
 @media (min-width: 48rem) {
   .bed-land {
@@ -188,10 +188,10 @@
 .bed-film {
   display: none;
   position: absolute;
-  left: 5.8394%;
-  top: 12.1212%;
-  width: 88.3212%;
-  height: 63.6364%;
+  left: 19.4434%;
+  top: 19.5328%;
+  width: 73.5205%;
+  height: 54.5101%;
   overflow: hidden;
 }
 

@@ -1,5 +1,5 @@
 import type { CSSProperties } from "react";
-import { MachineBlueprint } from "@/components/kit/MachineBlueprint";
+import { BLUEPRINT_BOX, MachineBlueprint } from "@/components/kit/MachineBlueprint";
 import { MediaSlot } from "@/components/kit/MediaSlot";
 import { Units } from "@/components/kit/Units";
 import { t, type Lang } from "@/lib/i18n";
@@ -20,17 +20,17 @@ import { slots } from "@/lib/media-slots";
  * pins and dimensions stay on top); below lg it follows the scene as a band with its poster and play button (MediaLoop's rules).
  */
 
-/** The drawing's viewBox in mm ("-400 -400 6850 3300"): the pins are placed in the same coordinates as the drawing. */
-const BOX = { u: -400, v: -400, w: 6850, h: 3300 };
+/** The drawing's viewBox in mm: the pins are placed in the same coordinates as the drawing. */
+const BOX = BLUEPRINT_BOX;
 const pct = (value: number, from: number, size: number) => `${(((value - from) / size) * 100).toFixed(3)}%`;
 
 /** Where each pin hangs (mm, along and across the bed) and what it points at: callouts in the dictionary come in this order. */
 const PINS: { at: { u: number; v: number }; to?: { u: number; v: number } }[] = [
-  { at: { u: 2646, v: 1100 } }, // the vacuum table: on a zone, between the sign panel and the discs
-  { at: { u: 5520, v: -120 }, to: { u: 5790, v: -120 } }, // the gantry: beside the top end of the beam
-  { at: { u: 5380, v: 850 }, to: { u: 5720, v: 850 } }, // the spindle: beside the carriage
+  { at: { u: 2646, v: 1350 } }, // the vacuum table: on a zone, between the sign panel and the discs
+  { at: { u: 5050, v: -240 }, to: { u: 5510, v: -240 } }, // the gantry: on the rail, beside the leg
+  { at: { u: 5050, v: 850 }, to: { u: 5950, v: 850 } }, // the spindle: across the beam to the carriage
   { at: { u: 1000, v: 700 } }, // the accuracy: inside the cassette that is cut
-  { at: { u: 6330, v: 2330 }, to: { u: 6050, v: 2100 } }, // the machine: at the corner of the bed
+  { at: { u: 6479, v: 2780 }, to: { u: 6279, v: 2502.5 } }, // the machine: at the corner of the frame
 ];
 
 export function BedScene({ lang }: { lang: Lang }) {

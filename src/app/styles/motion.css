@@ -179,7 +179,7 @@
 
 /*
  * The keyframes of the drawing, all ending on the base rule (the finished drawing). The geometry that makes them work is in kit.css:
- *   sweep    the gantry layer travels along the bed: translate 0 → calc(100% - var(--beam)) (set on the layer as its base rule)
+ *   sweep    the gantry layer travels along the bed: translate 0 → calc(100% - var(--bp-gw)) (set on the layer as its base rule)
  *   wipe     a clip box and its content counter-translate, so the content stays still and a window opens over it: it replaces
  *            stroke-dashoffset (a paint property) for every "line being drawn". The clip box moves from var(--wipe-from) to 0,
  *            its child from var(--wipe-inv) to 0 on the same timeline. The two variables are per orientation (kit.css).

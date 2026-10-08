@@ -3,8 +3,8 @@ import { BED, fitsBed, formatNumber } from "@/lib/machine";
 import { t, type Lang } from "@/lib/i18n";
 
 /*
- * The machine drawn as a blueprint: a plan view (κάτοψη) of the 6.050 × 2.100 mm working table, in millimetres, white and edge-cyan
- * lines on the brand indigo. It is the visual language of the cutting service and, until ALFA GLASS's own machine is photographed,
+ * The machine drawn as a blueprint: a plan view (κάτοψη) of the CNC router as it is built (the frame, the rails, the gantry, the vacuum
+ * table of 6.050 × 2.100 mm and the control cabinet beside it), in millimetres, white and edge-cyan lines on the brand indigo. It is the visual language of the cutting service and, until ALFA GLASS's own machine is photographed,
  * its only picture (no renders, no supplier pictures, no stock photos). A static, server-rendered component: the System builds the
  * geometry and the layer hooks, the lanes choreograph it (the keyframes `sweep`, `wipe-clip`, `wipe-content`, `zones`, `zoom-out`
  * are in motion.css; their base rule here is the finished drawing).
@@ -18,31 +18,86 @@ type Variant = "full" | "band" | "mini";
 
 const LEN = BED.y; // 6050
 const WID = BED.x; // 2100
-const MARGIN = 400;
-const ZONES = 8;
-const ZONE = LEN / ZONES; // 756.25
-const BEAM = 260;
-const BEAM_OVER = 120; // the gantry reaches 120 mm past the bed on both sides
-const TOOLS = 8;
-/**
- * The viewBox: "-400 -400 6850 3300", the working area with 400 mm round it, and 800 mm below it (the person at the near edge, her label).
- * It grows only when a piece sticks out of the field.
- */
-const BOX = { u: -MARGIN, v: -MARGIN, w: LEN + 2 * MARGIN, h: MARGIN + WID + 2 * MARGIN };
-/** The mini drawing has no dimensions and no person, so it is framed closer: a 200 mm margin round the bed and the gantry. */
-const MINI = 200;
-const MINI_BOX = { u: -MINI, v: -MINI, w: LEN + 2 * MINI, h: WID + 2 * MINI };
 
-/** The person standing at the bed, to scale: shoulders 520 × 260, head Ø 200, at the near long edge. */
-const PERSON = { u: 1000, v: 2450, rx: 260, ry: 130, head: 100 };
+/*
+ * The real machine (the maker's offer, CNC Router XY2160 Vacuum ATC PC), in plan, in mm:
+ *   the frame is about 2.905 × 6.879 mm; the working area sits in it with 400 mm either side and the gantry's parking room at the start
+ *   the gantry rides two 25 mm linear rails with a rack (X, Y), one servo on each leg; the spindle carriage hangs on the front of the beam
+ *   the vacuum table is acetal in 8 zones (2 across × 4 along) with T-slots between them and a valve for each zone on the frame
+ *   the 8-place tool changer travels with the gantry (ISO30, "on the bridge"); the tool length sensor stands at the start of the table
+ *   the control cabinet (industrial PC, beacon) is a separate station beside the machine
+ */
+const FRAME = { u: -600, v: WID / 2 - 1452.5, w: 6879, h: 2905 };
+/** The two rails, centred on the gantry legs, along the whole frame. */
+const RAILS = [-240, WID + 240];
+const ZONES = 8;
+const ZONE_U = LEN / 4; // 1512.5
+const ZONE_V = WID / 2; // 1050
+/** A T-slot between two zones, 20 mm wide. */
+const SLOT = 20;
+/** The vacuum grid of the acetal plate. */
+const GRID = 50;
+
+/**
+ * The gantry in its own coordinates, u measured from the spindle axis (which reaches the whole bed, 0 to 6.050). The beam stands behind
+ * the carriage, the legs stand on the rails; `back` and `front` are how far the gantry reaches behind and in front of the spindle.
+ */
+const G = {
+  back: -540,
+  front: 150,
+  beam: { u: -380, w: 280, v: -330, h: WID + 660 },
+  legs: [
+    { v: -330, h: 180 },
+    { v: WID + 150, h: 180 },
+  ],
+  leg: { u: -540, w: 600 },
+  motors: [
+    { v: -440, h: 110 },
+    { v: WID + 330, h: 110 },
+  ],
+  motor: { u: -480, w: 140 },
+  carriage: { u: -100, w: 210, v: 620, h: 460 },
+  spindle: { v: 850, r: 62, hood: 150 },
+  chain: { u: -320, w: 160, v0: -290 },
+  rack: { u: -95, w: 110, v: 1220, h: 920 },
+  tools: 8,
+  tool: { u: -40, v: 1270, pitch: 120, r: 40 },
+} as const;
+const GANTRY_LEN = G.front - G.back; // 690
+/** The track the gantry layer travels in: from where its back stands at the start to where its front stands at the end. */
+const TRACK = { u: G.back, w: LEN + GANTRY_LEN };
+
+/** The control cabinet beside the start of the machine, its keyboard shelf towards the operator, the beacon on its roof. */
+const CABINET = { u: -1380, v: 1500, w: 600, h: 600, shelf: 220, beacon: 50 };
+/** The zone valves, one for each zone, on a manifold along the near side of the frame. */
+const VALVES = { u: 2300, v: FRAME.v + FRAME.h, pitch: 200, r: 38 };
+/** The tool length sensor at the start of the table, inside the spindle's reach across. */
+const SENSOR = { u: -150, v: 1900, r: 55 };
+
+/** The dimension lines: along the bed above the frame, across it to the right of the frame. */
+const DIM_V = FRAME.v - 200;
+const DIM_U = FRAME.u + FRAME.w + 200;
+
+/**
+ * The viewBox: the cabinet and the frame, the dimension lines and the person at the near side, with a margin. It grows only when a
+ * piece sticks out of the field.
+ */
+export const BLUEPRINT_BOX = { u: -1600, v: DIM_V - 150, w: DIM_U + 150 + 1600, h: 3100 - (DIM_V - 150) };
+const BOX = BLUEPRINT_BOX;
+/** The mini drawing has no dimensions, no cabinet and no person, so it is framed closer: a 200 mm margin round the frame. */
+const MINI = 200;
+const MINI_BOX = { u: FRAME.u - MINI, v: FRAME.v - 40 - MINI, w: FRAME.w + 2 * MINI, h: FRAME.h + 80 + 2 * MINI };
+
+/** The person standing at the near side of the machine, to scale: shoulders 520 × 260, head Ø 200. */
+const PERSON = { u: 1000, v: 2800, rx: 260, ry: 130, head: 100 };
 
 /** Where the callouts of the service scene hang their leaders (final frame: the gantry has crossed the whole bed). */
 export const BLUEPRINT_ANCHORS = {
-  zones: { u: ZONE * 3.5, v: WID / 2 },
-  gantry: { u: LEN - BEAM / 2, v: -BEAM_OVER },
-  carriage: { u: LEN - BEAM / 2, v: 850 },
+  zones: { u: ZONE_U * 1.5, v: ZONE_V * 1.25 },
+  gantry: { u: LEN + G.leg.u, v: G.legs[0].v + G.legs[0].h / 2 },
+  carriage: { u: LEN, v: G.spindle.v },
   path: { u: 1750, v: 700 },
-  bed: { u: LEN, v: 1700 },
+  bed: { u: FRAME.u + FRAME.w, v: FRAME.v + FRAME.h },
 } as const;
 export type BlueprintAnchor = keyof typeof BLUEPRINT_ANCHORS;
 
@@ -95,19 +150,108 @@ function cutPath(o: Orientation) {
   );
 }
 
-/** The gantry in its own track: a 260 mm beam across the whole width, the spindle carriage and the 8 tool positions. */
-function gantry(o: Orientation) {
+/**
+ * The gantry, in the coordinates of its track (u from the track's start, so the layer can travel by translate alone): the beam across
+ * the whole frame, a leg with its servo on each rail, the drag chain on the beam, the spindle carriage with the dust hood, and the
+ * tool rack beside it. Its parts are filled with the page's surface, so it reads as a solid thing over the table. `simple` (the mini
+ * drawing) keeps only the beam, the legs, the carriage, the spindle and the tools.
+ */
+function gantry(o: Orientation, at: number, simple = false) {
   const g = geometry(o);
-  const beam = g.rect(0, -BEAM_OVER, BEAM, WID + 2 * BEAM_OVER);
-  const carriage = g.rect(BEAM / 2 - 200, 650, 400, 400);
+  const r = (u: number, v: number, du: number, dv: number) => g.rect(at + u, v, du, dv);
+  const c = (u: number, v: number) => ({ cx: g.x(at + u, v), cy: g.y(at + u, v) });
+  const ch = G.chain;
+  // the drag chain: two side bands and a link every 70 mm, from the beam's end to the carriage
+  const links = Math.floor((G.spindle.v - ch.v0) / 70);
+  const chain =
+    `M${g.pt(at + ch.u, ch.v0)}L${g.pt(at + ch.u, G.spindle.v)}M${g.pt(at + ch.u + ch.w, ch.v0)}L${g.pt(at + ch.u + ch.w, G.spindle.v)}` +
+    Array.from({ length: links + 1 }, (_, i) => `M${g.pt(at + ch.u, ch.v0 + i * 70)}L${g.pt(at + ch.u + ch.w, ch.v0 + i * 70)}`).join("");
   return (
     <>
-      <rect className="bp-beam" {...beam} />
-      <rect className="bp-carriage" {...carriage} />
-      <circle className="bp-spindle" cx={g.x(BEAM / 2, 850)} cy={g.y(BEAM / 2, 850)} r={55} />
-      {Array.from({ length: TOOLS }, (_, i) => (
-        <circle key={i} className="bp-tool" cx={g.x(BEAM / 2, 1250 + i * 110)} cy={g.y(BEAM / 2, 1250 + i * 110)} r={45} />
+      {G.legs.map((l, i) => (
+        <rect key={`l${i}`} className="bp-leg" {...r(G.leg.u, l.v, G.leg.w, l.h)} />
       ))}
+      {!simple &&
+        G.motors.map((m, i) => <rect key={`m${i}`} className="bp-motor" {...r(G.motor.u, m.v, G.motor.w, m.h)} />)}
+      <rect className="bp-beam" {...r(G.beam.u, G.beam.v, G.beam.w, G.beam.h)} />
+      {!simple && <path className="bp-chain" d={chain} />}
+      <rect className="bp-rack" {...r(G.rack.u, G.rack.v, G.rack.w, G.rack.h)} />
+      {Array.from({ length: G.tools }, (_, i) => (
+        <circle key={`t${i}`} className="bp-tool" {...c(G.tool.u, G.tool.v + i * G.tool.pitch)} r={G.tool.r} />
+      ))}
+      <rect className="bp-carriage" {...r(G.carriage.u, G.carriage.v, G.carriage.w, G.carriage.h)} />
+      {!simple && <circle className="bp-hood" {...c(0, G.spindle.v)} r={G.spindle.hood} />}
+      <circle className="bp-spindle" {...c(0, G.spindle.v)} r={G.spindle.r} />
+    </>
+  );
+}
+
+/** The frame and the two rails with their racks, under everything else. */
+function frame(o: Orientation, simple = false) {
+  const g = geometry(o);
+  const f = FRAME;
+  const rails = RAILS.map((v) => `M${g.pt(f.u, v - 12.5)}L${g.pt(f.u + f.w, v - 12.5)}M${g.pt(f.u, v + 12.5)}L${g.pt(f.u + f.w, v + 12.5)}`).join("");
+  // the rack: on the outer side of each rail, its teeth a fine dash
+  const racks = RAILS.map((v, i) => {
+    const rv = v + (i === 0 ? -45 : 45);
+    return `M${g.pt(f.u, rv)}L${g.pt(f.u + f.w, rv)}`;
+  }).join("");
+  return (
+    <>
+      <rect className="bp-frame" {...g.rect(f.u, f.v, f.w, f.h)} />
+      <path className="bp-rail" d={rails} />
+      {!simple && <path className="bp-rack-teeth" d={racks} />}
+    </>
+  );
+}
+
+/** The vacuum table: the acetal grid, the 8 zones (2 × 4) and the T-slots between them. */
+function table(o: Orientation, id: string) {
+  const g = geometry(o);
+  const seams = [
+    ...[1, 2, 3].flatMap((i) => [i * ZONE_U - SLOT / 2, i * ZONE_U + SLOT / 2].map((u) => `M${g.pt(u, 0)}L${g.pt(u, WID)}`)),
+    ...[ZONE_V - SLOT / 2, ZONE_V + SLOT / 2].map((v) => `M${g.pt(0, v)}L${g.pt(LEN, v)}`),
+  ].join("");
+  return (
+    <>
+      <defs>
+        <pattern id={`${id}-grid`} width={GRID} height={GRID} patternUnits="userSpaceOnUse">
+          <path className="bp-grid-line" d={`M${GRID} 0H0V${GRID}`} />
+        </pattern>
+      </defs>
+      <rect className="bp-table" {...g.rect(0, 0, LEN, WID)} />
+      <rect fill={`url(#${id}-grid)`} className="bp-grid" {...g.rect(0, 0, LEN, WID)} />
+      {Array.from({ length: ZONES }, (_, i) => (
+        <rect
+          key={i}
+          className="bp-zone"
+          style={{ "--i": i } as CSSProperties}
+          {...g.rect(Math.floor(i / 2) * ZONE_U, (i % 2) * ZONE_V, ZONE_U, ZONE_V)}
+        />
+      ))}
+      <path className="bp-seam" d={seams} />
+    </>
+  );
+}
+
+/** What stands round the machine: the zone valves on the frame, the tool length sensor and the control cabinet. */
+function fittings(o: Orientation) {
+  const g = geometry(o);
+  const c = (u: number, v: number) => ({ cx: g.x(u, v), cy: g.y(u, v) });
+  const k = CABINET;
+  const vl = VALVES;
+  return (
+    <>
+      <rect className="bp-fit" {...g.rect(vl.u - 120, vl.v, ZONES * vl.pitch + 40, 60)} />
+      {Array.from({ length: ZONES }, (_, i) => (
+        <circle key={i} className="bp-valve" {...c(vl.u + i * vl.pitch, vl.v + 30)} r={vl.r} />
+      ))}
+      <circle className="bp-fit" {...c(SENSOR.u, SENSOR.v)} r={SENSOR.r} />
+      <circle className="bp-fit" {...c(SENSOR.u, SENSOR.v)} r={SENSOR.r * 0.45} />
+      <rect className="bp-fit" {...g.rect(k.u, k.v, k.w, k.h)} />
+      <rect className="bp-fit" {...g.rect(k.u + 60, k.v + k.h - 40, k.w - 120, 40)} />
+      <rect className="bp-fit" {...g.rect(k.u + 50, k.v + k.h, k.w - 100, k.shelf)} />
+      <circle className="bp-beacon" {...c(k.u + k.w - 90, k.v + 90)} r={k.beacon} />
     </>
   );
 }
@@ -123,7 +267,7 @@ function person(o: Orientation) {
   );
 }
 
-/** A dimension line with arrowheads and two extension lines, outside the bed. */
+/** A dimension line of the working area with arrowheads, outside the frame, and two extension lines from the bed's corners. */
 function dimension(o: Orientation, along: "length" | "width") {
   const g = geometry(o);
   const A = 120; // arrowhead length
@@ -131,7 +275,7 @@ function dimension(o: Orientation, along: "length" | "width") {
   const arrow = (u: number, v: number, du: number, dv: number) =>
     `M${g.pt(u, v)}L${g.pt(u - du * A + dv * B, v - dv * A + du * B)}L${g.pt(u - du * A - dv * B, v - dv * A - du * B)}Z`;
   if (along === "length") {
-    const v = -250;
+    const v = DIM_V;
     return (
       <>
         <path className="bp-dim" d={`M${g.pt(0, v)}L${g.pt(LEN, v)}M${g.pt(0, -40)}L${g.pt(0, v - 40)}M${g.pt(LEN, -40)}L${g.pt(LEN, v - 40)}`} />
@@ -139,7 +283,7 @@ function dimension(o: Orientation, along: "length" | "width") {
       </>
     );
   }
-  const u = LEN + 250;
+  const u = DIM_U;
   return (
     <>
       <path className="bp-dim" d={`M${g.pt(u, 0)}L${g.pt(u, WID)}M${g.pt(LEN + 40, 0)}L${g.pt(u + 40, 0)}M${g.pt(LEN + 40, WID)}L${g.pt(u + 40, WID)}`} />
@@ -157,7 +301,7 @@ function pieceOf(o: Orientation, piece: { w: number; h: number }, id: string) {
   const dv = fit === "rotated" ? piece.h : piece.w;
   const r = g.rect(0, 0, du, dv);
   const out = du > LEN || dv > WID;
-  const big = { u: -MARGIN * 4, v: -MARGIN * 4, w: Math.max(du, LEN) + MARGIN * 8, h: Math.max(dv, WID) + MARGIN * 8 };
+  const big = { u: -1600, v: -1600, w: Math.max(du, LEN) + 3200, h: Math.max(dv, WID) + 3200 };
   const bigR = g.rect(big.u, big.v, big.w, big.h);
   const bedR = g.rect(0, 0, LEN, WID);
   const hole = (b: typeof bigR) => `M${b.x} ${b.y}h${b.width}v${b.height}h${-b.width}Z`;
@@ -187,7 +331,7 @@ function pieceOf(o: Orientation, piece: { w: number; h: number }, id: string) {
 
 export type BlueprintProps = {
   lang?: Lang;
-  /** `full`: every layer and the callout anchors (the service scene); `band`: bed, zones, gantry, path, dimensions and person (home, plastics); `mini`: bed and gantry only, in about 2 KB (the menu card, the timeline tile, the estimator). */
+  /** `full`: every layer and the callout anchors (the service scene); `band`: bed, zones, gantry, path, dimensions and person (home, plastics); `mini`: frame, bed with its zones and gantry only (the menu card, the timeline tile, the estimator). */
   variant?: Variant;
   /** Portrait swaps the axes: the bed stands upright and the gantry sweeps downwards (the service scene below md). */
   orientation?: Orientation;
@@ -218,7 +362,7 @@ export function MachineBlueprint({
   const land = g.land;
   const mini = variant === "mini";
 
-  // the box: the working area with its margin, grown to hold a piece that sticks out of the field
+  // the box: the machine with its margin, grown to hold a piece that sticks out of the field
   const p = piece ? pieceOf(o, piece, id) : null;
   let box = { ...(mini ? MINI_BOX : BOX) };
   if (p?.out) {
@@ -228,9 +372,14 @@ export function MachineBlueprint({
   }
   const viewBox = g.vb(box);
   const ratio = land ? box.w / box.h : box.h / box.w;
+  /** A run along the bed (from u, du long) as the share of the drawing's length: where the tracks stand. */
+  const along = (u: number, du: number) => ({ at: `${num(((u - box.u) / box.w) * 100)}%`, len: `${num((du / box.w) * 100)}%` });
+  const gt = along(TRACK.u, TRACK.w);
+  const pt = along(0, LEN);
   const style = {
     aspectRatio: `${num(ratio)}`,
     "--bp-rest": gantryAt,
+    "--bp-gw": `${num((GANTRY_LEN / TRACK.w) * 100)}%`,
     "--bp-fx": ((land ? PERSON.u : PERSON.v) - (land ? box.u : box.v)) / (land ? box.w : box.h),
     "--bp-fy": ((land ? PERSON.v : PERSON.u) - (land ? box.v : box.u)) / (land ? box.h : box.w),
   } as CSSProperties;
@@ -239,20 +388,28 @@ export function MachineBlueprint({
   const bedRect = <rect className="bp-bed" {...g.rect(0, 0, LEN, WID)} />;
 
   if (mini) {
-    // bed and gantry only; the gantry at rest `gantryAt` along the bed
-    const shift = (LEN - BEAM) * gantryAt;
+    // the frame, the bed with its zones and the gantry, at rest `gantryAt` along the bed
+    const seams = [
+      ...[1, 2, 3].map((i) => `M${g.pt(i * ZONE_U, 0)}L${g.pt(i * ZONE_U, WID)}`),
+      `M${g.pt(0, ZONE_V)}L${g.pt(LEN, ZONE_V)}`,
+    ].join("");
     return (
       <div className={`bp ${className}`} data-variant="mini" data-o={o} data-tone={tone} style={style} {...common}>
         <svg className="bp-layer bp-base" viewBox={viewBox} aria-hidden>
+          {frame(o, true)}
+          <rect className="bp-table" {...g.rect(0, 0, LEN, WID)} />
+          <path className="bp-seam" d={seams} />
           {bedRect}
-          <g transform={`translate(${land ? shift : 0} ${land ? 0 : shift})`}>{gantry(o)}</g>
+          {gantry(o, LEN * gantryAt, true)}
           {p?.el}
         </svg>
       </div>
     );
   }
 
-  const trackBox = land ? `0 ${BOX.v} ${LEN} ${BOX.h}` : `${BOX.v} 0 ${BOX.h} ${LEN}`;
+  // the tracks' own boxes: the gantry's from where its back stands at the start, the cut path's exactly the bed
+  const trackBox = (u: number, w: number) => (land ? `${u} ${box.v} ${w} ${box.h}` : `${box.v} ${u} ${box.h} ${w}`);
+  const trackStyle = (a: { at: string; len: string }) => ({ "--trk-at": a.at, "--trk-len": a.len }) as CSSProperties;
   const A = BLUEPRINT_ANCHORS;
   const place = (u: number, v: number) => {
     const w = land ? box.w : box.h;
@@ -264,17 +421,9 @@ export function MachineBlueprint({
     <div className={`bp ${className}`} data-variant={variant} data-o={o} data-tone={tone} style={style} {...common}>
       <div className="bp-zoom">
         <svg className="bp-layer bp-base" viewBox={viewBox} aria-hidden>
-          {Array.from({ length: ZONES }, (_, i) => (
-            <rect key={i} className="bp-zone" style={{ "--i": i } as CSSProperties} {...g.rect(i * ZONE, 0, ZONE, WID)} />
-          ))}
-          <path
-            className="bp-seam"
-            d={Array.from({ length: ZONES - 1 }, (_, i) => `M${g.pt((i + 1) * ZONE, 0)}L${g.pt((i + 1) * ZONE, WID)}`).join("")}
-          />
-          <path
-            className="bp-slot"
-            d={Array.from({ length: 6 }, (_, i) => `M${g.pt(0, (i + 1) * 300)}L${g.pt(LEN, (i + 1) * 300)}`).join("")}
-          />
+          {frame(o)}
+          {fittings(o)}
+          {table(o, id)}
           {bedRect}
           {person(o)}
           {p?.el}
@@ -289,19 +438,19 @@ export function MachineBlueprint({
           </div>
         </div>
 
-        <div className="bp-track bp-wipe bp-path" aria-hidden>
+        <div className="bp-track bp-wipe bp-path" style={trackStyle(pt)} aria-hidden>
           <div className="bp-wipe-in">
-            <svg className="bp-layer" viewBox={trackBox}>
+            <svg className="bp-layer" viewBox={trackBox(0, LEN)}>
               {cutPath(o)}
             </svg>
           </div>
         </div>
 
-        {/* The track clips the gantry layer: a layer as long as the bed that travels by (100% - the beam) must not widen the page */}
-        <div className="bp-track bp-gantry-box" aria-hidden>
+        {/* The track clips the gantry layer: a layer as long as the track that travels by (100% - the gantry) must not widen the page */}
+        <div className="bp-track bp-gantry-box" style={trackStyle(gt)} aria-hidden>
           <div className="bp-gantry">
-            <svg className="bp-layer" viewBox={trackBox}>
-              {gantry(o)}
+            <svg className="bp-layer" viewBox={trackBox(TRACK.u, TRACK.w)}>
+              {gantry(o, 0)}
             </svg>
           </div>
         </div>
@@ -309,11 +458,11 @@ export function MachineBlueprint({
 
       <div className="bp-labels">
         {/* 6.050 on the line along the bed, 2.100 on the line across it: on top and to the right in landscape, to the left and below in portrait */}
-        <span className="bp-label bp-label-len t-label" style={land ? { ...place(LEN / 2, -250), top: place(0, -250).top } : { top: "50%" }}>
+        <span className="bp-label bp-label-len t-label" style={land ? { ...place(LEN / 2, DIM_V), top: place(0, DIM_V).top } : { top: "50%" }}>
           {formatNumber(LEN)}
           <br className="bp-br" /> <span className="unit">mm</span>
         </span>
-        <span className="bp-label bp-label-wid t-label" style={land ? { top: place(0, 1560).top } : { left: "50%", top: place(LEN + 250, 0).top }}>
+        <span className="bp-label bp-label-wid t-label" style={land ? { top: place(0, 1560).top } : { left: "50%", top: place(DIM_U, 0).top }}>
           {formatNumber(WID)}
           <br className="bp-br" /> <span className="unit">mm</span>
         </span>

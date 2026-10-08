@@ -641,8 +641,12 @@
   --bp-faint: oklch(0.97 0.006 255 / 0.1);
   --bp-cut: var(--edge);
   --bp-piece: var(--edge-deep);
-  /* The beam is 260 of the 6.050 mm of the track */
-  --beam: 4.2975%;
+  /* The machine's surfaces: its body (the frame, the cabinet), the acetal table (darker, as on the machine) and the gantry (solid) */
+  --bp-body: oklch(0.97 0.006 255 / 0.05);
+  --bp-table: color-mix(in oklab, var(--surface) 78%, black);
+  --bp-solid: color-mix(in oklab, var(--surface) 86%, white);
+  /* How long the gantry is of its track: set by the component (690 of the 6.740 mm it travels in) */
+  --bp-gw: 10.2374%;
   /* How much larger the drawing is laid out than it ends up (zoom-out): 1 = not at all. Lanes set 2.6 (1.8 below md), see .bp-zoomable */
   --z0: 1;
   --wipe-from: -100% 0;
@@ -654,6 +658,9 @@
   --bp-line: var(--fg);
   --bp-faint: color-mix(in oklab, var(--fg) 7%, transparent);
   --bp-cut: var(--edge-deep);
+  --bp-body: color-mix(in oklab, var(--fg) 3%, transparent);
+  --bp-table: color-mix(in oklab, var(--surface) 90%, var(--fg));
+  --bp-solid: var(--surface);
 }
 .bp[data-o="portrait"] {
   --wipe-from: 0 -100%;
@@ -688,6 +695,57 @@
 .bp svg * {
   vector-effect: non-scaling-stroke;
 }
+.bp-frame {
+  fill: var(--bp-body);
+  stroke: var(--bp-line);
+  stroke-width: 1px;
+  stroke-opacity: 0.7;
+}
+.bp-rail {
+  fill: none;
+  stroke: var(--bp-line);
+  stroke-width: 1px;
+  opacity: 0.55;
+}
+/* The rack's teeth: a fine dash beside each rail */
+.bp-rack-teeth {
+  fill: none;
+  stroke: var(--bp-line);
+  stroke-width: 1px;
+  stroke-dasharray: 1 2;
+  opacity: 0.45;
+}
+.bp-table {
+  fill: var(--bp-table);
+  stroke: none;
+}
+/* The acetal plate's vacuum grid: drawn inside a pattern, so its stroke is in mm and scales (a hairline at any size) */
+.bp-grid {
+  stroke: none;
+  opacity: 0.16;
+}
+.bp svg .bp-grid-line {
+  fill: none;
+  stroke: var(--bp-line);
+  stroke-width: 4;
+  vector-effect: none;
+}
+.bp-fit {
+  fill: var(--bp-body);
+  stroke: var(--bp-line);
+  stroke-width: 1px;
+  stroke-opacity: 0.7;
+}
+.bp-valve {
+  fill: none;
+  stroke: var(--bp-cut);
+  stroke-width: 1px;
+}
+.bp-beacon {
+  fill: none;
+  stroke: var(--bp-cut);
+  stroke-width: 1px;
+}
 .bp-bed {
   fill: none;
   stroke: var(--bp-line);
@@ -697,18 +755,12 @@
   fill: var(--bp-faint);
   stroke: none;
 }
+/* The T-slots between the zones (a pair of lines 20 mm apart) */
 .bp-seam {
   fill: none;
   stroke: var(--bp-line);
   stroke-width: 1px;
-  opacity: 0.4;
-}
-.bp-slot {
-  fill: none;
-  stroke: var(--bp-line);
-  stroke-width: 1px;
-  stroke-dasharray: 3 5;
-  opacity: 0.5;
+  opacity: 0.55;
 }
 .bp-person {
   fill: none;
@@ -733,22 +785,42 @@
   stroke-width: 1px;
   stroke-dasharray: 6 4;
 }
-.bp-beam {
-  fill: var(--bp-faint);
+.bp-beam,
+.bp-leg {
+  fill: var(--bp-solid);
   stroke: var(--bp-line);
   stroke-width: 1px;
 }
+.bp-motor,
+.bp-rack {
+  fill: var(--bp-solid);
+  stroke: var(--bp-line);
+  stroke-width: 1px;
+  stroke-opacity: 0.7;
+}
+.bp-chain {
+  fill: none;
+  stroke: var(--bp-line);
+  stroke-width: 1px;
+  opacity: 0.5;
+}
 .bp-carriage {
-  fill: color-mix(in oklab, var(--bp-cut) 22%, transparent);
+  fill: color-mix(in oklab, var(--bp-cut) 22%, var(--bp-solid));
   stroke: var(--bp-cut);
   stroke-width: 1.5px;
+}
+.bp-hood {
+  fill: none;
+  stroke: var(--bp-cut);
+  stroke-width: 1px;
+  stroke-dasharray: 4 3;
 }
 .bp-spindle {
   fill: var(--bp-cut);
   stroke: none;
 }
 .bp-tool {
-  fill: none;
+  fill: var(--bp-solid);
   stroke: var(--bp-line);
   stroke-width: 1px;
 }
@@ -757,31 +829,34 @@
   stroke: var(--bp-piece);
   stroke-width: 1.5px;
 }
-/* The track of the gantry and of the cut path: exactly the bed's length, so one translate crosses the bed */
+/*
+ * The tracks of the gantry and of the cut path, placed by the component (`--trk-at`, `--trk-len`): the cut path's is exactly the bed,
+ * the gantry's runs from where its back stands at the start to where its front stands at the end, so one translate crosses the bed
+ */
 .bp-track {
   position: absolute;
   pointer-events: none;
 }
 .bp[data-o="landscape"] .bp-track {
-  inset: 0 auto 0 5.8394%;
-  width: 88.3212%;
+  inset: 0 auto 0 var(--trk-at);
+  width: var(--trk-len);
 }
 .bp[data-o="portrait"] .bp-track {
-  inset: 5.8394% 0 auto 0;
-  height: 88.3212%;
+  inset: var(--trk-at) 0 auto 0;
+  height: var(--trk-len);
 }
 /* The track clips what travels inside it, so the moving layer never sticks out of the drawing */
 .bp-gantry-box {
   overflow: clip;
 }
-/* The gantry layer is as long as the bed. Base rule: it has crossed the bed (`--bp-rest`, 0 to 1, is how far) */
+/* The gantry layer is as long as its track. Base rule: it has crossed the bed (`--bp-rest`, 0 to 1, is how far) */
 .bp-gantry {
   position: absolute;
   inset: 0;
-  translate: calc((100% - var(--beam)) * var(--bp-rest, 1)) 0;
+  translate: calc((100% - var(--bp-gw)) * var(--bp-rest, 1)) 0;
 }
 .bp[data-o="portrait"] .bp-gantry {
-  translate: 0 calc((100% - var(--beam)) * var(--bp-rest, 1));
+  translate: 0 calc((100% - var(--bp-gw)) * var(--bp-rest, 1));
 }
 /* A wipe: this clip box and its child counter-translate, so the content stays still and a window opens over it */
 .bp-wipe {
@@ -823,7 +898,7 @@
 .bp[data-o="landscape"] .bp-label-wid .bp-br {
   display: block;
 }
-/* The 400 mm margin is 5.8% of the drawing: "2.100 mm" in one line needs about 72px of it, so a drawing narrower than about 1230px stacks it */
+/* The 150 mm beyond the line is 1.8% of the drawing: "2.100 mm" in one line needs about 72px of it, so a drawing narrower than about 1230px stacks it */
 @container bp (min-width: 1230px) {
   .bp[data-o="landscape"] .bp-label-wid .bp-br {
     display: none;
