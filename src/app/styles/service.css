@@ -184,6 +184,29 @@
   }
 }
 
+/* The machine's full data sheet, behind a disclosure under the four rows that matter */
+.spec-more summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  color: var(--fg);
+  list-style: none;
+  cursor: pointer;
+}
+.spec-more summary::-webkit-details-marker {
+  display: none;
+}
+.spec-more summary:hover {
+  color: var(--accent);
+}
+.spec-more-chevron {
+  transition: rotate 0.2s var(--ease-out);
+}
+.spec-more[open] .spec-more-chevron {
+  rotate: 180deg;
+}
+
 /* The film (when the slot has one): the bed's rectangle inside the drawing, from lg; below lg, and without motion, it follows the scene */
 .bed-film {
   display: none;

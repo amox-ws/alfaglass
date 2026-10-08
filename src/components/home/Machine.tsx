@@ -32,7 +32,7 @@ export function Machine({ lang, serviceHref, estimatorHref, film }: { lang: Lang
             <MaskedLines as="h2" id="machine-title" lines={[m.title.replace(" & ", "\u00a0& ")]} className="t-display mt-5" />
           </div>
           <Reveal className="lg:col-span-4 lg:col-start-9">
-            <p className="t-lead text-balance">{tie(`${m.promise} ${m.accuracy}`)}</p>
+            <p className="t-lead text-balance">{tie(`${m.promise} ${d.service.heroLead}`)}</p>
           </Reveal>
         </div>
 

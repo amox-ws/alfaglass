@@ -36,7 +36,7 @@ export function ServiceView({ lang }: { lang: Lang }) {
         lang={lang}
         crumbs={[{ label: d.nav.serviceLong }]}
         title={m.title}
-        lead={`${m.promise} ${m.accuracy}`}
+        lead={`${d.service.heroLead} ${m.promise}`}
         facts={m.eyebrow}
         media={slots.machineStill}
         fallback={<DimensionLine lang={lang} />}

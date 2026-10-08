@@ -144,7 +144,10 @@ export function Audience({ lang }: { lang: Lang }) {
   );
 }
 
-/** 06 The machine: its data sheet as an etched nameplate (the maker, its component makers and the price are never written). */
+/**
+ * 06 The machine, in brief: four rows that matter to the customer, and the full data sheet behind a disclosure for the professional who
+ * asks (the maker, its component makers and the price are never written).
+ */
 export function MachineSpec({ lang }: { lang: Lang }) {
   const d = t(lang);
   const s = d.service;
@@ -164,9 +167,18 @@ export function MachineSpec({ lang }: { lang: Lang }) {
         </div>
         <div className="lg:col-span-7 lg:col-start-6">
           <div className="rise">
-            <SpecPlate layout="list" label={s.machineLabel} items={d.machine.spec.map((r) => ({ label: r.term, value: r.value }))} />
+            <SpecPlate layout="list" label={s.machineTitle} items={d.machine.keySpec.map((r) => ({ label: r.term, value: r.value }))} />
           </div>
-          <p className="t-label mt-6 text-fg-muted">{d.machine.makerNote}</p>
+          <details className="spec-more mt-6">
+            <summary className="t-label">
+              {s.allSpec}
+              <span aria-hidden className="spec-more-chevron">
+                ↓
+              </span>
+            </summary>
+            <SpecPlate layout="list" label={s.machineLabel} className="mt-6" items={d.machine.spec.map((r) => ({ label: r.term, value: r.value }))} />
+            <p className="t-label mt-6 text-fg-muted">{d.machine.makerNote}</p>
+          </details>
         </div>
       </div>
     </section>
