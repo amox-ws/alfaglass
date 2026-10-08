@@ -11,8 +11,8 @@ import { slots } from "@/lib/media-slots";
  *   0–20 %   you stand next to the person at human size and the drawing pulls back until the whole bed fits (`zoom-out`)
  *   20–45 %  the 8 vacuum zones light up one by one, the two dimension lines are drawn (`zones`, `wipe`)
  *   45–80 %  the gantry crosses the bed and the demo job appears behind the spindle (`sweep`, `wipe`)
- *   80–100 % five numbered pins appear on the drawing and the legend names them (from md; on a phone the same facts are in the
- *            machine's data sheet further down)
+ *   80–100 % five numbered pins appear on the drawing and the legend names them (on a phone the pins stand on the upright drawing
+ *            and the legend follows the scene as a list, so the pinned stage keeps its room for the drawing)
  * The base rule is the final frame: browsers without scroll timelines and visitors who prefer reduced motion see the finished drawing
  * and no empty scroll. Below md the bed stands upright (the gantry sweeps downwards).
  *
@@ -73,6 +73,19 @@ export function BedScene({ lang }: { lang: Lang }) {
             </div>
             <div className="bed-port">
               <MachineBlueprint lang={lang} variant="full" orientation="portrait" id="bp-port" className="bp-zoomable" />
+              {/* The same pins on the upright drawing: its axes are swapped (across the bed is x, along it is y) */}
+              <div aria-hidden className="bed-pins">
+                <svg className="bed-leaders" viewBox={`${BOX.v} ${BOX.u} ${BOX.h} ${BOX.w}`}>
+                  {PINS.map(
+                    (p, i) => p.to && <line key={i} x1={p.at.v} y1={p.at.u} x2={p.to.v} y2={p.to.u} style={{ "--i": i } as CSSProperties} className="bed-leader" />,
+                  )}
+                </svg>
+                {PINS.map((p, i) => (
+                  <span key={i} className="bed-pin t-label" style={{ left: pct(p.at.v, BOX.v, BOX.h), top: pct(p.at.u, BOX.u, BOX.w), "--i": i } as CSSProperties}>
+                    {i + 1}
+                  </span>
+                ))}
+              </div>
             </div>
           </div>
 
@@ -89,6 +102,21 @@ export function BedScene({ lang }: { lang: Lang }) {
           </ol>
         </div>
       </section>
+
+      {/* On a phone the legend follows the pinned scene: there it is a list that rises into view */}
+      <div data-theme="deep" className="bed-phone bg-surface">
+        <ol className="shell bed-list rise">
+          {s.callouts.map((c, i) => (
+            <li key={c.label}>
+              <span aria-hidden className="bed-no t-label">
+                {i + 1}
+              </span>
+              <p className="t-label text-fg-muted">{c.label}</p>
+              <p className="t-small">{c.value}</p>
+            </li>
+          ))}
+        </ol>
+      </div>
 
       {film && (
         <div data-theme="deep" className="bed-after bg-surface pb-section">

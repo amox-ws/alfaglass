@@ -603,7 +603,7 @@ export function MachineBlueprint({
 
       <div className="bp-labels">
         {/* 6.050 on the line along the bed, 2.100 on the line across it: on top and to the right in landscape, to the left and below in portrait */}
-        <span className="bp-label bp-label-len t-label" style={land ? { ...place(LEN / 2, DIM_V), top: place(0, DIM_V).top } : { top: "50%" }}>
+        <span className="bp-label bp-label-len t-label" style={land ? { ...place(LEN / 2, DIM_V), top: place(0, DIM_V).top } : { top: "50%", left: place(0, DIM_V).left }}>
           {formatNumber(LEN)}
           <br className="bp-br" /> <span className="unit">mm</span>
         </span>

@@ -207,6 +207,31 @@
   rotate: 180deg;
 }
 
+/* The legend on a phone: a list under the scene, one row per pin */
+.bed-phone {
+  padding-bottom: 3rem;
+}
+.bed-list {
+  display: grid;
+  gap: 1.25rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line);
+}
+.bed-list li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  column-gap: 0.75rem;
+  align-content: start;
+}
+.bed-list .bed-no {
+  grid-row: span 2;
+}
+@media (min-width: 48rem) {
+  .bed-phone {
+    display: none;
+  }
+}
+
 /* The film (when the slot has one): the bed's rectangle inside the drawing, from lg; below lg, and without motion, it follows the scene */
 .bed-film {
   display: none;
@@ -355,7 +380,7 @@
     /* 80–100 %: the pins appear one after another, and the legend names them */
     .bed-pin,
     .bed-leader,
-    .bed-legend li {
+    .bed .bed-legend li {
       animation: bed-fade linear both;
       animation-timeline: --bed;
       animation-range-start: contain calc(80% + var(--i) * 3%);

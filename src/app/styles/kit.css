@@ -675,9 +675,10 @@
 .bp-zoomable {
   --z0: 2.6;
 }
+/* A phone starts from the whole machine: zoomed in on its small upright drawing, the first frames showed a corner nobody could place */
 @media (max-width: 47.99rem) {
   .bp-zoomable {
-    --z0: 1.8;
+    --z0: 1;
   }
 }
 .bp-layer {
@@ -945,12 +946,11 @@
     display: none;
   }
 }
+/* Upright, "6.050 mm" stands on its dimension line, read from below like a drawing's dimension, so it never covers the frame */
 .bp[data-o="portrait"] .bp-label-len {
-  left: 0;
-  transform: translateY(-50%);
-}
-.bp[data-o="portrait"] .bp-label-len .bp-br {
-  display: block;
+  writing-mode: vertical-rl;
+  padding: 6px 1px;
+  transform: translate(-50%, -50%) rotate(180deg);
 }
 .bp-label-person {
   max-width: 50%;
@@ -972,6 +972,17 @@
 .bp[data-o="portrait"] .bp-label-schematic {
   top: 0;
   bottom: auto;
+}
+/*
+ * A band drawing on a phone is about 360px wide: the words for the person, the schematic and "2.100 mm" fell on the lines. It keeps
+ * only the length on its dimension line; the person's words are in the page around it.
+ */
+@container bp (max-width: 40rem) {
+  [data-variant="band"] .bp-label-person,
+  [data-variant="band"] .bp-label-schematic,
+  [data-variant="band"] .bp-label-wid {
+    display: none;
+  }
 }
 .bp-anchors {
   position: absolute;

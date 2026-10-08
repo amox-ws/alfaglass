@@ -1,6 +1,6 @@
 import { MediaSlot } from "@/components/kit/MediaSlot";
 import { Units } from "@/components/kit/Units";
-import { ArrowLink, Eyebrow } from "@/components/ui";
+import { ArrowLink, Eyebrow, Reveal } from "@/components/ui";
 import { mediaSize } from "@/lib/media";
 import { slots } from "@/lib/media-slots";
 import { t, type Lang } from "@/lib/i18n";
@@ -12,7 +12,8 @@ const SIDES = ["top", "bottom", "left", "right"] as const;
  * (four night shutters slide away and the photograph settles), the numeral "13.000" rises, and a clear pane of glass climbs over the
  * right third with the text and the link. Driven by a CSS scroll timeline (home.css, "the warehouse") using only transform and
  * opacity, so the browser runs it off the main thread. Without scroll timelines, or with reduced motion, the scene shows its final
- * frame: one screen with everything in it.
+ * frame: one screen with everything in it. On a phone the scene is not pinned: it plays once, on its own clock, when it scrolls into
+ * view (`Reveal` arms the stage; home.css, "the warehouse on a phone").
  *
  * The photograph is the `warehouse` slot (`media-slots.ts`): a still today, an interior loop later, by changing one line of data. It sits
  * below the fold, so it loads lazily, and is never wider than its file.
@@ -27,7 +28,7 @@ export function Warehouse({ lang, facilitiesHref }: { lang: Lang; facilitiesHref
       {/* Where day ends: a hairline of glass edge along the top of the chapter */}
       <div aria-hidden className="whs-edge" />
       <div className="whs-track">
-        <div className="whs-stage grain">
+        <Reveal className="whs-stage grain">
           <div className="whs-zoom" style={size ? { maxWidth: size.w } : undefined}>
             <MediaSlot slot={slots.warehouse} ratio="4 / 3" fill sizes="100vw" alt={h.warehouseAlt} lang={lang} />
           </div>
@@ -68,7 +69,7 @@ export function Warehouse({ lang, facilitiesHref }: { lang: Lang; facilitiesHref
               </div>
             </div>
           </div>
-        </div>
+        </Reveal>
       </div>
     </section>
   );
