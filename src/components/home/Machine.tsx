@@ -1,8 +1,8 @@
 import Link from "next/link";
-import { MachineBlueprint } from "@/components/kit/MachineBlueprint";
 import { PillArrow } from "@/components/kit/PillArrow";
 import { Units } from "@/components/kit/Units";
 import { Eyebrow, MaskedLines, Reveal } from "@/components/ui";
+import { CutDetail } from "./CutDetail";
 import { t, type Lang } from "@/lib/i18n";
 
 /** A number never parts from its unit, nor the "×" from its numbers: "2,1 × 6,05 m" is one word to the line breaker. */
@@ -11,12 +11,11 @@ const tie = (text: string) =>
 
 /**
  * The second pillar on the home page, in one screen: ALFA GLASS now cuts, how big, and where to ask. A blueprint chapter (`deep`: white
- * and edge-cyan lines on the wordmark's indigo, not a night chapter): the working table of the CNC router drawn to scale across the
- * whole shell, with the person at the bed and both dimensions. As the drawing scrolls into view the gantry crosses the bed once and the
- * cut path appears behind it (home.css, "the machine": a scroll timeline over transform only); the drawing itself is the finished state.
+ * and edge-cyan lines on the wordmark's indigo, not a night chapter): a close-up of one part of the demo job, the round sign, which the
+ * spindle engraves, cuts and lifts out of the sheet once when it comes into view (`CutDetail`). It is the trailer: the service page
+ * tells the whole machine's story, and "Δείτε πώς κόβεται" leads to it.
  *
- * Inline SVG, no image request and no client JavaScript. The drawing is the visual for good (no render, no supplier picture, no stock
- * photo); once the machine's film exists (`slots.machineFilm.loop`), a link to the service page's scene appears after the actions, and
+ * Inline SVG, no image request. The drawing is the visual for good (no render, no supplier picture, no stock photo); once the machine's film exists (`slots.machineFilm.loop`), a link to the service page's scene appears after the actions, and
  * the home page never plays the film itself.
  */
 export function Machine({ lang, serviceHref, estimatorHref, film }: { lang: Lang; serviceHref: string; estimatorHref: string; film: boolean }) {
@@ -37,7 +36,7 @@ export function Machine({ lang, serviceHref, estimatorHref, film }: { lang: Lang
         </div>
 
         <div className="mach-drawing mt-10 md:mt-12">
-          <MachineBlueprint lang={lang} variant="band" />
+          <CutDetail lang={lang} />
         </div>
 
         <div className="mt-10 grid gap-10 lg:grid-cols-12 lg:gap-8">
@@ -55,6 +54,9 @@ export function Machine({ lang, serviceHref, estimatorHref, film }: { lang: Lang
             <Link href={serviceHref} className="btn-pill btn-pill-dark w-full sm:w-auto">
               {m.serviceLink}
               <PillArrow />
+            </Link>
+            <Link href={`${serviceHref}#bed-title`} className="text-link gap-2 font-semibold">
+              {d.home.cutLink} <span aria-hidden>→</span>
             </Link>
             <Link href={estimatorHref} className="text-link gap-2 font-semibold">
               {d.nav.estimator} <span aria-hidden>→</span>

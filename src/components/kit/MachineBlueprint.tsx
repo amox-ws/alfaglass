@@ -130,7 +130,7 @@ function geometry(o: Orientation) {
   return { land, x, y, pt, rect, vb };
 }
 
-type Job = { parts: string; engrave: string; pocket: string };
+type Job = { parts: string; engrave: string; pocket: string; context: { parts: string; engrave: string; pocket: string } };
 
 /** The demo job as three paths in the drawing's coordinates: the parts with their holes (even-odd), the engraving, the pockets. */
 function job(o: Orientation): Job {
@@ -170,14 +170,17 @@ function job(o: Orientation): Job {
   pocket.push(rounded(130, 1885, 1330, 30, 6));
 
   // the round sign: Ø 1.900, four Ø 28 fixing holes, an engraved ring and rosette, a pocketed centre
-  const S = { u: 2580, v: 1050, r: 950 };
+  const S = JOB_SIGN;
   const pol = (r: number, deg: number): [number, number] => [S.u + r * Math.cos((deg * Math.PI) / 180), S.v + r * Math.sin((deg * Math.PI) / 180)];
+  const signAt = parts.length;
   parts.push(circle(S.u, S.v, S.r) + [45, 135, 225, 315].map((d) => circle(...pol(915, d), 14)).join(""));
+  const signEngraveAt = engrave.length;
   engrave.push(circle(S.u, S.v, 880), circle(S.u, S.v, 230));
   const petal = (deg: number, r0: number, r1: number, spread: number) =>
     `M${P(...pol(r0, deg))}C${P(...pol(r0 + (r1 - r0) * 0.35, deg - spread))} ${P(...pol(r0 + (r1 - r0) * 0.85, deg - spread * 0.7))} ${P(...pol(r1, deg))}` +
     `C${P(...pol(r0 + (r1 - r0) * 0.85, deg + spread * 0.7))} ${P(...pol(r0 + (r1 - r0) * 0.35, deg + spread))} ${P(...pol(r0, deg))}Z`;
   for (let i = 0; i < 12; i++) engrave.push(petal(i * 30, 240, 820, 13), petal(i * 30 + 15, 240, 540, 9));
+  const signEngraveEnd = engrave.length;
   pocket.push(circle(S.u, S.v, 170));
 
   // the screen panel 1.400 × 1.940, perforated with hexagons that shrink along the bed (Ø 200 to Ø 70)
@@ -210,7 +213,24 @@ function job(o: Orientation): Job {
     engrave.push(arch(5100, 5570, va + 70, vb - 70));
   }
 
-  return { parts: parts.join(""), engrave: engrave.join(""), pocket: pocket.join("") };
+  return {
+    parts: parts.join(""),
+    engrave: engrave.join(""),
+    pocket: pocket.join(""),
+    // everything but the round sign: the neighbours of the sign in the home page's close-up
+    context: {
+      parts: parts.filter((_, i) => i !== signAt).join(""),
+      engrave: engrave.filter((_, i) => i < signEngraveAt || i >= signEngraveEnd).join(""),
+      pocket: pocket[0],
+    },
+  };
+}
+
+/** The round sign of the demo job (mm, along and across the bed): the home page's close-up is centred on it. */
+export const JOB_SIGN = { u: 2580, v: 1050, r: 950 };
+/** The demo job's other parts and the sheet, flat (landscape), for the close-up's background. */
+export function jobContext() {
+  return { ...job("landscape").context, sheet: SHEET };
 }
 
 /** The cut path: what the spindle leaves in the sheet. */

@@ -191,6 +191,10 @@ const el = {
     warehouseFacts: ["1999 · Ίδρυση", "2021 · +4.000 τ.μ.", "Ιδιόκτητα φορτηγά"],
     // Appears beside the machine only once its film exists
     watchCut: "Δείτε τη μηχανή να κόβει",
+    cutEngrave: "Χάραξη · ±0,05 mm",
+    cutLink: "Δείτε πώς κόβεται",
+    cutAgain: "Ξανά",
+    cutLabel: "Κοντινό σχέδιο: μια στρογγυλή πινακίδα Ø 1.900 mm πάνω σε φύλλο ακρυλικού, με χαραγμένη ροζέτα, που κόβεται και σηκώνεται από το φύλλο.",
   },
   company: {
     lead: "Από το 1999, η ALFA GLASS εισάγει και εμπορεύεται υαλοπίνακες και πλαστικά φύλλα, σε πολύ μεγάλη γκάμα ειδών.",
@@ -718,6 +722,10 @@ const en: Dict = {
     warehouseTitle: "square metres of owned premises",
     warehouseFacts: ["1999 · Founded", "2021 · +4,000 m²", "Own trucks"],
     watchCut: "Watch the machine cut",
+    cutEngrave: "Engraving · ±0.05 mm",
+    cutLink: "See how it is cut",
+    cutAgain: "Play again",
+    cutLabel: "Close-up drawing: a round sign Ø 1,900 mm on an acrylic sheet, with an engraved rosette, cut out and lifted from the sheet.",
   },
   company: {
     lead: "Since 1999, ALFA GLASS S.A. has imported and traded architectural glass and plastic sheets, keeping a very wide range of products and sizes in stock, together with the materials that accompany them.",
