@@ -305,7 +305,19 @@
       animation-range: contain 45% contain 80%;
     }
 
-    /* 80–92 %: the cut parts rise out of the sheet */
+    /* 40–46 %: the sheet is laid on the lit table */
+    .bed .bp-sheet-layer {
+      animation: sheet-in linear both;
+      animation-timeline: --bed;
+      animation-range: contain 40% contain 46%;
+    }
+
+    /* 80–92 %: the cut parts rise out of the sheet, and the cuts they leave fade to a kerf */
+    .bed .bp-cuts {
+      animation: cut-fade linear both;
+      animation-timeline: --bed;
+      animation-range: contain 80% contain 92%;
+    }
     .bed .bp-lift {
       animation: lift linear both;
       animation-timeline: --bed;

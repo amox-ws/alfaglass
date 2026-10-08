@@ -646,7 +646,7 @@
   --bp-table: color-mix(in oklab, var(--surface) 78%, black);
   --bp-solid: color-mix(in oklab, var(--surface) 86%, white);
   /* The acrylic sheet: a cool tint of the edge colour, a white sheen; a risen part is the sheet's colour made opaque */
-  --bp-sheet: color-mix(in oklab, var(--edge) 9%, transparent);
+  --bp-sheet: color-mix(in oklab, color-mix(in oklab, var(--edge) 12%, var(--bp-table)) 90%, transparent);
   --bp-sheen: white;
   --bp-part: color-mix(in oklab, var(--edge) 16%, var(--bp-table));
   /* How long the gantry is of its track: set by the component (690 of the 6.740 mm it travels in) */
@@ -665,7 +665,7 @@
   --bp-body: color-mix(in oklab, var(--fg) 3%, transparent);
   --bp-table: color-mix(in oklab, var(--surface) 90%, var(--fg));
   --bp-solid: var(--surface);
-  --bp-sheet: color-mix(in oklab, var(--edge-deep) 8%, transparent);
+  --bp-sheet: color-mix(in oklab, color-mix(in oklab, var(--edge-deep) 8%, var(--bp-table)) 90%, transparent);
   --bp-part: color-mix(in oklab, var(--edge-deep) 12%, var(--surface));
 }
 .bp[data-o="portrait"] {
@@ -805,6 +805,10 @@
 }
 .bp-sheen {
   stroke: none;
+}
+/* Once the parts have risen, the cut in the sheet is only a faint kerf round their shadow (base rule; the lanes attach `cut-fade`) */
+.bp-cuts {
+  opacity: 0.2;
 }
 /* A part risen out of the sheet, and the shadow it leaves where it was cut */
 .bp-part {

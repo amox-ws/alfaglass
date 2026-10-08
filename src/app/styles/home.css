@@ -489,6 +489,12 @@
     opacity: 0;
   }
 }
+@keyframes mach-cut-fade {
+  0%,
+  80% {
+    opacity: 1;
+  }
+}
 .mach-facts li {
   padding-block: 0.875rem;
   border-top: 1px solid var(--line);
@@ -806,6 +812,11 @@
     }
     .mach-drawing .bp-lift {
       animation: mach-lift linear forwards;
+      animation-timeline: --mach;
+      animation-range: entry 0% cover 70%;
+    }
+    .mach-drawing .bp-cuts {
+      animation: mach-cut-fade linear forwards;
       animation-timeline: --mach;
       animation-range: entry 0% cover 70%;
     }

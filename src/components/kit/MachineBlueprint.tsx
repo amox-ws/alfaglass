@@ -104,8 +104,9 @@ export type BlueprintAnchor = keyof typeof BLUEPRINT_ANCHORS;
 /**
  * The demo job, no letters and no logos: one whole acrylic sheet on the vacuum table and a nesting of real shop work cut out of it,
  * packed with a 25 mm web between the parts. From the start of the bed: a display stand (two curved sides with slots, three shelves,
- * a base strip with a pocket for an edge-lit panel, fifteen drilled stand-off discs), a round sign Ø 1.900 with an engraved rosette, a
- * screen panel perforated with hexagons that shrink along the bed, and two arched panels with an engraved inner frame.
+ * a base strip with a pocket for an edge-lit panel, six drilled stand-off discs), a round sign Ø 1.900 with an engraved rosette, a
+ * screen panel perforated with hexagons that shrink along the bed, and two arched panels with an engraved inner frame. The last
+ * 380 mm of the sheet are left as an offcut: the gantry parks over them at the end of the job.
  */
 const SHEET = { u: 25, v: 35, w: 6000, h: 2030 };
 /** How far a cut part rises out of the sheet at the end of the scene, in plan: up and to the left, its shadow stays below. */
@@ -160,13 +161,10 @@ function job(o: Orientation): Job {
     return `M${P(...a0)}L${slots.map((q) => P(...q)).join("L")}L${P(...a1)}L${P(...c0)}C${P(...c1)} ${P(...c2)} ${P(...c3)}Z`;
   };
   parts.push(side(70, 500, 1), side(70, 530, -1));
-  // three shelves 1.000 × 240, a 20 × 100 notch in each end that locks into the sides' slots
-  for (const v of [980, 1250, 1520]) {
-    const m = v + 120;
-    parts.push(poly([[70, v], [1070, v], [1070, m - 10], [970, m - 10], [970, m + 10], [1070, m + 10], [1070, v + 240], [70, v + 240], [70, m + 10], [170, m + 10], [170, m - 10], [70, m - 10]]));
-  }
-  // fifteen stand-off discs Ø 110 with a Ø 16 hole
-  for (const cu of [1170, 1300, 1430]) for (const cv of [1040, 1180, 1320, 1460, 1600]) parts.push(circle(cu, cv, 55) + circle(cu, cv, 8));
+  // three shelves 1.000 × 240 with rounded front corners
+  for (const v of [980, 1250, 1520]) parts.push(rounded(70, v, 1000, 240, 40));
+  // six stand-off discs Ø 180 with a Ø 24 hole
+  for (const cu of [1200, 1405]) for (const cv of [1085, 1330, 1575]) parts.push(circle(cu, cv, 90) + circle(cu, cv, 12));
   // the base strip with the pocket that holds an edge-lit panel
   parts.push(rounded(70, 1800, 1450, 200, 30));
   pocket.push(rounded(130, 1885, 1330, 30, 6));
@@ -182,22 +180,22 @@ function job(o: Orientation): Job {
   for (let i = 0; i < 12; i++) engrave.push(petal(i * 30, 240, 820, 13), petal(i * 30 + 15, 240, 540, 9));
   pocket.push(circle(S.u, S.v, 170));
 
-  // the screen panel 1.500 × 1.940, perforated with hexagons that shrink along the bed (Ø 156 to Ø 44)
-  const H = { u: 3580, v: 80, w: 1500, h: 1940 };
+  // the screen panel 1.400 × 1.940, perforated with hexagons that shrink along the bed (Ø 200 to Ø 70)
+  const H = { u: 3580, v: 80, w: 1400, h: 1940 };
   let screen = rounded(H.u, H.v, H.w, H.h, 80);
-  const pitch = 165;
+  const pitch = 235;
   const row = (pitch * Math.sqrt(3)) / 2;
   for (let j = 0; H.v + 150 + j * row <= H.v + H.h - 150; j++) {
     const cv = H.v + 150 + j * row;
     for (let cu = H.u + 150 + (j % 2) * (pitch / 2); cu <= H.u + H.w - 150; cu += pitch) {
       const t = (cu - H.u - 150) / (H.w - 300);
-      const r = (78 - 56 * t) * (0.88 + 0.12 * Math.cos(((cv - 1050) / 970) * Math.PI));
+      const r = (100 - 65 * t) * (0.88 + 0.12 * Math.cos(((cv - 1050) / 970) * Math.PI));
       screen += poly(Array.from({ length: 6 }, (_, k) => [cu + r * Math.cos((k * Math.PI) / 3), cv + r * Math.sin((k * Math.PI) / 3)] as [number, number]));
     }
   }
   parts.push(screen);
 
-  // two arched panels 860 × 940, their tips towards the end of the bed, an engraved frame 70 mm inside
+  // two arched panels 610 × 940, their tips towards the end of the bed, an engraved frame 70 mm inside
   const arch = (ub: number, ut: number, va: number, vb: number) => {
     const vc = (va + vb) / 2;
     const r = (vb - va) / 2;
@@ -208,8 +206,8 @@ function job(o: Orientation): Job {
     );
   };
   for (const [va, vb] of [[80, 1020], [1080, 2020]]) {
-    parts.push(arch(5130, 5990, va, vb));
-    engrave.push(arch(5200, 5920, va + 70, vb - 70));
+    parts.push(arch(5030, 5640, va, vb));
+    engrave.push(arch(5100, 5570, va + 70, vb - 70));
   }
 
   return { parts: parts.join(""), engrave: engrave.join(""), pocket: pocket.join("") };
@@ -218,11 +216,11 @@ function job(o: Orientation): Job {
 /** The cut path: what the spindle leaves in the sheet. */
 function cutPath(j: Job) {
   return (
-    <>
+    <g className="bp-cuts">
       <path className="bp-pocket" d={j.pocket} />
       <path className="bp-engrave" d={j.engrave} />
       <path className="bp-cut" d={j.parts} />
-    </>
+    </g>
   );
 }
 
@@ -536,9 +534,13 @@ export function MachineBlueprint({
           {fittings(o)}
           {table(o, id)}
           {bedRect}
-          {sheet(o, id)}
           {person(o)}
           {p?.el}
+        </svg>
+
+        {/* The sheet is laid on the table once the zones are lit: its own layer, so only its opacity moves */}
+        <svg className="bp-layer bp-sheet-layer" viewBox={viewBox} aria-hidden>
+          {sheet(o, id)}
         </svg>
 
         <div className="bp-layer bp-wipe bp-dims" aria-hidden>
